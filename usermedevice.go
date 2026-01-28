@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/stainless-sdks/jocall3-go/internal/apiquery"
-	"github.com/stainless-sdks/jocall3-go/internal/param"
-	"github.com/stainless-sdks/jocall3-go/internal/requestconfig"
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 // UserMeDeviceService contains methods and other services that help with

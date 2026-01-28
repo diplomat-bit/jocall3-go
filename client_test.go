@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/jocall3-go"
-	"github.com/stainless-sdks/jocall3-go/internal"
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go"
+	"github.com/diplomat-bit/jocall3-go/internal"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 type closureTransport struct {

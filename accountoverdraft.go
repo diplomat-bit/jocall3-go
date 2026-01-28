@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/stainless-sdks/jocall3-go/internal/apijson"
-	"github.com/stainless-sdks/jocall3-go/internal/requestconfig"
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 // AccountOverdraftService contains methods and other services that help with

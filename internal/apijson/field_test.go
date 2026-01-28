@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 )
 
 type Struct struct {

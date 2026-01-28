@@ -8,8 +8,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/stainless-sdks/jocall3-go/internal/requestconfig"
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with

@@ -3,7 +3,7 @@
 package githubcomjocall3go
 
 import (
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 // Web3TransactionService contains methods and other services that help with
