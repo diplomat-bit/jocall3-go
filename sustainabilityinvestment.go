@@ -3,12 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -29,36 +23,4 @@ func NewSustainabilityInvestmentService(opts ...option.RequestOption) (r *Sustai
 	r = &SustainabilityInvestmentService{}
 	r.Options = opts
 	return
-}
-
-// Provides an AI-driven analysis of the Environmental, Social, and Governance
-// (ESG) impact of the user's entire investment portfolio, benchmarking against
-// industry standards and suggesting more sustainable alternatives.
-func (r *SustainabilityInvestmentService) AnalyzeImpact(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityInvestmentAnalyzeImpactResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "sustainability/investments/impact"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type SustainabilityInvestmentAnalyzeImpactResponse struct {
-	// Breakdown of the portfolio's ESG score by individual factors.
-	BreakdownByEsgFactors interface{}                                       `json:"breakdownByESGFactors,required"`
-	JSON                  sustainabilityInvestmentAnalyzeImpactResponseJSON `json:"-"`
-}
-
-// sustainabilityInvestmentAnalyzeImpactResponseJSON contains the JSON metadata for
-// the struct [SustainabilityInvestmentAnalyzeImpactResponse]
-type sustainabilityInvestmentAnalyzeImpactResponseJSON struct {
-	BreakdownByEsgFactors apijson.Field
-	raw                   string
-	ExtraFields           map[string]apijson.Field
-}
-
-func (r *SustainabilityInvestmentAnalyzeImpactResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r sustainabilityInvestmentAnalyzeImpactResponseJSON) RawJSON() string {
-	return r.raw
 }

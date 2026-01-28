@@ -29,12 +29,15 @@ type Client struct {
 	Sustainability *SustainabilityService
 }
 
-// DefaultClientOptions read from the environment (GEMINI_API_KEY,
+// DefaultClientOptions read from the environment (JOCALL3_API_KEY, GEMINI_API_KEY,
 // JOCALL3_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
 	defaults := []option.RequestOption{option.WithEnvironmentProduction()}
 	if o, ok := os.LookupEnv("JOCALL3_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
+	}
+	if o, ok := os.LookupEnv("JOCALL3_API_KEY"); ok {
+		defaults = append(defaults, option.WithAPIKey(o))
 	}
 	if o, ok := os.LookupEnv("GEMINI_API_KEY"); ok {
 		defaults = append(defaults, option.WithGeminiAPIKey(o))
@@ -43,9 +46,9 @@ func DefaultClientOptions() []option.RequestOption {
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (GEMINI_API_KEY, JOCALL3_BASE_URL). The option passed in as
-// arguments are applied after these default arguments, and all option will be
-// passed down to the services and requests that this client makes.
+// environment (JOCALL3_API_KEY, GEMINI_API_KEY, JOCALL3_BASE_URL). The option
+// passed in as arguments are applied after these default arguments, and all option
+// will be passed down to the services and requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r *Client) {
 	opts = append(DefaultClientOptions(), opts...)
 

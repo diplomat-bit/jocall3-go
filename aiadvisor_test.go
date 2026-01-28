@@ -24,7 +24,6 @@ func TestAIAdvisorChatWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.AI.Advisor.Chat(context.TODO(), githubcomjocall3go.AIAdvisorChatParams{
 		FunctionResponse: githubcomjocall3go.F[any](map[string]interface{}{}),
@@ -49,7 +48,6 @@ func TestAIAdvisorHistoryWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.AI.Advisor.History(context.TODO(), githubcomjocall3go.AIAdvisorHistoryParams{
 		Limit:     githubcomjocall3go.F(int64(0)),

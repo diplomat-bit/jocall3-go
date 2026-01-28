@@ -3,14 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"net/url"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,31 +23,4 @@ func NewWeb3NFTService(opts ...option.RequestOption) (r *Web3NFTService) {
 	r = &Web3NFTService{}
 	r.Options = opts
 	return
-}
-
-// Fetches a comprehensive list of Non-Fungible Tokens (NFTs) owned by the user
-// across all connected wallets and supported blockchain networks, including
-// metadata and market values.
-func (r *Web3NFTService) List(ctx context.Context, query Web3NFTListParams, opts ...option.RequestOption) (res *Web3NFTListResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "web3/nfts"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
-}
-
-type Web3NFTListResponse = interface{}
-
-type Web3NFTListParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-}
-
-// URLQuery serializes [Web3NFTListParams]'s query parameters as `url.Values`.
-func (r Web3NFTListParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
 }

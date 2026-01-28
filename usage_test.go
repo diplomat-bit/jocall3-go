@@ -22,13 +22,17 @@ func TestUsage(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	t.Skip("Prism tests are disabled")
-	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
+	response, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("executive@corp.com"),
+		Name:     githubcomjocall3go.F("Alice Wonderland"),
+		Password: githubcomjocall3go.F("ComplexPassword99!"),
+		Phone:    githubcomjocall3go.F("+1-555-0199"),
+	})
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", response)
+	t.Logf("%+v\n", response.ID)
 }

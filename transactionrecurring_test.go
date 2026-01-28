@@ -24,7 +24,6 @@ func TestTransactionRecurringListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.Recurring.List(context.TODO(), githubcomjocall3go.TransactionRecurringListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
