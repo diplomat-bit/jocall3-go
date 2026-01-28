@@ -27,7 +27,10 @@ func TestUserLogin(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{})
+	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{
+		Email:    githubcomjocall3go.F("quantum.visionary@demobank.com"),
+		Password: githubcomjocall3go.F("YourSecurePassword123"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -52,7 +55,17 @@ func TestUserRegisterWithOptionalParams(t *testing.T) {
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
+		Email:    githubcomjocall3go.F("alice.w@example.com"),
+		Name:     githubcomjocall3go.F("Alice Wonderland"),
+		Password: githubcomjocall3go.F("SecureP@ssw0rd2024!"),
+		Address: githubcomjocall3go.F(githubcomjocall3go.UserRegisterParamsAddress{
+			City:    githubcomjocall3go.F("city"),
+			Country: githubcomjocall3go.F("country"),
+			State:   githubcomjocall3go.F("state"),
+			Street:  githubcomjocall3go.F("street"),
+			Zip:     githubcomjocall3go.F("zip"),
+		}),
+		Phone: githubcomjocall3go.F("+1-555-987-6543"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

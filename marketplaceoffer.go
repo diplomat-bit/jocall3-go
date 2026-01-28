@@ -3,14 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,26 +23,4 @@ func NewMarketplaceOfferService(opts ...option.RequestOption) (r *MarketplaceOff
 	r = &MarketplaceOfferService{}
 	r.Options = opts
 	return
-}
-
-// Redeems a personalized, exclusive offer from the Plato AI marketplace, often
-// resulting in a discount, special rate, or credit to the user's account.
-func (r *MarketplaceOfferService) Redeem(ctx context.Context, offerID string, body MarketplaceOfferRedeemParams, opts ...option.RequestOption) (res *MarketplaceOfferRedeemResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if offerID == "" {
-		err = errors.New("missing required offerId parameter")
-		return
-	}
-	path := fmt.Sprintf("marketplace/offers/%s/redeem", offerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-type MarketplaceOfferRedeemResponse = interface{}
-
-type MarketplaceOfferRedeemParams struct {
-}
-
-func (r MarketplaceOfferRedeemParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }

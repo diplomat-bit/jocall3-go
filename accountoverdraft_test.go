@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAccountOverdraftUpdate(t *testing.T) {
+func TestAccountOverdraftUpdateWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -30,7 +30,11 @@ func TestAccountOverdraftUpdate(t *testing.T) {
 	_, err := client.Accounts.Overdraft.Update(
 		context.TODO(),
 		"acc_chase_checking_4567",
-		githubcomjocall3go.AccountOverdraftUpdateParams{},
+		githubcomjocall3go.AccountOverdraftUpdateParams{
+			Enabled:       githubcomjocall3go.F(false),
+			FeePreference: githubcomjocall3go.F("decline_if_over_limit"),
+			LinkToSavings: githubcomjocall3go.F(false),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

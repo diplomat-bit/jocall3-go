@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
@@ -43,7 +45,69 @@ func (r *UserMeDeviceService) List(ctx context.Context, query UserMeDeviceListPa
 	return
 }
 
-type UserMeDeviceListResponse = interface{}
+type UserMeDeviceListResponse struct {
+	Data       []UserMeDeviceListResponseData `json:"data,required"`
+	Limit      int64                          `json:"limit,required"`
+	Offset     int64                          `json:"offset,required"`
+	Total      int64                          `json:"total,required"`
+	NextOffset int64                          `json:"nextOffset"`
+	JSON       userMeDeviceListResponseJSON   `json:"-"`
+}
+
+// userMeDeviceListResponseJSON contains the JSON metadata for the struct
+// [UserMeDeviceListResponse]
+type userMeDeviceListResponseJSON struct {
+	Data        apijson.Field
+	Limit       apijson.Field
+	Offset      apijson.Field
+	Total       apijson.Field
+	NextOffset  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserMeDeviceListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeDeviceListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type UserMeDeviceListResponseData struct {
+	ID         string                           `json:"id"`
+	IPAddress  string                           `json:"ipAddress"`
+	LastActive time.Time                        `json:"lastActive" format:"date-time"`
+	Model      string                           `json:"model"`
+	Os         string                           `json:"os"`
+	PushToken  string                           `json:"pushToken"`
+	TrustLevel string                           `json:"trustLevel"`
+	Type       string                           `json:"type"`
+	JSON       userMeDeviceListResponseDataJSON `json:"-"`
+}
+
+// userMeDeviceListResponseDataJSON contains the JSON metadata for the struct
+// [UserMeDeviceListResponseData]
+type userMeDeviceListResponseDataJSON struct {
+	ID          apijson.Field
+	IPAddress   apijson.Field
+	LastActive  apijson.Field
+	Model       apijson.Field
+	Os          apijson.Field
+	PushToken   apijson.Field
+	TrustLevel  apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserMeDeviceListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeDeviceListResponseDataJSON) RawJSON() string {
+	return r.raw
+}
 
 type UserMeDeviceListParams struct {
 	// Maximum number of items to return in a single page.
