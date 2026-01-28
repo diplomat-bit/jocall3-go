@@ -304,7 +304,23 @@ Methods:
 
 # Marketplace
 
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceListProductsResponse">MarketplaceListProductsResponse</a>
+
+Methods:
+
+- <code title="get /marketplace/products">client.Marketplace.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceService.ListProducts">ListProducts</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceListProductsParams">MarketplaceListProductsParams</a>) (\*<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceListProductsResponse">MarketplaceListProductsResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 ## Offers
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceOfferRedeemResponse">MarketplaceOfferRedeemResponse</a>
+
+Methods:
+
+- <code title="post /marketplace/offers/{offerId}/redeem">client.Marketplace.Offers.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceOfferService.Redeem">Redeem</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, offerID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceOfferRedeemParams">MarketplaceOfferRedeemParams</a>) (\*<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go">githubcomjocall3go</a>.<a href="https://pkg.go.dev/github.com/diplomat-bit/jocall3-go#MarketplaceOfferRedeemResponse">MarketplaceOfferRedeemResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Lending
 
