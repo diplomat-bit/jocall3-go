@@ -78,10 +78,7 @@ func TestAccountLink(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{
-		CountryCode:     githubcomjocall3go.F("US"),
-		InstitutionName: githubcomjocall3go.F("Bank of America"),
-	})
+	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

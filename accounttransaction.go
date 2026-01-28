@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
-	"time"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
@@ -50,77 +48,7 @@ func (r *AccountTransactionService) ListPending(ctx context.Context, accountID s
 	return
 }
 
-type AccountTransactionListPendingResponse struct {
-	Data       []AccountTransactionListPendingResponseData `json:"data,required"`
-	Limit      int64                                       `json:"limit,required"`
-	Offset     int64                                       `json:"offset,required"`
-	Total      int64                                       `json:"total,required"`
-	NextOffset int64                                       `json:"nextOffset"`
-	JSON       accountTransactionListPendingResponseJSON   `json:"-"`
-}
-
-// accountTransactionListPendingResponseJSON contains the JSON metadata for the
-// struct [AccountTransactionListPendingResponse]
-type accountTransactionListPendingResponseJSON struct {
-	Data        apijson.Field
-	Limit       apijson.Field
-	Offset      apijson.Field
-	Total       apijson.Field
-	NextOffset  apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListPendingResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListPendingResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListPendingResponseData struct {
-	ID                   string                                        `json:"id"`
-	AccountID            string                                        `json:"accountId"`
-	AICategoryConfidence float64                                       `json:"aiCategoryConfidence"`
-	Amount               float64                                       `json:"amount"`
-	CarbonFootprint      float64                                       `json:"carbonFootprint"`
-	Category             string                                        `json:"category"`
-	Currency             string                                        `json:"currency"`
-	Date                 time.Time                                     `json:"date" format:"date"`
-	Description          string                                        `json:"description"`
-	DisputeStatus        string                                        `json:"disputeStatus"`
-	PaymentChannel       string                                        `json:"paymentChannel"`
-	Type                 string                                        `json:"type"`
-	JSON                 accountTransactionListPendingResponseDataJSON `json:"-"`
-}
-
-// accountTransactionListPendingResponseDataJSON contains the JSON metadata for the
-// struct [AccountTransactionListPendingResponseData]
-type accountTransactionListPendingResponseDataJSON struct {
-	ID                   apijson.Field
-	AccountID            apijson.Field
-	AICategoryConfidence apijson.Field
-	Amount               apijson.Field
-	CarbonFootprint      apijson.Field
-	Category             apijson.Field
-	Currency             apijson.Field
-	Date                 apijson.Field
-	Description          apijson.Field
-	DisputeStatus        apijson.Field
-	PaymentChannel       apijson.Field
-	Type                 apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *AccountTransactionListPendingResponseData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListPendingResponseDataJSON) RawJSON() string {
-	return r.raw
-}
+type AccountTransactionListPendingResponse = interface{}
 
 type AccountTransactionListPendingParams struct {
 	// Maximum number of items to return in a single page.
