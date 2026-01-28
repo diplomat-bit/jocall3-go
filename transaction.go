@@ -64,6 +64,18 @@ func (r *TransactionService) List(ctx context.Context, query TransactionListPara
 	return
 }
 
+// Allows the user to add or update personal notes for a specific transaction.
+func (r *TransactionService) AddNotes(ctx context.Context, transactionID string, body TransactionAddNotesParams, opts ...option.RequestOption) (res *TransactionAddNotesResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if transactionID == "" {
+		err = errors.New("missing required transactionId parameter")
+		return
+	}
+	path := fmt.Sprintf("transactions/%s/notes", transactionID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	return
+}
+
 // Allows the user to override or refine the AI's categorization for a transaction,
 // improving future AI accuracy and personal financial reporting.
 func (r *TransactionService) Categorize(ctx context.Context, transactionID string, body TransactionCategorizeParams, opts ...option.RequestOption) (res *TransactionCategorizeResponse, err error) {
@@ -125,6 +137,53 @@ func (r transactionGetResponseMerchantDetailsJSON) RawJSON() string {
 }
 
 type TransactionListResponse = interface{}
+
+type TransactionAddNotesResponse struct {
+	// Geographic location details for a transaction.
+	Location interface{} `json:"location"`
+	// Detailed information about a merchant associated with a transaction.
+	MerchantDetails TransactionAddNotesResponseMerchantDetails `json:"merchantDetails"`
+	JSON            transactionAddNotesResponseJSON            `json:"-"`
+}
+
+// transactionAddNotesResponseJSON contains the JSON metadata for the struct
+// [TransactionAddNotesResponse]
+type transactionAddNotesResponseJSON struct {
+	Location        apijson.Field
+	MerchantDetails apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *TransactionAddNotesResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionAddNotesResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Detailed information about a merchant associated with a transaction.
+type TransactionAddNotesResponseMerchantDetails struct {
+	Address interface{}                                    `json:"address"`
+	JSON    transactionAddNotesResponseMerchantDetailsJSON `json:"-"`
+}
+
+// transactionAddNotesResponseMerchantDetailsJSON contains the JSON metadata for
+// the struct [TransactionAddNotesResponseMerchantDetails]
+type transactionAddNotesResponseMerchantDetailsJSON struct {
+	Address     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *TransactionAddNotesResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionAddNotesResponseMerchantDetailsJSON) RawJSON() string {
+	return r.raw
+}
 
 type TransactionCategorizeResponse struct {
 	// Geographic location details for a transaction.
@@ -200,6 +259,13 @@ func (r TransactionListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type TransactionAddNotesParams struct {
+}
+
+func (r TransactionAddNotesParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type TransactionCategorizeParams struct {

@@ -18,9 +18,8 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewSustainabilityService] method instead.
 type SustainabilityService struct {
-	Options []option.RequestOption
-	Offsets *SustainabilityOffsetService
-	Impact  *SustainabilityImpactService
+	Options     []option.RequestOption
+	Investments *SustainabilityInvestmentService
 }
 
 // NewSustainabilityService generates a new service that applies the given options
@@ -29,8 +28,7 @@ type SustainabilityService struct {
 func NewSustainabilityService(opts ...option.RequestOption) (r *SustainabilityService) {
 	r = &SustainabilityService{}
 	r.Options = opts
-	r.Offsets = NewSustainabilityOffsetService(opts...)
-	r.Impact = NewSustainabilityImpactService(opts...)
+	r.Investments = NewSustainabilityInvestmentService(opts...)
 	return
 }
 

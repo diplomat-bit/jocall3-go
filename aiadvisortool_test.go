@@ -24,7 +24,6 @@ func TestAIAdvisorToolListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.AI.Advisor.Tools.List(context.TODO(), githubcomjocall3go.AIAdvisorToolListParams{

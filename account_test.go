@@ -24,7 +24,6 @@ func TestAccountGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.Get(context.TODO(), "acc_chase_checking_4567")
@@ -48,7 +47,6 @@ func TestAccountListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.List(context.TODO(), githubcomjocall3go.AccountListParams{
@@ -75,7 +73,6 @@ func TestAccountLink(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{})

@@ -24,7 +24,6 @@ func TestPaymentFxConvert(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Payments.Fx.Convert(context.TODO(), githubcomjocall3go.PaymentFxConvertParams{})
@@ -48,7 +47,6 @@ func TestPaymentFxGetRatesWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Payments.Fx.GetRates(context.TODO(), githubcomjocall3go.PaymentFxGetRatesParams{

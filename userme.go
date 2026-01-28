@@ -20,10 +20,10 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewUserMeService] method instead.
 type UserMeService struct {
-	Options    []option.RequestOption
-	Security   *UserMeSecurityService
-	Devices    *UserMeDeviceService
-	Biometrics *UserMeBiometricService
+	Options     []option.RequestOption
+	Preferences *UserMePreferenceService
+	Devices     *UserMeDeviceService
+	Biometrics  *UserMeBiometricService
 }
 
 // NewUserMeService generates a new service that applies the given options to each
@@ -32,7 +32,7 @@ type UserMeService struct {
 func NewUserMeService(opts ...option.RequestOption) (r *UserMeService) {
 	r = &UserMeService{}
 	r.Options = opts
-	r.Security = NewUserMeSecurityService(opts...)
+	r.Preferences = NewUserMePreferenceService(opts...)
 	r.Devices = NewUserMeDeviceService(opts...)
 	r.Biometrics = NewUserMeBiometricService(opts...)
 	return

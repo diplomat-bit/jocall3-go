@@ -36,16 +36,6 @@ func NewWeb3WalletService(opts ...option.RequestOption) (r *Web3WalletService) {
 	return
 }
 
-// Initiates the process to securely connect a new cryptocurrency wallet to the
-// user's profile, typically involving a signed message or OAuth flow from the
-// wallet provider.
-func (r *Web3WalletService) New(ctx context.Context, body Web3WalletNewParams, opts ...option.RequestOption) (res *Web3WalletNewResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "web3/wallets"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
 // Retrieves a list of all securely linked cryptocurrency wallets (e.g., MetaMask,
 // Ledger integration), showing their addresses, associated networks, and
 // verification status.
@@ -53,6 +43,16 @@ func (r *Web3WalletService) List(ctx context.Context, query Web3WalletListParams
 	opts = slices.Concat(r.Options, opts)
 	path := "web3/wallets"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
+// Initiates the process to securely connect a new cryptocurrency wallet to the
+// user's profile, typically involving a signed message or OAuth flow from the
+// wallet provider.
+func (r *Web3WalletService) Connect(ctx context.Context, body Web3WalletConnectParams, opts ...option.RequestOption) (res *Web3WalletConnectResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "web3/wallets"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
@@ -69,18 +69,11 @@ func (r *Web3WalletService) GetBalance(ctx context.Context, walletID string, que
 	return
 }
 
-type Web3WalletNewResponse = interface{}
-
 type Web3WalletListResponse = interface{}
 
+type Web3WalletConnectResponse = interface{}
+
 type Web3WalletGetBalanceResponse = interface{}
-
-type Web3WalletNewParams struct {
-}
-
-func (r Web3WalletNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
 
 type Web3WalletListParams struct {
 	// Maximum number of items to return in a single page.
@@ -95,6 +88,13 @@ func (r Web3WalletListParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type Web3WalletConnectParams struct {
+}
+
+func (r Web3WalletConnectParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type Web3WalletGetBalanceParams struct {

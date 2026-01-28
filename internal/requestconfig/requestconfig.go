@@ -216,7 +216,6 @@ type RequestConfig struct {
 	CustomHTTPDoer HTTPDoer
 	HTTPClient     *http.Client
 	Middlewares    []middleware
-	APIKey         string
 	GeminiAPIKey   string
 	// If ResponseBodyInto not nil, then we will attempt to deserialize into
 	// ResponseBodyInto. If Destination is a []byte, then it will return the body as
@@ -589,7 +588,6 @@ func (cfg *RequestConfig) Clone(ctx context.Context) *RequestConfig {
 		BaseURL:        cfg.BaseURL,
 		HTTPClient:     cfg.HTTPClient,
 		Middlewares:    cfg.Middlewares,
-		APIKey:         cfg.APIKey,
 		GeminiAPIKey:   cfg.GeminiAPIKey,
 	}
 

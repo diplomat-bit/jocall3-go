@@ -13,11 +13,10 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewWeb3Service] method instead.
 type Web3Service struct {
-	Options        []option.RequestOption
-	Wallets        *Web3WalletService
-	Transactions   *Web3TransactionService
-	NFTs           *Web3NFTService
-	SmartContracts *Web3SmartContractService
+	Options      []option.RequestOption
+	Wallets      *Web3WalletService
+	Transactions *Web3TransactionService
+	NFTs         *Web3NFTService
 }
 
 // NewWeb3Service generates a new service that applies the given options to each
@@ -29,6 +28,5 @@ func NewWeb3Service(opts ...option.RequestOption) (r *Web3Service) {
 	r.Wallets = NewWeb3WalletService(opts...)
 	r.Transactions = NewWeb3TransactionService(opts...)
 	r.NFTs = NewWeb3NFTService(opts...)
-	r.SmartContracts = NewWeb3SmartContractService(opts...)
 	return
 }

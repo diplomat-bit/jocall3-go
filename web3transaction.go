@@ -3,6 +3,12 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -23,4 +29,23 @@ func NewWeb3TransactionService(opts ...option.RequestOption) (r *Web3Transaction
 	r = &Web3TransactionService{}
 	r.Options = opts
 	return
+}
+
+// Prepares and initiates a cryptocurrency transfer from a connected wallet to a
+// specified recipient address. Requires user confirmation (e.g., via wallet
+// signature).
+func (r *Web3TransactionService) Initiate(ctx context.Context, body Web3TransactionInitiateParams, opts ...option.RequestOption) (res *Web3TransactionInitiateResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "web3/transactions/initiate"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+type Web3TransactionInitiateResponse = interface{}
+
+type Web3TransactionInitiateParams struct {
+}
+
+func (r Web3TransactionInitiateParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

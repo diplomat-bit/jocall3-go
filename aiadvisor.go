@@ -5,9 +5,11 @@ package githubcomjocall3go
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -45,7 +47,18 @@ func (r *AIAdvisorService) Chat(ctx context.Context, body AIAdvisorChatParams, o
 	return
 }
 
+// Fetches the full conversation history with the Quantum AI Advisor for a given
+// session or user.
+func (r *AIAdvisorService) History(ctx context.Context, query AIAdvisorHistoryParams, opts ...option.RequestOption) (res *AIAdvisorHistoryResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "ai/advisor/chat/history"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
 type AIAdvisorChatResponse = interface{}
+
+type AIAdvisorHistoryResponse = interface{}
 
 type AIAdvisorChatParams struct {
 	// Optional: The output from a tool function that the AI previously requested to be
@@ -55,4 +68,22 @@ type AIAdvisorChatParams struct {
 
 func (r AIAdvisorChatParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type AIAdvisorHistoryParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
+	// Optional: Filter history by a specific session ID. If omitted, recent
+	// conversations will be returned.
+	SessionID param.Field[string] `query:"sessionId"`
+}
+
+// URLQuery serializes [AIAdvisorHistoryParams]'s query parameters as `url.Values`.
+func (r AIAdvisorHistoryParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
