@@ -50,8 +50,8 @@ import (
 
 func main() {
 	client := githubcomjocall3go.NewClient(
-		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("JOCALL3_API_KEY")
-		option.WithEnvironmentSandbox(), // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
+		option.WithGeminiAPIKey("My Gemini API Key"), // defaults to os.LookupEnv("GEMINI_API_KEY")
+		option.WithEnvironmentSandbox(),              // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
 	)
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
 	if err != nil {

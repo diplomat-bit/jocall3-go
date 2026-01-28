@@ -24,7 +24,6 @@ func TestUserMeGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Get(context.TODO())
@@ -48,7 +47,6 @@ func TestUserMeUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Update(context.TODO(), githubcomjocall3go.UserMeUpdateParams{

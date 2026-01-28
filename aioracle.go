@@ -15,7 +15,7 @@ import (
 type AIOracleService struct {
 	Options     []option.RequestOption
 	Simulate    *AIOracleSimulateService
-	Predictions *AIOraclePredictionService
+	Simulations *AIOracleSimulationService
 }
 
 // NewAIOracleService generates a new service that applies the given options to
@@ -25,6 +25,6 @@ func NewAIOracleService(opts ...option.RequestOption) (r *AIOracleService) {
 	r = &AIOracleService{}
 	r.Options = opts
 	r.Simulate = NewAIOracleSimulateService(opts...)
-	r.Predictions = NewAIOraclePredictionService(opts...)
+	r.Simulations = NewAIOracleSimulationService(opts...)
 	return
 }

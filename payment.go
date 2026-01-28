@@ -14,7 +14,6 @@ import (
 // the [NewPaymentService] method instead.
 type PaymentService struct {
 	Options       []option.RequestOption
-	Domestic      *PaymentDomesticService
 	International *PaymentInternationalService
 	Fx            *PaymentFxService
 }
@@ -25,7 +24,6 @@ type PaymentService struct {
 func NewPaymentService(opts ...option.RequestOption) (r *PaymentService) {
 	r = &PaymentService{}
 	r.Options = opts
-	r.Domestic = NewPaymentDomesticService(opts...)
 	r.International = NewPaymentInternationalService(opts...)
 	r.Fx = NewPaymentFxService(opts...)
 	return

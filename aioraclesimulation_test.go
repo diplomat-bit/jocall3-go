@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestCorporateRiskFraudListRulesWithOptionalParams(t *testing.T) {
+func TestAIOracleSimulationGet(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -24,10 +24,32 @@ func TestCorporateRiskFraudListRulesWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Corporate.Risk.Fraud.ListRules(context.TODO(), githubcomjocall3go.CorporateRiskFraudListRulesParams{
+	_, err := client.AI.Oracle.Simulations.Get(context.TODO(), "sim_oracle-growth-2024-xyz")
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAIOracleSimulationListWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithGeminiAPIKey("My Gemini API Key"),
+	)
+	_, err := client.AI.Oracle.Simulations.List(context.TODO(), githubcomjocall3go.AIOracleSimulationListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
 		Offset: githubcomjocall3go.F(int64(0)),
 	})

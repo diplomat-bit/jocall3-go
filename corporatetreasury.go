@@ -22,8 +22,7 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewCorporateTreasuryService] method instead.
 type CorporateTreasuryService struct {
-	Options  []option.RequestOption
-	Sweeping *CorporateTreasurySweepingService
+	Options []option.RequestOption
 }
 
 // NewCorporateTreasuryService generates a new service that applies the given
@@ -32,7 +31,6 @@ type CorporateTreasuryService struct {
 func NewCorporateTreasuryService(opts ...option.RequestOption) (r *CorporateTreasuryService) {
 	r = &CorporateTreasuryService{}
 	r.Options = opts
-	r.Sweeping = NewCorporateTreasurySweepingService(opts...)
 	return
 }
 
@@ -43,6 +41,15 @@ func (r *CorporateTreasuryService) ForecastCashFlow(ctx context.Context, query C
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/treasury/cash-flow/forecast"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
+// Provides a real-time overview of the organization's liquidity across all
+// accounts, currencies, and short-term investments.
+func (r *CorporateTreasuryService) GetLiquidityPositions(ctx context.Context, opts ...option.RequestOption) (res *CorporateTreasuryGetLiquidityPositionsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/treasury/liquidity-positions"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
@@ -68,6 +75,31 @@ func (r *CorporateTreasuryForecastCashFlowResponse) UnmarshalJSON(data []byte) (
 }
 
 func (r corporateTreasuryForecastCashFlowResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateTreasuryGetLiquidityPositionsResponse struct {
+	// AI's overall assessment of liquidity.
+	AILiquidityAssessment interface{} `json:"aiLiquidityAssessment,required"`
+	// Details on short-term investments contributing to liquidity.
+	ShortTermInvestments interface{}                                        `json:"shortTermInvestments,required"`
+	JSON                 corporateTreasuryGetLiquidityPositionsResponseJSON `json:"-"`
+}
+
+// corporateTreasuryGetLiquidityPositionsResponseJSON contains the JSON metadata
+// for the struct [CorporateTreasuryGetLiquidityPositionsResponse]
+type corporateTreasuryGetLiquidityPositionsResponseJSON struct {
+	AILiquidityAssessment apijson.Field
+	ShortTermInvestments  apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *CorporateTreasuryGetLiquidityPositionsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateTreasuryGetLiquidityPositionsResponseJSON) RawJSON() string {
 	return r.raw
 }
 

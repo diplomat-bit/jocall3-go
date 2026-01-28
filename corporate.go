@@ -13,11 +13,13 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewCorporateService] method instead.
 type CorporateService struct {
-	Options    []option.RequestOption
-	Compliance *CorporateComplianceService
-	Treasury   *CorporateTreasuryService
-	Cards      *CorporateCardService
-	Risk       *CorporateRiskService
+	Options           []option.RequestOption
+	SanctionScreening *CorporateSanctionScreeningService
+	Compliance        *CorporateComplianceService
+	Treasury          *CorporateTreasuryService
+	Cards             *CorporateCardService
+	Risk              *CorporateRiskService
+	Anomalies         *CorporateAnomalyService
 }
 
 // NewCorporateService generates a new service that applies the given options to
@@ -26,9 +28,11 @@ type CorporateService struct {
 func NewCorporateService(opts ...option.RequestOption) (r *CorporateService) {
 	r = &CorporateService{}
 	r.Options = opts
+	r.SanctionScreening = NewCorporateSanctionScreeningService(opts...)
 	r.Compliance = NewCorporateComplianceService(opts...)
 	r.Treasury = NewCorporateTreasuryService(opts...)
 	r.Cards = NewCorporateCardService(opts...)
 	r.Risk = NewCorporateRiskService(opts...)
+	r.Anomalies = NewCorporateAnomalyService(opts...)
 	return
 }

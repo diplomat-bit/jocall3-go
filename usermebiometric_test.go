@@ -24,7 +24,6 @@ func TestUserMeBiometricGetStatus(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Biometrics.GetStatus(context.TODO())
@@ -48,7 +47,6 @@ func TestUserMeBiometricVerify(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Biometrics.Verify(context.TODO(), githubcomjocall3go.UserMeBiometricVerifyParams{})

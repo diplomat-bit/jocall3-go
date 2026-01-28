@@ -24,7 +24,6 @@ func TestAIIncubatorGeneratePitch(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.AI.Incubator.GeneratePitch(context.TODO(), githubcomjocall3go.AIIncubatorGeneratePitchParams{
@@ -39,6 +38,33 @@ func TestAIIncubatorGeneratePitch(t *testing.T) {
 			},
 			"profitabilityEstimate": "Achieve profitability within 18 months.",
 		}),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAIIncubatorListPitchesWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithGeminiAPIKey("My Gemini API Key"),
+	)
+	_, err := client.AI.Incubator.ListPitches(context.TODO(), githubcomjocall3go.AIIncubatorListPitchesParams{
+		Limit:  githubcomjocall3go.F(int64(0)),
+		Offset: githubcomjocall3go.F(int64(0)),
+		Status: githubcomjocall3go.F("status"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

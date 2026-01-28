@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestMarketplaceOfferRedeem(t *testing.T) {
+func TestWeb3TransactionInitiate(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -24,14 +24,9 @@ func TestMarketplaceOfferRedeem(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Marketplace.Offers.Redeem(
-		context.TODO(),
-		"offer_home_ins_promo_1",
-		githubcomjocall3go.MarketplaceOfferRedeemParams{},
-	)
+	_, err := client.Web3.Transactions.Initiate(context.TODO(), githubcomjocall3go.Web3TransactionInitiateParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
