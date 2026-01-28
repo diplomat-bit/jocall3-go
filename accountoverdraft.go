@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -58,11 +59,72 @@ func (r *AccountOverdraftService) Get(ctx context.Context, accountID string, opt
 	return
 }
 
-type AccountOverdraftUpdateResponse = interface{}
+type AccountOverdraftUpdateResponse struct {
+	AccountID              string                             `json:"accountId,required"`
+	Enabled                bool                               `json:"enabled,required"`
+	FeePreference          string                             `json:"feePreference,required"`
+	LinkedSavingsAccountID string                             `json:"linkedSavingsAccountId"`
+	LinkToSavings          bool                               `json:"linkToSavings"`
+	ProtectionLimit        float64                            `json:"protectionLimit"`
+	JSON                   accountOverdraftUpdateResponseJSON `json:"-"`
+}
 
-type AccountOverdraftGetResponse = interface{}
+// accountOverdraftUpdateResponseJSON contains the JSON metadata for the struct
+// [AccountOverdraftUpdateResponse]
+type accountOverdraftUpdateResponseJSON struct {
+	AccountID              apijson.Field
+	Enabled                apijson.Field
+	FeePreference          apijson.Field
+	LinkedSavingsAccountID apijson.Field
+	LinkToSavings          apijson.Field
+	ProtectionLimit        apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *AccountOverdraftUpdateResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountOverdraftUpdateResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountOverdraftGetResponse struct {
+	AccountID              string                          `json:"accountId,required"`
+	Enabled                bool                            `json:"enabled,required"`
+	FeePreference          string                          `json:"feePreference,required"`
+	LinkedSavingsAccountID string                          `json:"linkedSavingsAccountId"`
+	LinkToSavings          bool                            `json:"linkToSavings"`
+	ProtectionLimit        float64                         `json:"protectionLimit"`
+	JSON                   accountOverdraftGetResponseJSON `json:"-"`
+}
+
+// accountOverdraftGetResponseJSON contains the JSON metadata for the struct
+// [AccountOverdraftGetResponse]
+type accountOverdraftGetResponseJSON struct {
+	AccountID              apijson.Field
+	Enabled                apijson.Field
+	FeePreference          apijson.Field
+	LinkedSavingsAccountID apijson.Field
+	LinkToSavings          apijson.Field
+	ProtectionLimit        apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *AccountOverdraftGetResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountOverdraftGetResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type AccountOverdraftUpdateParams struct {
+	Enabled       param.Field[bool]   `json:"enabled"`
+	FeePreference param.Field[string] `json:"feePreference"`
+	LinkToSavings param.Field[bool]   `json:"linkToSavings"`
 }
 
 func (r AccountOverdraftUpdateParams) MarshalJSON() (data []byte, err error) {

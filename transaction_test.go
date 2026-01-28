@@ -71,7 +71,7 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestTransactionCategorize(t *testing.T) {
+func TestTransactionCategorizeWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -88,7 +88,11 @@ func TestTransactionCategorize(t *testing.T) {
 	_, err := client.Transactions.Categorize(
 		context.TODO(),
 		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionCategorizeParams{},
+		githubcomjocall3go.TransactionCategorizeParams{
+			Category:      githubcomjocall3go.F("Home > Groceries"),
+			ApplyToFuture: githubcomjocall3go.F(true),
+			Notes:         githubcomjocall3go.F("Bulk purchase for party"),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

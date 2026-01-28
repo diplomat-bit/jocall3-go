@@ -52,9 +52,27 @@ func TestUserMeUpdateWithOptionalParams(t *testing.T) {
 		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Update(context.TODO(), githubcomjocall3go.UserMeUpdateParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
+		Address: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsAddress{
+			City:    githubcomjocall3go.F("city"),
+			Country: githubcomjocall3go.F("country"),
+			State:   githubcomjocall3go.F("state"),
+			Street:  githubcomjocall3go.F("street"),
+			Zip:     githubcomjocall3go.F("zip"),
+		}),
+		Name:  githubcomjocall3go.F("Quantum Visionary Pro"),
+		Phone: githubcomjocall3go.F("+1-555-999-0000"),
 		Preferences: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsPreferences{
-			NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
+			AIInteractionMode:  githubcomjocall3go.F("aiInteractionMode"),
+			DataSharingConsent: githubcomjocall3go.F(true),
+			NotificationChannels: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsPreferencesNotificationChannels{
+				Email: githubcomjocall3go.F(true),
+				InApp: githubcomjocall3go.F(true),
+				Push:  githubcomjocall3go.F(true),
+				SMS:   githubcomjocall3go.F(true),
+			}),
+			PreferredLanguage:   githubcomjocall3go.F("preferredLanguage"),
+			Theme:               githubcomjocall3go.F("theme"),
+			TransactionGrouping: githubcomjocall3go.F("transactionGrouping"),
 		}),
 	})
 	if err != nil {
