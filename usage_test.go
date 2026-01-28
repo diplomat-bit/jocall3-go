@@ -7,9 +7,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/jocall3-go"
-	"github.com/stainless-sdks/jocall3-go/internal/testutil"
-	"github.com/stainless-sdks/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go"
+	"github.com/diplomat-bit/jocall3-go/internal/testutil"
+	"github.com/diplomat-bit/jocall3-go/option"
 )
 
 func TestUsage(t *testing.T) {

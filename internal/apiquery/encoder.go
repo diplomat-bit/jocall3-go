@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stainless-sdks/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 )
 
 var encoders sync.Map // map[reflect.Type]encoderFunc

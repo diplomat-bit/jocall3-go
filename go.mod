@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/jocall3-go
+module github.com/diplomat-bit/jocall3-go
 
 go 1.22
 
