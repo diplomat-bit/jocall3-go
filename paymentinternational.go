@@ -3,13 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,18 +24,3 @@ func NewPaymentInternationalService(opts ...option.RequestOption) (r *PaymentInt
 	r.Options = opts
 	return
 }
-
-// Retrieves the current processing status and details of an initiated
-// international payment.
-func (r *PaymentInternationalService) GetStatus(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *PaymentInternationalGetStatusResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if paymentID == "" {
-		err = errors.New("missing required paymentId parameter")
-		return
-	}
-	path := fmt.Sprintf("payments/international/%s/status", paymentID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type PaymentInternationalGetStatusResponse = interface{}

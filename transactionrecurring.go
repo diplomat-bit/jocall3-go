@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
@@ -42,7 +44,75 @@ func (r *TransactionRecurringService) List(ctx context.Context, query Transactio
 	return
 }
 
-type TransactionRecurringListResponse = interface{}
+type TransactionRecurringListResponse struct {
+	Data       []TransactionRecurringListResponseData `json:"data,required"`
+	Limit      int64                                  `json:"limit,required"`
+	Offset     int64                                  `json:"offset,required"`
+	Total      int64                                  `json:"total,required"`
+	NextOffset int64                                  `json:"nextOffset"`
+	JSON       transactionRecurringListResponseJSON   `json:"-"`
+}
+
+// transactionRecurringListResponseJSON contains the JSON metadata for the struct
+// [TransactionRecurringListResponse]
+type transactionRecurringListResponseJSON struct {
+	Data        apijson.Field
+	Limit       apijson.Field
+	Offset      apijson.Field
+	Total       apijson.Field
+	NextOffset  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *TransactionRecurringListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionRecurringListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type TransactionRecurringListResponseData struct {
+	ID                string                                   `json:"id"`
+	AIConfidenceScore float64                                  `json:"aiConfidenceScore"`
+	Amount            float64                                  `json:"amount"`
+	Category          string                                   `json:"category"`
+	Currency          string                                   `json:"currency"`
+	Description       string                                   `json:"description"`
+	Frequency         string                                   `json:"frequency"`
+	LastPaidDate      time.Time                                `json:"lastPaidDate" format:"date"`
+	LinkedAccountID   string                                   `json:"linkedAccountId"`
+	NextDueDate       time.Time                                `json:"nextDueDate" format:"date"`
+	Status            string                                   `json:"status"`
+	JSON              transactionRecurringListResponseDataJSON `json:"-"`
+}
+
+// transactionRecurringListResponseDataJSON contains the JSON metadata for the
+// struct [TransactionRecurringListResponseData]
+type transactionRecurringListResponseDataJSON struct {
+	ID                apijson.Field
+	AIConfidenceScore apijson.Field
+	Amount            apijson.Field
+	Category          apijson.Field
+	Currency          apijson.Field
+	Description       apijson.Field
+	Frequency         apijson.Field
+	LastPaidDate      apijson.Field
+	LinkedAccountID   apijson.Field
+	NextDueDate       apijson.Field
+	Status            apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *TransactionRecurringListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionRecurringListResponseDataJSON) RawJSON() string {
+	return r.raw
+}
 
 type TransactionRecurringListParams struct {
 	// Maximum number of items to return in a single page.

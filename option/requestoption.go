@@ -280,10 +280,18 @@ func WithEnvironmentGeminiDirect() RequestOption {
 	return requestconfig.WithDefaultBaseURL("https://generativelanguage.googleapis.com/v1beta/")
 }
 
+// WithAPIKey returns a RequestOption that sets the client setting "api_key".
+func WithAPIKey(value string) RequestOption {
+	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
+		r.APIKey = value
+		return nil
+	})
+}
+
 // WithGeminiAPIKey returns a RequestOption that sets the client setting "gemini_api_key".
 func WithGeminiAPIKey(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
 		r.GeminiAPIKey = value
-		return r.Apply(WithHeader("x-goog-api-key", r.GeminiAPIKey))
+		return nil
 	})
 }

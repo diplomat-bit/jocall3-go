@@ -24,7 +24,6 @@ func TestUserMePreferenceGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Get(context.TODO())
 	if err != nil {
@@ -47,10 +46,19 @@ func TestUserMePreferenceUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Update(context.TODO(), githubcomjocall3go.UserMePreferenceUpdateParams{
-		NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
+		AIInteractionMode:  githubcomjocall3go.F("proactive"),
+		DataSharingConsent: githubcomjocall3go.F(true),
+		NotificationChannels: githubcomjocall3go.F(githubcomjocall3go.UserMePreferenceUpdateParamsNotificationChannels{
+			Email: githubcomjocall3go.F(true),
+			InApp: githubcomjocall3go.F(true),
+			Push:  githubcomjocall3go.F(true),
+			SMS:   githubcomjocall3go.F(true),
+		}),
+		PreferredLanguage:   githubcomjocall3go.F("preferredLanguage"),
+		Theme:               githubcomjocall3go.F("Dark-Quantum"),
+		TransactionGrouping: githubcomjocall3go.F("transactionGrouping"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

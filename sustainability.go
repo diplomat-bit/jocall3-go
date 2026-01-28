@@ -3,11 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,15 +26,3 @@ func NewSustainabilityService(opts ...option.RequestOption) (r *SustainabilitySe
 	r.Investments = NewSustainabilityInvestmentService(opts...)
 	return
 }
-
-// Generates a detailed report of the user's estimated carbon footprint based on
-// transaction data, lifestyle choices, and AI-driven impact assessments, offering
-// insights and reduction strategies.
-func (r *SustainabilityService) GetFootprint(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityGetFootprintResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "sustainability/carbon-footprint"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type SustainabilityGetFootprintResponse = interface{}

@@ -3,13 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -30,67 +23,4 @@ func NewAIOracleSimulateService(opts ...option.RequestOption) (r *AIOracleSimula
 	r = &AIOracleSimulateService{}
 	r.Options = opts
 	return
-}
-
-// Engages the Quantum Oracle for highly complex, multi-variable simulations,
-// allowing precise control over numerous financial parameters, market conditions,
-// and personal events to generate deep, predictive insights and sensitivity
-// analysis.
-func (r *AIOracleSimulateService) RunAdvanced(ctx context.Context, body AIOracleSimulateRunAdvancedParams, opts ...option.RequestOption) (res *AIOracleSimulateRunAdvancedResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "ai/oracle/simulate/advanced"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-// Submits a hypothetical scenario to the Quantum Oracle AI for standard financial
-// impact analysis. The AI simulates the effect on the user's current financial
-// state and provides a summary.
-func (r *AIOracleSimulateService) RunStandard(ctx context.Context, body AIOracleSimulateRunStandardParams, opts ...option.RequestOption) (res *AIOracleSimulateRunStandardResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "ai/oracle/simulate"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-type AIOracleSimulateRunAdvancedResponse = interface{}
-
-type AIOracleSimulateRunStandardResponse struct {
-	// AI-driven risk assessment of the simulated scenario.
-	RiskAnalysis interface{}                             `json:"riskAnalysis"`
-	JSON         aiOracleSimulateRunStandardResponseJSON `json:"-"`
-}
-
-// aiOracleSimulateRunStandardResponseJSON contains the JSON metadata for the
-// struct [AIOracleSimulateRunStandardResponse]
-type aiOracleSimulateRunStandardResponseJSON struct {
-	RiskAnalysis apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *AIOracleSimulateRunStandardResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiOracleSimulateRunStandardResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIOracleSimulateRunAdvancedParams struct {
-	// Optional: Global economic conditions to apply to all scenarios.
-	GlobalEconomicFactors param.Field[interface{}] `json:"globalEconomicFactors"`
-	// Optional: Personal financial assumptions to override defaults.
-	PersonalAssumptions param.Field[interface{}] `json:"personalAssumptions"`
-}
-
-func (r AIOracleSimulateRunAdvancedParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type AIOracleSimulateRunStandardParams struct {
-}
-
-func (r AIOracleSimulateRunStandardParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }

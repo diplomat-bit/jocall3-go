@@ -24,7 +24,6 @@ func TestAccountGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.Get(context.TODO(), "acc_chase_checking_4567")
 	if err != nil {
@@ -47,7 +46,6 @@ func TestAccountListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.List(context.TODO(), githubcomjocall3go.AccountListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
@@ -73,9 +71,11 @@ func TestAccountLink(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{})
+	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{
+		CountryCode:     githubcomjocall3go.F("US"),
+		InstitutionName: githubcomjocall3go.F("Bank of America"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

@@ -3,13 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -30,23 +23,4 @@ func NewCorporateSanctionScreeningService(opts ...option.RequestOption) (r *Corp
 	r = &CorporateSanctionScreeningService{}
 	r.Options = opts
 	return
-}
-
-// Executes a real-time screening of an individual or entity against global
-// sanction lists and watchlists.
-func (r *CorporateSanctionScreeningService) Screen(ctx context.Context, body CorporateSanctionScreeningScreenParams, opts ...option.RequestOption) (res *CorporateSanctionScreeningScreenResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "corporate/sanction-screening"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-type CorporateSanctionScreeningScreenResponse = interface{}
-
-type CorporateSanctionScreeningScreenParams struct {
-	Address param.Field[interface{}] `json:"address"`
-}
-
-func (r CorporateSanctionScreeningScreenParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }

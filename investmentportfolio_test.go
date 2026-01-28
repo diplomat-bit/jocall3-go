@@ -24,7 +24,6 @@ func TestInvestmentPortfolioGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Investments.Portfolios.Get(context.TODO(), "portfolio_equity_growth")
 	if err != nil {
@@ -47,7 +46,6 @@ func TestInvestmentPortfolioUpdate(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Investments.Portfolios.Update(
 		context.TODO(),
@@ -74,7 +72,6 @@ func TestInvestmentPortfolioListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Investments.Portfolios.List(context.TODO(), githubcomjocall3go.InvestmentPortfolioListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
@@ -100,7 +97,6 @@ func TestInvestmentPortfolioRebalance(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Investments.Portfolios.Rebalance(
 		context.TODO(),

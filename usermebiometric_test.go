@@ -24,7 +24,6 @@ func TestUserMeBiometricGetStatus(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Users.Me.Biometrics.GetStatus(context.TODO())
 	if err != nil {
@@ -47,9 +46,12 @@ func TestUserMeBiometricVerify(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Users.Me.Biometrics.Verify(context.TODO(), githubcomjocall3go.UserMeBiometricVerifyParams{})
+	_, err := client.Users.Me.Biometrics.Verify(context.TODO(), githubcomjocall3go.UserMeBiometricVerifyParams{
+		BiometricSignature: githubcomjocall3go.F("base64encoded_one_time_fingerprint_proof"),
+		BiometricType:      githubcomjocall3go.F("fingerprint"),
+		DeviceID:           githubcomjocall3go.F("dev_mobile_android_ddeeff"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

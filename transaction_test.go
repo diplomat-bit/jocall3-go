@@ -24,7 +24,6 @@ func TestTransactionGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.Get(context.TODO(), "txn_quantum-2024-07-21-A7B8C9")
 	if err != nil {
@@ -47,7 +46,6 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.List(context.TODO(), githubcomjocall3go.TransactionListParams{
 		Category:    githubcomjocall3go.F("category"),
@@ -80,12 +78,13 @@ func TestTransactionAddNotes(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.AddNotes(
 		context.TODO(),
 		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionAddNotesParams{},
+		githubcomjocall3go.TransactionAddNotesParams{
+			Notes: githubcomjocall3go.F("This was a special coffee for a client meeting."),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -96,7 +95,7 @@ func TestTransactionAddNotes(t *testing.T) {
 	}
 }
 
-func TestTransactionCategorize(t *testing.T) {
+func TestTransactionCategorizeWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -107,12 +106,15 @@ func TestTransactionCategorize(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.Categorize(
 		context.TODO(),
 		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionCategorizeParams{},
+		githubcomjocall3go.TransactionCategorizeParams{
+			Category:      githubcomjocall3go.F("Home > Groceries"),
+			ApplyToFuture: githubcomjocall3go.F(true),
+			Notes:         githubcomjocall3go.F("Bulk purchase for party"),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
