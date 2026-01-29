@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAIAdListWithOptionalParams(t *testing.T) {
+func TestAIAdList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,10 +25,31 @@ func TestAIAdListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Ads.List(context.TODO(), githubcomjocall3go.AIAdListParams{
-		Limit:  githubcomjocall3go.F(int64(0)),
-		Offset: githubcomjocall3go.F(int64(0)),
-		Status: githubcomjocall3go.F("status"),
+	_, err := client.AI.Ads.List(context.TODO())
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAIAdGenerateCopy(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.AI.Ads.GenerateCopy(context.TODO(), githubcomjocall3go.AIAdGenerateCopyParams{
+		ProductDescription: githubcomjocall3go.F("productDescription"),
+		TargetAudience:     githubcomjocall3go.F("targetAudience"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -39,7 +60,7 @@ func TestAIAdListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAIAdGetOperation(t *testing.T) {
+func TestAIAdGenerateVideo(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -51,7 +72,57 @@ func TestAIAdGetOperation(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Ads.GetOperation(context.TODO(), "op-video-gen-12345-abcde")
+	_, err := client.AI.Ads.GenerateVideo(context.TODO(), githubcomjocall3go.AIAdGenerateVideoParams{
+		LengthSeconds: githubcomjocall3go.F(githubcomjocall3go.AIAdGenerateVideoParamsLengthSeconds15),
+		Prompt:        githubcomjocall3go.F("prompt"),
+		Style:         githubcomjocall3go.F(githubcomjocall3go.AIAdGenerateVideoParamsStyleCinematic),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAIAdOptimizeCampaign(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.AI.Ads.OptimizeCampaign(context.TODO(), githubcomjocall3go.AIAdOptimizeCampaignParams{
+		CampaignData: githubcomjocall3go.F[any](map[string]interface{}{}),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAIAdGetOperationStatus(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.AI.Ads.GetOperationStatus(context.TODO(), "operationId")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

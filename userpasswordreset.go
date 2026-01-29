@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -31,8 +32,7 @@ func NewUserPasswordResetService(opts ...option.RequestOption) (r *UserPasswordR
 	return
 }
 
-// Confirms the password reset using the received verification code and sets a new
-// password.
+// Confirm Password Reset with Code
 func (r *UserPasswordResetService) Confirm(ctx context.Context, body UserPasswordResetConfirmParams, opts ...option.RequestOption) (res *UserPasswordResetConfirmResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/password-reset/confirm"
@@ -40,8 +40,7 @@ func (r *UserPasswordResetService) Confirm(ctx context.Context, body UserPasswor
 	return
 }
 
-// Starts the password reset flow by sending a verification code or link to the
-// user's registered email or phone.
+// Initiate Password Reset Flow
 func (r *UserPasswordResetService) Initiate(ctx context.Context, body UserPasswordResetInitiateParams, opts ...option.RequestOption) (res *UserPasswordResetInitiateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/password-reset/initiate"
@@ -49,11 +48,53 @@ func (r *UserPasswordResetService) Initiate(ctx context.Context, body UserPasswo
 	return
 }
 
-type UserPasswordResetConfirmResponse = interface{}
+type UserPasswordResetConfirmResponse struct {
+	Message string                               `json:"message"`
+	JSON    userPasswordResetConfirmResponseJSON `json:"-"`
+}
 
-type UserPasswordResetInitiateResponse = interface{}
+// userPasswordResetConfirmResponseJSON contains the JSON metadata for the struct
+// [UserPasswordResetConfirmResponse]
+type userPasswordResetConfirmResponseJSON struct {
+	Message     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserPasswordResetConfirmResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userPasswordResetConfirmResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type UserPasswordResetInitiateResponse struct {
+	Message string                                `json:"message"`
+	JSON    userPasswordResetInitiateResponseJSON `json:"-"`
+}
+
+// userPasswordResetInitiateResponseJSON contains the JSON metadata for the struct
+// [UserPasswordResetInitiateResponse]
+type userPasswordResetInitiateResponseJSON struct {
+	Message     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserPasswordResetInitiateResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userPasswordResetInitiateResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type UserPasswordResetConfirmParams struct {
+	Identifier  param.Field[string] `json:"identifier,required"`
+	NewPassword param.Field[string] `json:"newPassword,required" format:"password"`
+	// The 6-digit code sent to user
+	VerificationCode param.Field[string] `json:"verificationCode,required"`
 }
 
 func (r UserPasswordResetConfirmParams) MarshalJSON() (data []byte, err error) {
@@ -61,6 +102,8 @@ func (r UserPasswordResetConfirmParams) MarshalJSON() (data []byte, err error) {
 }
 
 type UserPasswordResetInitiateParams struct {
+	// Email or phone number
+	Identifier param.Field[string] `json:"identifier,required"`
 }
 
 func (r UserPasswordResetInitiateParams) MarshalJSON() (data []byte, err error) {

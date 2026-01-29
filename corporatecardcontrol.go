@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -33,43 +34,23 @@ func NewCorporateCardControlService(opts ...option.RequestOption) (r *CorporateC
 	return
 }
 
-// Updates the sophisticated spending controls, limits, and policy overrides for a
-// specific corporate card, enabling real-time adjustments for security and budget
-// adherence.
-func (r *CorporateCardControlService) Update(ctx context.Context, cardID string, body CorporateCardControlUpdateParams, opts ...option.RequestOption) (res *CorporateCardControlUpdateResponse, err error) {
+// Update Spending Limits & MCC Controls
+func (r *CorporateCardControlService) Update(ctx context.Context, cardID string, body CorporateCardControlUpdateParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if cardID == "" {
 		err = errors.New("missing required cardId parameter")
 		return
 	}
 	path := fmt.Sprintf("corporate/cards/%s/controls", cardID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
 	return
 }
 
-type CorporateCardControlUpdateResponse struct {
-	// Granular spending controls for a corporate card.
-	Controls interface{}                            `json:"controls,required"`
-	JSON     corporateCardControlUpdateResponseJSON `json:"-"`
-}
-
-// corporateCardControlUpdateResponseJSON contains the JSON metadata for the struct
-// [CorporateCardControlUpdateResponse]
-type corporateCardControlUpdateResponseJSON struct {
-	Controls    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *CorporateCardControlUpdateResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r corporateCardControlUpdateResponseJSON) RawJSON() string {
-	return r.raw
-}
-
 type CorporateCardControlUpdateParams struct {
+	AllowedCategories param.Field[[]string] `json:"allowedCategories"`
+	GeoRestriction    param.Field[[]string] `json:"geoRestriction"`
+	MonthlyLimit      param.Field[float64]  `json:"monthlyLimit"`
 }
 
 func (r CorporateCardControlUpdateParams) MarshalJSON() (data []byte, err error) {

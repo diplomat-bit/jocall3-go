@@ -35,7 +35,7 @@ func TestUserMeGet(t *testing.T) {
 	}
 }
 
-func TestUserMeUpdateWithOptionalParams(t *testing.T) {
+func TestUserMeUpdate(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -47,12 +47,29 @@ func TestUserMeUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.Me.Update(context.TODO(), githubcomjocall3go.UserMeUpdateParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
-		Preferences: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsPreferences{
-			NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
-		}),
-	})
+	err := client.Users.Me.Update(context.TODO())
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestUserMeDelete(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	err := client.Users.Me.Delete(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

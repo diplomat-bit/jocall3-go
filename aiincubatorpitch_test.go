@@ -25,7 +25,7 @@ func TestAIIncubatorPitchGetDetails(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Incubator.Pitch.GetDetails(context.TODO(), "pitch_qw_synergychain-xyz")
+	_, err := client.AI.Incubator.Pitch.GetDetails(context.TODO(), "pitchId")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -47,10 +47,12 @@ func TestAIIncubatorPitchSubmitFeedback(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Incubator.Pitch.SubmitFeedback(
+	err := client.AI.Incubator.Pitch.SubmitFeedback(
 		context.TODO(),
-		"pitch_qw_synergychain-xyz",
-		githubcomjocall3go.AIIncubatorPitchSubmitFeedbackParams{},
+		"pitchId",
+		githubcomjocall3go.AIIncubatorPitchSubmitFeedbackParams{
+			Answers: githubcomjocall3go.F([]interface{}{map[string]interface{}{}}),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
