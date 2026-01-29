@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestCorporateAnomalyListWithOptionalParams(t *testing.T) {
+func TestCorporateAnomalyList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,15 +25,7 @@ func TestCorporateAnomalyListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Corporate.Anomalies.List(context.TODO(), githubcomjocall3go.CorporateAnomalyListParams{
-		EndDate:    githubcomjocall3go.F("endDate"),
-		EntityType: githubcomjocall3go.F("entityType"),
-		Limit:      githubcomjocall3go.F(int64(0)),
-		Offset:     githubcomjocall3go.F(int64(0)),
-		Severity:   githubcomjocall3go.F("severity"),
-		StartDate:  githubcomjocall3go.F("startDate"),
-		Status:     githubcomjocall3go.F("status"),
-	})
+	_, err := client.Corporate.Anomalies.List(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -55,10 +47,12 @@ func TestCorporateAnomalyUpdateStatus(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Corporate.Anomalies.UpdateStatus(
+	err := client.Corporate.Anomalies.UpdateStatus(
 		context.TODO(),
-		"anom_risk-2024-07-21-D1E2F3",
-		githubcomjocall3go.CorporateAnomalyUpdateStatusParams{},
+		"anomalyId",
+		githubcomjocall3go.CorporateAnomalyUpdateStatusParams{
+			Status: githubcomjocall3go.F(githubcomjocall3go.CorporateAnomalyUpdateStatusParamsStatusDismissed),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

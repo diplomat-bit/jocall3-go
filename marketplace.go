@@ -5,11 +5,9 @@ package githubcomjocall3go
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"slices"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -35,37 +33,31 @@ func NewMarketplaceService(opts ...option.RequestOption) (r *MarketplaceService)
 	return
 }
 
-// Retrieves a personalized, AI-curated list of products and services from the
-// Plato AI marketplace, tailored to the user's financial profile, goals, and
-// spending patterns. Includes options for filtering and advanced search.
-func (r *MarketplaceService) ListProducts(ctx context.Context, query MarketplaceListProductsParams, opts ...option.RequestOption) (res *MarketplaceListProductsResponse, err error) {
+// List Financial Products & Add-ons
+func (r *MarketplaceService) ListProducts(ctx context.Context, opts ...option.RequestOption) (res *MarketplaceListProductsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "marketplace/products"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-type MarketplaceListProductsResponse = interface{}
-
-type MarketplaceListProductsParams struct {
-	// Filter by AI personalization level (e.g., low, medium, high). 'High' means
-	// highly relevant to user's specific needs.
-	AIPersonalizationLevel param.Field[string] `query:"aiPersonalizationLevel"`
-	// Filter products by category (e.g., loans, insurance, credit_cards, investments).
-	Category param.Field[string] `query:"category"`
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Minimum user rating for products (0-5).
-	MinRating param.Field[int64] `query:"minRating"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
+type MarketplaceListProductsResponse struct {
+	Data []interface{}                       `json:"data"`
+	JSON marketplaceListProductsResponseJSON `json:"-"`
 }
 
-// URLQuery serializes [MarketplaceListProductsParams]'s query parameters as
-// `url.Values`.
-func (r MarketplaceListProductsParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+// marketplaceListProductsResponseJSON contains the JSON metadata for the struct
+// [MarketplaceListProductsResponse]
+type marketplaceListProductsResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *MarketplaceListProductsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r marketplaceListProductsResponseJSON) RawJSON() string {
+	return r.raw
 }

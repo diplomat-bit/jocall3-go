@@ -3,6 +3,13 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -23,4 +30,60 @@ func NewPaymentDomesticService(opts ...option.RequestOption) (r *PaymentDomestic
 	r = &PaymentDomesticService{}
 	r.Options = opts
 	return
+}
+
+// Execute ACH Transfer
+func (r *PaymentDomesticService) ACH(ctx context.Context, body PaymentDomesticACHParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "payments/domestic/ach"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Real-time Payment (RTP)
+func (r *PaymentDomesticService) Rtp(ctx context.Context, body PaymentDomesticRtpParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "payments/domestic/rtp"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Execute Federal Wire
+func (r *PaymentDomesticService) Wire(ctx context.Context, body PaymentDomesticWireParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "payments/domestic/wire"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type PaymentDomesticACHParams struct {
+	Account param.Field[string]  `json:"account,required"`
+	Amount  param.Field[float64] `json:"amount,required"`
+	Routing param.Field[string]  `json:"routing,required"`
+}
+
+func (r PaymentDomesticACHParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentDomesticRtpParams struct {
+	Amount      param.Field[float64] `json:"amount,required"`
+	RecipientID param.Field[string]  `json:"recipientId,required"`
+}
+
+func (r PaymentDomesticRtpParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentDomesticWireParams struct {
+	Account param.Field[string]  `json:"account,required"`
+	Amount  param.Field[float64] `json:"amount,required"`
+	Routing param.Field[string]  `json:"routing,required"`
+}
+
+func (r PaymentDomesticWireParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

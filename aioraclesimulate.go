@@ -32,10 +32,6 @@ func NewAIOracleSimulateService(opts ...option.RequestOption) (r *AIOracleSimula
 	return
 }
 
-// Engages the Quantum Oracle for highly complex, multi-variable simulations,
-// allowing precise control over numerous financial parameters, market conditions,
-// and personal events to generate deep, predictive insights and sensitivity
-// analysis.
 func (r *AIOracleSimulateService) RunAdvanced(ctx context.Context, body AIOracleSimulateRunAdvancedParams, opts ...option.RequestOption) (res *AIOracleSimulateRunAdvancedResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/oracle/simulate/advanced"
@@ -43,9 +39,15 @@ func (r *AIOracleSimulateService) RunAdvanced(ctx context.Context, body AIOracle
 	return
 }
 
-// Submits a hypothetical scenario to the Quantum Oracle AI for standard financial
-// impact analysis. The AI simulates the effect on the user's current financial
-// state and provides a summary.
+func (r *AIOracleSimulateService) RunMonteCarlo(ctx context.Context, body AIOracleSimulateRunMonteCarloParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "ai/oracle/simulate/monte-carlo"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Run a 'What-If' Financial Simulation (Standard)
 func (r *AIOracleSimulateService) RunStandard(ctx context.Context, body AIOracleSimulateRunStandardParams, opts ...option.RequestOption) (res *AIOracleSimulateRunStandardResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/oracle/simulate"
@@ -53,20 +55,50 @@ func (r *AIOracleSimulateService) RunStandard(ctx context.Context, body AIOracle
 	return
 }
 
-type AIOracleSimulateRunAdvancedResponse = interface{}
+type AIOracleSimulateRunAdvancedResponse struct {
+	SimulationID     string                                  `json:"simulationId,required"`
+	Status           string                                  `json:"status,required"`
+	OutcomeNarrative string                                  `json:"outcomeNarrative"`
+	ProjectedValue   float64                                 `json:"projectedValue"`
+	JSON             aiOracleSimulateRunAdvancedResponseJSON `json:"-"`
+}
+
+// aiOracleSimulateRunAdvancedResponseJSON contains the JSON metadata for the
+// struct [AIOracleSimulateRunAdvancedResponse]
+type aiOracleSimulateRunAdvancedResponseJSON struct {
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AIOracleSimulateRunAdvancedResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiOracleSimulateRunAdvancedResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type AIOracleSimulateRunStandardResponse struct {
-	// AI-driven risk assessment of the simulated scenario.
-	RiskAnalysis interface{}                             `json:"riskAnalysis"`
-	JSON         aiOracleSimulateRunStandardResponseJSON `json:"-"`
+	SimulationID     string                                  `json:"simulationId,required"`
+	Status           string                                  `json:"status,required"`
+	OutcomeNarrative string                                  `json:"outcomeNarrative"`
+	ProjectedValue   float64                                 `json:"projectedValue"`
+	JSON             aiOracleSimulateRunStandardResponseJSON `json:"-"`
 }
 
 // aiOracleSimulateRunStandardResponseJSON contains the JSON metadata for the
 // struct [AIOracleSimulateRunStandardResponse]
 type aiOracleSimulateRunStandardResponseJSON struct {
-	RiskAnalysis apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AIOracleSimulateRunStandardResponse) UnmarshalJSON(data []byte) (err error) {
@@ -78,17 +110,37 @@ func (r aiOracleSimulateRunStandardResponseJSON) RawJSON() string {
 }
 
 type AIOracleSimulateRunAdvancedParams struct {
-	// Optional: Global economic conditions to apply to all scenarios.
-	GlobalEconomicFactors param.Field[interface{}] `json:"globalEconomicFactors"`
-	// Optional: Personal financial assumptions to override defaults.
-	PersonalAssumptions param.Field[interface{}] `json:"personalAssumptions"`
+	Prompt    param.Field[string]                                      `json:"prompt,required"`
+	Scenarios param.Field[[]AIOracleSimulateRunAdvancedParamsScenario] `json:"scenarios,required"`
 }
 
 func (r AIOracleSimulateRunAdvancedParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type AIOracleSimulateRunAdvancedParamsScenario struct {
+	Name        param.Field[string] `json:"name,required"`
+	Description param.Field[string] `json:"description"`
+}
+
+func (r AIOracleSimulateRunAdvancedParamsScenario) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type AIOracleSimulateRunMonteCarloParams struct {
+	Iterations param.Field[int64]    `json:"iterations,required"`
+	Variables  param.Field[[]string] `json:"variables,required"`
+}
+
+func (r AIOracleSimulateRunMonteCarloParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type AIOracleSimulateRunStandardParams struct {
+	// Describe the financial scenario
+	Prompt param.Field[string] `json:"prompt,required"`
+	// Key variables like duration, rate, or amount
+	Parameters param.Field[interface{}] `json:"parameters"`
 }
 
 func (r AIOracleSimulateRunStandardParams) MarshalJSON() (data []byte, err error) {

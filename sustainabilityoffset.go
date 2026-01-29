@@ -3,6 +3,13 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -23,4 +30,40 @@ func NewSustainabilityOffsetService(opts ...option.RequestOption) (r *Sustainabi
 	r = &SustainabilityOffsetService{}
 	r.Options = opts
 	return
+}
+
+// Purchase Verified Carbon Credits
+func (r *SustainabilityOffsetService) Purchase(ctx context.Context, body SustainabilityOffsetPurchaseParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "sustainability/offsets/purchase"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Retire Carbon Credits (Permanent Offsetting)
+func (r *SustainabilityOffsetService) Retire(ctx context.Context, body SustainabilityOffsetRetireParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "sustainability/offsets/retire"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type SustainabilityOffsetPurchaseParams struct {
+	ProjectID       param.Field[string]  `json:"projectId,required"`
+	Tonnes          param.Field[float64] `json:"tonnes,required"`
+	PaymentSourceID param.Field[string]  `json:"paymentSourceId"`
+}
+
+func (r SustainabilityOffsetPurchaseParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type SustainabilityOffsetRetireParams struct {
+	CertificateID param.Field[string] `json:"certificateId,required"`
+}
+
+func (r SustainabilityOffsetRetireParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

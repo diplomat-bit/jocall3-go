@@ -25,7 +25,10 @@ func TestUserLogin(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{})
+	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{
+		Email:    githubcomjocall3go.F("email"),
+		Password: githubcomjocall3go.F("password"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -35,7 +38,29 @@ func TestUserLogin(t *testing.T) {
 	}
 }
 
-func TestUserRegisterWithOptionalParams(t *testing.T) {
+func TestUserLogout(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	err := client.Users.Logout(context.TODO())
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestUserRegister(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -48,7 +73,9 @@ func TestUserRegisterWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
+		Email:    githubcomjocall3go.F("email"),
+		Name:     githubcomjocall3go.F("name"),
+		Password: githubcomjocall3go.F("password"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

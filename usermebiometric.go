@@ -6,8 +6,10 @@ import (
 	"context"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -31,8 +33,25 @@ func NewUserMeBiometricService(opts ...option.RequestOption) (r *UserMeBiometric
 	return
 }
 
-// Retrieves the current status of biometric enrollments for the authenticated
-// user.
+// Remove All Biometric Data
+func (r *UserMeBiometricService) Delete(ctx context.Context, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "users/me/biometrics"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return
+}
+
+// Enroll New Biometric Signature
+func (r *UserMeBiometricService) Enroll(ctx context.Context, body UserMeBiometricEnrollParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "users/me/biometrics/enroll"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Get Biometric Enrollment Status
 func (r *UserMeBiometricService) GetStatus(ctx context.Context, opts ...option.RequestOption) (res *UserMeBiometricGetStatusResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me/biometrics"
@@ -40,8 +59,7 @@ func (r *UserMeBiometricService) GetStatus(ctx context.Context, opts ...option.R
 	return
 }
 
-// Performs real-time biometric verification to authorize sensitive actions or
-// access protected resources, using a one-time biometric signature.
+// Verify Biometric Data for Sensitive Operations
 func (r *UserMeBiometricService) Verify(ctx context.Context, body UserMeBiometricVerifyParams, opts ...option.RequestOption) (res *UserMeBiometricVerifyResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me/biometrics/verify"
@@ -49,11 +67,77 @@ func (r *UserMeBiometricService) Verify(ctx context.Context, body UserMeBiometri
 	return
 }
 
-type UserMeBiometricGetStatusResponse = interface{}
+type UserMeBiometricGetStatusResponse struct {
+	BiometricsEnrolled bool                                 `json:"biometricsEnrolled"`
+	LastUsed           time.Time                            `json:"lastUsed" format:"date-time"`
+	JSON               userMeBiometricGetStatusResponseJSON `json:"-"`
+}
 
-type UserMeBiometricVerifyResponse = interface{}
+// userMeBiometricGetStatusResponseJSON contains the JSON metadata for the struct
+// [UserMeBiometricGetStatusResponse]
+type userMeBiometricGetStatusResponseJSON struct {
+	BiometricsEnrolled apijson.Field
+	LastUsed           apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *UserMeBiometricGetStatusResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeBiometricGetStatusResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type UserMeBiometricVerifyResponse struct {
+	VerificationStatus string                            `json:"verificationStatus"`
+	JSON               userMeBiometricVerifyResponseJSON `json:"-"`
+}
+
+// userMeBiometricVerifyResponseJSON contains the JSON metadata for the struct
+// [UserMeBiometricVerifyResponse]
+type userMeBiometricVerifyResponseJSON struct {
+	VerificationStatus apijson.Field
+	raw                string
+	ExtraFields        map[string]apijson.Field
+}
+
+func (r *UserMeBiometricVerifyResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeBiometricVerifyResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type UserMeBiometricEnrollParams struct {
+	BiometricType param.Field[UserMeBiometricEnrollParamsBiometricType] `json:"biometricType,required"`
+	// Public key or hash of signature
+	Signature param.Field[string] `json:"signature,required"`
+}
+
+func (r UserMeBiometricEnrollParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type UserMeBiometricEnrollParamsBiometricType string
+
+const (
+	UserMeBiometricEnrollParamsBiometricTypeFingerprint       UserMeBiometricEnrollParamsBiometricType = "fingerprint"
+	UserMeBiometricEnrollParamsBiometricTypeFacialRecognition UserMeBiometricEnrollParamsBiometricType = "facial_recognition"
+)
+
+func (r UserMeBiometricEnrollParamsBiometricType) IsKnown() bool {
+	switch r {
+	case UserMeBiometricEnrollParamsBiometricTypeFingerprint, UserMeBiometricEnrollParamsBiometricTypeFacialRecognition:
+		return true
+	}
+	return false
+}
 
 type UserMeBiometricVerifyParams struct {
+	BiometricSignature param.Field[string] `json:"biometricSignature,required"`
 }
 
 func (r UserMeBiometricVerifyParams) MarshalJSON() (data []byte, err error) {
