@@ -34,7 +34,7 @@ func NewAccountOverdraftService(opts ...option.RequestOption) (r *AccountOverdra
 	return
 }
 
-// Get Overdraft Settings
+// Retrieves the current overdraft protection settings for a specific account.
 func (r *AccountOverdraftService) GetSettings(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountOverdraftGetSettingsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if accountID == "" {
@@ -46,34 +46,40 @@ func (r *AccountOverdraftService) GetSettings(ctx context.Context, accountID str
 	return
 }
 
-// Update Overdraft Settings
-func (r *AccountOverdraftService) UpdateSettings(ctx context.Context, accountID string, body AccountOverdraftUpdateSettingsParams, opts ...option.RequestOption) (err error) {
+// Updates the overdraft protection settings for a specific account, enabling or
+// disabling protection and configuring preferences.
+func (r *AccountOverdraftService) UpdateSettings(ctx context.Context, accountID string, body AccountOverdraftUpdateSettingsParams, opts ...option.RequestOption) (res *AccountOverdraftUpdateSettingsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if accountID == "" {
 		err = errors.New("missing required accountId parameter")
 		return
 	}
 	path := fmt.Sprintf("accounts/%s/overdraft-settings", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
 type AccountOverdraftGetSettingsResponse struct {
-	Enabled       bool                                    `json:"enabled"`
-	FeePreference string                                  `json:"feePreference"`
-	Limit         float64                                 `json:"limit"`
-	JSON          accountOverdraftGetSettingsResponseJSON `json:"-"`
+	AccountID              string                                  `json:"accountId,required"`
+	Enabled                bool                                    `json:"enabled,required"`
+	FeePreference          string                                  `json:"feePreference,required"`
+	LinkedSavingsAccountID string                                  `json:"linkedSavingsAccountId"`
+	LinkToSavings          bool                                    `json:"linkToSavings"`
+	ProtectionLimit        float64                                 `json:"protectionLimit"`
+	JSON                   accountOverdraftGetSettingsResponseJSON `json:"-"`
 }
 
 // accountOverdraftGetSettingsResponseJSON contains the JSON metadata for the
 // struct [AccountOverdraftGetSettingsResponse]
 type accountOverdraftGetSettingsResponseJSON struct {
-	Enabled       apijson.Field
-	FeePreference apijson.Field
-	Limit         apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
+	AccountID              apijson.Field
+	Enabled                apijson.Field
+	FeePreference          apijson.Field
+	LinkedSavingsAccountID apijson.Field
+	LinkToSavings          apijson.Field
+	ProtectionLimit        apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
 }
 
 func (r *AccountOverdraftGetSettingsResponse) UnmarshalJSON(data []byte) (err error) {
@@ -84,9 +90,41 @@ func (r accountOverdraftGetSettingsResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type AccountOverdraftUpdateSettingsResponse struct {
+	AccountID              string                                     `json:"accountId,required"`
+	Enabled                bool                                       `json:"enabled,required"`
+	FeePreference          string                                     `json:"feePreference,required"`
+	LinkedSavingsAccountID string                                     `json:"linkedSavingsAccountId"`
+	LinkToSavings          bool                                       `json:"linkToSavings"`
+	ProtectionLimit        float64                                    `json:"protectionLimit"`
+	JSON                   accountOverdraftUpdateSettingsResponseJSON `json:"-"`
+}
+
+// accountOverdraftUpdateSettingsResponseJSON contains the JSON metadata for the
+// struct [AccountOverdraftUpdateSettingsResponse]
+type accountOverdraftUpdateSettingsResponseJSON struct {
+	AccountID              apijson.Field
+	Enabled                apijson.Field
+	FeePreference          apijson.Field
+	LinkedSavingsAccountID apijson.Field
+	LinkToSavings          apijson.Field
+	ProtectionLimit        apijson.Field
+	raw                    string
+	ExtraFields            map[string]apijson.Field
+}
+
+func (r *AccountOverdraftUpdateSettingsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountOverdraftUpdateSettingsResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type AccountOverdraftUpdateSettingsParams struct {
-	Enabled param.Field[bool]    `json:"enabled"`
-	Limit   param.Field[float64] `json:"limit"`
+	Enabled       param.Field[bool]   `json:"enabled"`
+	FeePreference param.Field[string] `json:"feePreference"`
+	LinkToSavings param.Field[bool]   `json:"linkToSavings"`
 }
 
 func (r AccountOverdraftUpdateSettingsParams) MarshalJSON() (data []byte, err error) {

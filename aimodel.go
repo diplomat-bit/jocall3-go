@@ -3,13 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -30,95 +23,4 @@ func NewAIModelService(opts ...option.RequestOption) (r *AIModelService) {
 	r = &AIModelService{}
 	r.Options = opts
 	return
-}
-
-// Start a model fine-tuning job
-func (r *AIModelService) FineTune(ctx context.Context, body AIModelFineTuneParams, opts ...option.RequestOption) (res *AIModelFineTuneResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "ai/models/fine-tune"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-// List supported AI model versions
-func (r *AIModelService) ListVersions(ctx context.Context, opts ...option.RequestOption) (res *AIModelListVersionsResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "ai/models/versions"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type AIModelFineTuneResponse struct {
-	JobID string                      `json:"job_id"`
-	JSON  aiModelFineTuneResponseJSON `json:"-"`
-}
-
-// aiModelFineTuneResponseJSON contains the JSON metadata for the struct
-// [AIModelFineTuneResponse]
-type aiModelFineTuneResponseJSON struct {
-	JobID       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AIModelFineTuneResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiModelFineTuneResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIModelListVersionsResponse struct {
-	Models []AIModelListVersionsResponseModel `json:"models"`
-	JSON   aiModelListVersionsResponseJSON    `json:"-"`
-}
-
-// aiModelListVersionsResponseJSON contains the JSON metadata for the struct
-// [AIModelListVersionsResponse]
-type aiModelListVersionsResponseJSON struct {
-	Models      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AIModelListVersionsResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiModelListVersionsResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIModelListVersionsResponseModel struct {
-	ModelID string                               `json:"modelId,required"`
-	Version string                               `json:"version,required"`
-	JSON    aiModelListVersionsResponseModelJSON `json:"-"`
-}
-
-// aiModelListVersionsResponseModelJSON contains the JSON metadata for the struct
-// [AIModelListVersionsResponseModel]
-type aiModelListVersionsResponseModelJSON struct {
-	ModelID     apijson.Field
-	Version     apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AIModelListVersionsResponseModel) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiModelListVersionsResponseModelJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIModelFineTuneParams struct {
-	BaseModel       param.Field[string]      `json:"base_model,required"`
-	TrainingDataURL param.Field[string]      `json:"training_data_url,required" format:"uri"`
-	Hyperparameters param.Field[interface{}] `json:"hyperparameters"`
-}
-
-func (r AIModelFineTuneParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }

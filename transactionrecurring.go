@@ -4,13 +4,13 @@ package githubcomjocall3go
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -35,45 +35,32 @@ func NewTransactionRecurringService(opts ...option.RequestOption) (r *Transactio
 	return
 }
 
-// Manually Create Recurring Schedule
-func (r *TransactionRecurringService) New(ctx context.Context, body TransactionRecurringNewParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "transactions/recurring"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-// List Detected Subscriptions
-func (r *TransactionRecurringService) List(ctx context.Context, opts ...option.RequestOption) (res *TransactionRecurringListResponse, err error) {
+// Retrieves a list of all detected or user-defined recurring transactions, useful
+// for budget tracking and subscription management.
+func (r *TransactionRecurringService) List(ctx context.Context, query TransactionRecurringListParams, opts ...option.RequestOption) (res *TransactionRecurringListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "transactions/recurring"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-// Cancel Recurring Payment Detection
-func (r *TransactionRecurringService) Cancel(ctx context.Context, recurringID string, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if recurringID == "" {
-		err = errors.New("missing required recurringId parameter")
-		return
-	}
-	path := fmt.Sprintf("transactions/recurring/%s", recurringID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
 type TransactionRecurringListResponse struct {
-	Data []TransactionRecurringListResponseData `json:"data"`
-	JSON transactionRecurringListResponseJSON   `json:"-"`
+	Data       []TransactionRecurringListResponseData `json:"data,required"`
+	Limit      int64                                  `json:"limit,required"`
+	Offset     int64                                  `json:"offset,required"`
+	Total      int64                                  `json:"total,required"`
+	NextOffset int64                                  `json:"nextOffset"`
+	JSON       transactionRecurringListResponseJSON   `json:"-"`
 }
 
 // transactionRecurringListResponseJSON contains the JSON metadata for the struct
 // [TransactionRecurringListResponse]
 type transactionRecurringListResponseJSON struct {
 	Data        apijson.Field
+	Limit       apijson.Field
+	Offset      apijson.Field
+	Total       apijson.Field
+	NextOffset  apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -87,22 +74,36 @@ func (r transactionRecurringListResponseJSON) RawJSON() string {
 }
 
 type TransactionRecurringListResponseData struct {
-	ID               string                                   `json:"id"`
-	Description      string                                   `json:"description"`
-	Frequency        string                                   `json:"frequency"`
-	NextExpectedDate time.Time                                `json:"nextExpectedDate" format:"date"`
-	JSON             transactionRecurringListResponseDataJSON `json:"-"`
+	ID                string                                   `json:"id"`
+	AIConfidenceScore float64                                  `json:"aiConfidenceScore"`
+	Amount            float64                                  `json:"amount"`
+	Category          string                                   `json:"category"`
+	Currency          string                                   `json:"currency"`
+	Description       string                                   `json:"description"`
+	Frequency         string                                   `json:"frequency"`
+	LastPaidDate      time.Time                                `json:"lastPaidDate" format:"date"`
+	LinkedAccountID   string                                   `json:"linkedAccountId"`
+	NextDueDate       time.Time                                `json:"nextDueDate" format:"date"`
+	Status            string                                   `json:"status"`
+	JSON              transactionRecurringListResponseDataJSON `json:"-"`
 }
 
 // transactionRecurringListResponseDataJSON contains the JSON metadata for the
 // struct [TransactionRecurringListResponseData]
 type transactionRecurringListResponseDataJSON struct {
-	ID               apijson.Field
-	Description      apijson.Field
-	Frequency        apijson.Field
-	NextExpectedDate apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
+	ID                apijson.Field
+	AIConfidenceScore apijson.Field
+	Amount            apijson.Field
+	Category          apijson.Field
+	Currency          apijson.Field
+	Description       apijson.Field
+	Frequency         apijson.Field
+	LastPaidDate      apijson.Field
+	LinkedAccountID   apijson.Field
+	NextDueDate       apijson.Field
+	Status            apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
 }
 
 func (r *TransactionRecurringListResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -113,12 +114,18 @@ func (r transactionRecurringListResponseDataJSON) RawJSON() string {
 	return r.raw
 }
 
-type TransactionRecurringNewParams struct {
-	Amount    param.Field[float64] `json:"amount,required"`
-	Category  param.Field[string]  `json:"category,required"`
-	Frequency param.Field[string]  `json:"frequency,required"`
+type TransactionRecurringListParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
 }
 
-func (r TransactionRecurringNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+// URLQuery serializes [TransactionRecurringListParams]'s query parameters as
+// `url.Values`.
+func (r TransactionRecurringListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

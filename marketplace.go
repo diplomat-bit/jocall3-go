@@ -3,12 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,33 +25,4 @@ func NewMarketplaceService(opts ...option.RequestOption) (r *MarketplaceService)
 	r.Options = opts
 	r.Offers = NewMarketplaceOfferService(opts...)
 	return
-}
-
-// List Financial Products & Add-ons
-func (r *MarketplaceService) ListProducts(ctx context.Context, opts ...option.RequestOption) (res *MarketplaceListProductsResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "marketplace/products"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type MarketplaceListProductsResponse struct {
-	Data []interface{}                       `json:"data"`
-	JSON marketplaceListProductsResponseJSON `json:"-"`
-}
-
-// marketplaceListProductsResponseJSON contains the JSON metadata for the struct
-// [MarketplaceListProductsResponse]
-type marketplaceListProductsResponseJSON struct {
-	Data        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *MarketplaceListProductsResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r marketplaceListProductsResponseJSON) RawJSON() string {
-	return r.raw
 }

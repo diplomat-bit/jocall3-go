@@ -7,9 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
+	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -42,27 +45,19 @@ func NewAccountService(opts ...option.RequestOption) (r *AccountService) {
 	return
 }
 
-func (r *AccountService) List(ctx context.Context, opts ...option.RequestOption) (res *AccountListResponse, err error) {
+// Fetches a comprehensive, real-time list of all external financial accounts
+// linked to the user's profile, including consolidated balances and institutional
+// details.
+func (r *AccountService) List(ctx context.Context, query AccountListParams, opts ...option.RequestOption) (res *AccountListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "accounts/me"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
-// Close Financial Account
-func (r *AccountService) Close(ctx context.Context, accountID string, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if accountID == "" {
-		err = errors.New("missing required accountId parameter")
-		return
-	}
-	path := fmt.Sprintf("accounts/%s", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
-}
-
-// Link an External Financial Institution
+// Begins the secure process of linking a new external financial institution (e.g.,
+// another bank, investment platform) to the user's profile, typically involving a
+// third-party tokenized flow.
 func (r *AccountService) Link(ctx context.Context, body AccountLinkParams, opts ...option.RequestOption) (res *AccountLinkResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "accounts/link"
@@ -70,14 +65,9 @@ func (r *AccountService) Link(ctx context.Context, body AccountLinkParams, opts 
 	return
 }
 
-// Open a New Quantum Internal Account
-func (r *AccountService) Open(ctx context.Context, body AccountOpenParams, opts ...option.RequestOption) (res *AccountOpenResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "accounts/open"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
+// Retrieves comprehensive analytics for a specific financial account, including
+// historical balance trends, projected cash flow, and AI-driven insights into
+// spending patterns.
 func (r *AccountService) GetDetails(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountGetDetailsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if accountID == "" {
@@ -91,6 +81,8 @@ func (r *AccountService) GetDetails(ctx context.Context, accountID string, opts 
 
 type AccountListResponse struct {
 	Data       []AccountListResponseData `json:"data,required"`
+	Limit      int64                     `json:"limit,required"`
+	Offset     int64                     `json:"offset,required"`
 	Total      int64                     `json:"total,required"`
 	NextOffset int64                     `json:"nextOffset"`
 	JSON       accountListResponseJSON   `json:"-"`
@@ -100,6 +92,8 @@ type AccountListResponse struct {
 // [AccountListResponse]
 type accountListResponseJSON struct {
 	Data        apijson.Field
+	Limit       apijson.Field
+	Offset      apijson.Field
 	Total       apijson.Field
 	NextOffset  apijson.Field
 	raw         string
@@ -115,26 +109,36 @@ func (r accountListResponseJSON) RawJSON() string {
 }
 
 type AccountListResponseData struct {
-	ID              string                      `json:"id,required"`
-	Currency        string                      `json:"currency,required"`
-	CurrentBalance  float64                     `json:"currentBalance,required"`
-	InstitutionName string                      `json:"institutionName,required"`
-	Type            string                      `json:"type,required"`
-	Name            string                      `json:"name"`
-	JSON            accountListResponseDataJSON `json:"-"`
+	ID               string                      `json:"id"`
+	AvailableBalance float64                     `json:"availableBalance"`
+	Currency         string                      `json:"currency"`
+	CurrentBalance   float64                     `json:"currentBalance"`
+	ExternalID       string                      `json:"externalId"`
+	InstitutionName  string                      `json:"institutionName"`
+	LastUpdated      time.Time                   `json:"lastUpdated" format:"date-time"`
+	Mask             string                      `json:"mask"`
+	Name             string                      `json:"name"`
+	Subtype          string                      `json:"subtype"`
+	Type             string                      `json:"type"`
+	JSON             accountListResponseDataJSON `json:"-"`
 }
 
 // accountListResponseDataJSON contains the JSON metadata for the struct
 // [AccountListResponseData]
 type accountListResponseDataJSON struct {
-	ID              apijson.Field
-	Currency        apijson.Field
-	CurrentBalance  apijson.Field
-	InstitutionName apijson.Field
-	Type            apijson.Field
-	Name            apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID               apijson.Field
+	AvailableBalance apijson.Field
+	Currency         apijson.Field
+	CurrentBalance   apijson.Field
+	ExternalID       apijson.Field
+	InstitutionName  apijson.Field
+	LastUpdated      apijson.Field
+	Mask             apijson.Field
+	Name             apijson.Field
+	Subtype          apijson.Field
+	Type             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AccountListResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -146,16 +150,20 @@ func (r accountListResponseDataJSON) RawJSON() string {
 }
 
 type AccountLinkResponse struct {
-	LinkSessionID string                  `json:"linkSessionId"`
-	Status        string                  `json:"status"`
+	AuthUri       string                  `json:"authUri,required"`
+	LinkSessionID string                  `json:"linkSessionId,required"`
+	Status        string                  `json:"status,required"`
+	Message       string                  `json:"message"`
 	JSON          accountLinkResponseJSON `json:"-"`
 }
 
 // accountLinkResponseJSON contains the JSON metadata for the struct
 // [AccountLinkResponse]
 type accountLinkResponseJSON struct {
+	AuthUri       apijson.Field
 	LinkSessionID apijson.Field
 	Status        apijson.Field
+	Message       apijson.Field
 	raw           string
 	ExtraFields   map[string]apijson.Field
 }
@@ -168,58 +176,49 @@ func (r accountLinkResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type AccountOpenResponse struct {
-	ID              string                  `json:"id,required"`
-	Currency        string                  `json:"currency,required"`
-	CurrentBalance  float64                 `json:"currentBalance,required"`
-	InstitutionName string                  `json:"institutionName,required"`
-	Type            string                  `json:"type,required"`
-	Name            string                  `json:"name"`
-	JSON            accountOpenResponseJSON `json:"-"`
-}
-
-// accountOpenResponseJSON contains the JSON metadata for the struct
-// [AccountOpenResponse]
-type accountOpenResponseJSON struct {
-	ID              apijson.Field
-	Currency        apijson.Field
-	CurrentBalance  apijson.Field
-	InstitutionName apijson.Field
-	Type            apijson.Field
-	Name            apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *AccountOpenResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountOpenResponseJSON) RawJSON() string {
-	return r.raw
-}
-
 type AccountGetDetailsResponse struct {
-	ID              string                        `json:"id,required"`
-	Currency        string                        `json:"currency,required"`
-	CurrentBalance  float64                       `json:"currentBalance,required"`
-	InstitutionName string                        `json:"institutionName,required"`
-	Type            string                        `json:"type,required"`
-	Name            string                        `json:"name"`
-	JSON            accountGetDetailsResponseJSON `json:"-"`
+	ID                string                                     `json:"id,required"`
+	Currency          string                                     `json:"currency,required"`
+	CurrentBalance    float64                                    `json:"currentBalance,required"`
+	InstitutionName   string                                     `json:"institutionName,required"`
+	LastUpdated       time.Time                                  `json:"lastUpdated,required" format:"date-time"`
+	Name              string                                     `json:"name,required"`
+	Type              string                                     `json:"type,required"`
+	AccountHolder     string                                     `json:"accountHolder"`
+	AvailableBalance  float64                                    `json:"availableBalance"`
+	BalanceHistory    []AccountGetDetailsResponseBalanceHistory  `json:"balanceHistory"`
+	ExternalID        string                                     `json:"externalId"`
+	InterestRate      float64                                    `json:"interestRate"`
+	Mask              string                                     `json:"mask"`
+	OpenedDate        time.Time                                  `json:"openedDate" format:"date"`
+	ProjectedCashFlow AccountGetDetailsResponseProjectedCashFlow `json:"projectedCashFlow"`
+	Subtype           string                                     `json:"subtype"`
+	TransactionsCount int64                                      `json:"transactionsCount"`
+	JSON              accountGetDetailsResponseJSON              `json:"-"`
 }
 
 // accountGetDetailsResponseJSON contains the JSON metadata for the struct
 // [AccountGetDetailsResponse]
 type accountGetDetailsResponseJSON struct {
-	ID              apijson.Field
-	Currency        apijson.Field
-	CurrentBalance  apijson.Field
-	InstitutionName apijson.Field
-	Type            apijson.Field
-	Name            apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID                apijson.Field
+	Currency          apijson.Field
+	CurrentBalance    apijson.Field
+	InstitutionName   apijson.Field
+	LastUpdated       apijson.Field
+	Name              apijson.Field
+	Type              apijson.Field
+	AccountHolder     apijson.Field
+	AvailableBalance  apijson.Field
+	BalanceHistory    apijson.Field
+	ExternalID        apijson.Field
+	InterestRate      apijson.Field
+	Mask              apijson.Field
+	OpenedDate        apijson.Field
+	ProjectedCashFlow apijson.Field
+	Subtype           apijson.Field
+	TransactionsCount apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
 }
 
 func (r *AccountGetDetailsResponse) UnmarshalJSON(data []byte) (err error) {
@@ -230,39 +229,74 @@ func (r accountGetDetailsResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type AccountGetDetailsResponseBalanceHistory struct {
+	Balance float64                                     `json:"balance"`
+	Date    time.Time                                   `json:"date" format:"date"`
+	JSON    accountGetDetailsResponseBalanceHistoryJSON `json:"-"`
+}
+
+// accountGetDetailsResponseBalanceHistoryJSON contains the JSON metadata for the
+// struct [AccountGetDetailsResponseBalanceHistory]
+type accountGetDetailsResponseBalanceHistoryJSON struct {
+	Balance     apijson.Field
+	Date        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AccountGetDetailsResponseBalanceHistory) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountGetDetailsResponseBalanceHistoryJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountGetDetailsResponseProjectedCashFlow struct {
+	ConfidenceScore int64                                          `json:"confidenceScore"`
+	Days30          float64                                        `json:"days30"`
+	Days90          float64                                        `json:"days90"`
+	JSON            accountGetDetailsResponseProjectedCashFlowJSON `json:"-"`
+}
+
+// accountGetDetailsResponseProjectedCashFlowJSON contains the JSON metadata for
+// the struct [AccountGetDetailsResponseProjectedCashFlow]
+type accountGetDetailsResponseProjectedCashFlowJSON struct {
+	ConfidenceScore apijson.Field
+	Days30          apijson.Field
+	Days90          apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *AccountGetDetailsResponseProjectedCashFlow) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountGetDetailsResponseProjectedCashFlowJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountListParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
+}
+
+// URLQuery serializes [AccountListParams]'s query parameters as `url.Values`.
+func (r AccountListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type AccountLinkParams struct {
-	InstitutionID param.Field[string] `json:"institutionId,required"`
-	PublicToken   param.Field[string] `json:"publicToken,required"`
+	CountryCode     param.Field[string] `json:"countryCode,required"`
+	InstitutionName param.Field[string] `json:"institutionName,required"`
 }
 
 func (r AccountLinkParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type AccountOpenParams struct {
-	Currency       param.Field[string]                       `json:"currency,required"`
-	InitialDeposit param.Field[float64]                      `json:"initialDeposit,required"`
-	ProductType    param.Field[AccountOpenParamsProductType] `json:"productType,required"`
-	// User IDs for joint accounts
-	Owners param.Field[[]string] `json:"owners"`
-}
-
-func (r AccountOpenParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type AccountOpenParamsProductType string
-
-const (
-	AccountOpenParamsProductTypeQuantumChecking AccountOpenParamsProductType = "quantum_checking"
-	AccountOpenParamsProductTypeEliteSavings    AccountOpenParamsProductType = "elite_savings"
-	AccountOpenParamsProductTypeHighYieldVault  AccountOpenParamsProductType = "high_yield_vault"
-)
-
-func (r AccountOpenParamsProductType) IsKnown() bool {
-	switch r {
-	case AccountOpenParamsProductTypeQuantumChecking, AccountOpenParamsProductTypeEliteSavings, AccountOpenParamsProductTypeHighYieldVault:
-		return true
-	}
-	return false
 }

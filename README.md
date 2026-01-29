@@ -53,17 +53,11 @@ func main() {
 		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("JOCALL3_API_KEY")
 		option.WithEnvironmentSandbox(), // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
 	)
-	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
-		Prompt: githubcomjocall3go.F("Analyze systemic risk of a 20% BTC drop."),
-		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			Name:        githubcomjocall3go.F("Crypto Black Swan"),
-			Description: githubcomjocall3go.F("Extreme market volatility scenario."),
-		}}),
-	})
+	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response.SimulationID)
+	fmt.Printf("%+v\n", response)
 }
 
 ```
@@ -234,24 +228,6 @@ file returned by `os.Open` will be sent with the file name on disk.
 
 We also provide a helper `githubcomjocall3go.FileParam(reader io.Reader, filename string, contentType string)`
 which can be used to wrap any `io.Reader` with the appropriate file name and content type.
-
-```go
-// A file from the file system
-file, err := os.Open("/path/to/file")
-githubcomjocall3go.SystemVerificationVerifyDocumentParams{
-	File: githubcomjocall3go.F[io.Reader](file),
-}
-
-// A file from a string
-githubcomjocall3go.SystemVerificationVerifyDocumentParams{
-	File: githubcomjocall3go.F[io.Reader](strings.NewReader("my file contents")),
-}
-
-// With a custom filename and contentType
-githubcomjocall3go.SystemVerificationVerifyDocumentParams{
-	File: githubcomjocall3go.FileParam(strings.NewReader(`{"hello": "foo"}`), "file.go", "application/json"),
-}
-```
 
 ### Retries
 

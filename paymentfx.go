@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
@@ -35,25 +34,18 @@ func NewPaymentFxService(opts ...option.RequestOption) (r *PaymentFxService) {
 	return
 }
 
-// Book a Forward FX Deal
-func (r *PaymentFxService) BookDeal(ctx context.Context, body PaymentFxBookDealParams, opts ...option.RequestOption) (err error) {
+// Executes an instant currency conversion between two currencies, either from a
+// balance or into a specified account.
+func (r *PaymentFxService) ConvertCurrency(ctx context.Context, body PaymentFxConvertCurrencyParams, opts ...option.RequestOption) (res *PaymentFxConvertCurrencyResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "payments/fx/deals"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-// Execute Currency Conversion
-func (r *PaymentFxService) ConvertCurrency(ctx context.Context, body PaymentFxConvertCurrencyParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "payments/fx/convert"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
-// Market FX Rates
+// Retrieves current and AI-predicted future foreign exchange rates for a specified
+// currency pair, including bid/ask spreads and historical volatility data for
+// informed decisions.
 func (r *PaymentFxService) GetRates(ctx context.Context, query PaymentFxGetRatesParams, opts ...option.RequestOption) (res *PaymentFxGetRatesResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "payments/fx/rates"
@@ -61,19 +53,22 @@ func (r *PaymentFxService) GetRates(ctx context.Context, query PaymentFxGetRates
 	return
 }
 
+type PaymentFxConvertCurrencyResponse = interface{}
+
 type PaymentFxGetRatesResponse struct {
-	MidRate   float64                       `json:"midRate"`
-	Timestamp time.Time                     `json:"timestamp" format:"date-time"`
-	JSON      paymentFxGetRatesResponseJSON `json:"-"`
+	// Real-time foreign exchange rates.
+	CurrentRate          interface{}                   `json:"currentRate,required"`
+	HistoricalVolatility interface{}                   `json:"historicalVolatility"`
+	JSON                 paymentFxGetRatesResponseJSON `json:"-"`
 }
 
 // paymentFxGetRatesResponseJSON contains the JSON metadata for the struct
 // [PaymentFxGetRatesResponse]
 type paymentFxGetRatesResponseJSON struct {
-	MidRate     apijson.Field
-	Timestamp   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	CurrentRate          apijson.Field
+	HistoricalVolatility apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *PaymentFxGetRatesResponse) UnmarshalJSON(data []byte) (err error) {
@@ -84,20 +79,7 @@ func (r paymentFxGetRatesResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type PaymentFxBookDealParams struct {
-	Amount    param.Field[float64]   `json:"amount,required"`
-	Pair      param.Field[string]    `json:"pair,required"`
-	ValueDate param.Field[time.Time] `json:"valueDate,required" format:"date"`
-}
-
-func (r PaymentFxBookDealParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
 type PaymentFxConvertCurrencyParams struct {
-	Amount param.Field[float64] `json:"amount,required"`
-	From   param.Field[string]  `json:"from,required"`
-	To     param.Field[string]  `json:"to,required"`
 }
 
 func (r PaymentFxConvertCurrencyParams) MarshalJSON() (data []byte, err error) {
@@ -105,7 +87,12 @@ func (r PaymentFxConvertCurrencyParams) MarshalJSON() (data []byte, err error) {
 }
 
 type PaymentFxGetRatesParams struct {
-	Pair param.Field[string] `query:"pair,required"`
+	// The base currency code (e.g., USD).
+	BaseCurrency param.Field[string] `query:"baseCurrency"`
+	// Number of days into the future to provide an AI-driven prediction.
+	ForecastDays param.Field[int64] `query:"forecastDays"`
+	// The target currency code (e.g., EUR).
+	TargetCurrency param.Field[string] `query:"targetCurrency"`
 }
 
 // URLQuery serializes [PaymentFxGetRatesParams]'s query parameters as

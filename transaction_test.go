@@ -25,7 +25,7 @@ func TestTransactionGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Transactions.Get(context.TODO(), "transactionId")
+	_, err := client.Transactions.Get(context.TODO(), "txn_quantum-2024-07-21-A7B8C9")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -48,11 +48,15 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Transactions.List(context.TODO(), githubcomjocall3go.TransactionListParams{
-		Limit:     githubcomjocall3go.F(int64(0)),
-		MaxAmount: githubcomjocall3go.F(0.000000),
-		MinAmount: githubcomjocall3go.F(0.000000),
-		Offset:    githubcomjocall3go.F(int64(0)),
-		Type:      githubcomjocall3go.F("type"),
+		Category:    githubcomjocall3go.F("category"),
+		EndDate:     githubcomjocall3go.F("endDate"),
+		Limit:       githubcomjocall3go.F(int64(0)),
+		MaxAmount:   githubcomjocall3go.F(int64(0)),
+		MinAmount:   githubcomjocall3go.F(int64(0)),
+		Offset:      githubcomjocall3go.F(int64(0)),
+		SearchQuery: githubcomjocall3go.F("searchQuery"),
+		StartDate:   githubcomjocall3go.F("startDate"),
+		Type:        githubcomjocall3go.F("type"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -75,11 +79,11 @@ func TestTransactionAddNotes(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Transactions.AddNotes(
+	_, err := client.Transactions.AddNotes(
 		context.TODO(),
-		"transactionId",
+		"txn_quantum-2024-07-21-A7B8C9",
 		githubcomjocall3go.TransactionAddNotesParams{
-			Notes: githubcomjocall3go.F("notes"),
+			Notes: githubcomjocall3go.F("This was a special coffee for a client meeting."),
 		},
 	)
 	if err != nil {
@@ -105,70 +109,11 @@ func TestTransactionCategorizeWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Transactions.Categorize(
 		context.TODO(),
-		"transactionId",
+		"txn_quantum-2024-07-21-A7B8C9",
 		githubcomjocall3go.TransactionCategorizeParams{
-			Category:      githubcomjocall3go.F("category"),
+			Category:      githubcomjocall3go.F("Home > Groceries"),
 			ApplyToFuture: githubcomjocall3go.F(true),
-		},
-	)
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestTransactionDisputeWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-	)
-	err := client.Transactions.Dispute(
-		context.TODO(),
-		"transactionId",
-		githubcomjocall3go.TransactionDisputeParams{
-			Reason:        githubcomjocall3go.F(githubcomjocall3go.TransactionDisputeParamsReasonFraudulent),
-			EvidenceFiles: githubcomjocall3go.F([]string{"string"}),
-		},
-	)
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestTransactionSplit(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-	)
-	err := client.Transactions.Split(
-		context.TODO(),
-		"transactionId",
-		githubcomjocall3go.TransactionSplitParams{
-			Splits: githubcomjocall3go.F([]githubcomjocall3go.TransactionSplitParamsSplit{{
-				Amount:   githubcomjocall3go.F(0.000000),
-				Category: githubcomjocall3go.F("category"),
-			}}),
+			Notes:         githubcomjocall3go.F("Bulk purchase for party"),
 		},
 	)
 	if err != nil {

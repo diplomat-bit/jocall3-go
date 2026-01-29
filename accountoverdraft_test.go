@@ -25,7 +25,7 @@ func TestAccountOverdraftGetSettings(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Accounts.Overdraft.GetSettings(context.TODO(), "accountId")
+	_, err := client.Accounts.Overdraft.GetSettings(context.TODO(), "acc_chase_checking_4567")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -47,12 +47,13 @@ func TestAccountOverdraftUpdateSettingsWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Accounts.Overdraft.UpdateSettings(
+	_, err := client.Accounts.Overdraft.UpdateSettings(
 		context.TODO(),
-		"accountId",
+		"acc_chase_checking_4567",
 		githubcomjocall3go.AccountOverdraftUpdateSettingsParams{
-			Enabled: githubcomjocall3go.F(true),
-			Limit:   githubcomjocall3go.F(0.000000),
+			Enabled:       githubcomjocall3go.F(false),
+			FeePreference: githubcomjocall3go.F("decline_if_over_limit"),
+			LinkToSavings: githubcomjocall3go.F(false),
 		},
 	)
 	if err != nil {
