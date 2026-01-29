@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"slices"
 
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
@@ -33,8 +34,7 @@ func NewInvestmentAssetService(opts ...option.RequestOption) (r *InvestmentAsset
 	return
 }
 
-// Searches for available investment assets (stocks, ETFs, mutual funds) and
-// returns their ESG impact scores.
+// Global Multi-Asset Search (Equities, Crypto, ESG)
 func (r *InvestmentAssetService) Search(ctx context.Context, query InvestmentAssetSearchParams, opts ...option.RequestOption) (res *InvestmentAssetSearchResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "investments/assets/search"
@@ -42,17 +42,30 @@ func (r *InvestmentAssetService) Search(ctx context.Context, query InvestmentAss
 	return
 }
 
-type InvestmentAssetSearchResponse = interface{}
+type InvestmentAssetSearchResponse struct {
+	Hits []interface{}                     `json:"hits"`
+	JSON investmentAssetSearchResponseJSON `json:"-"`
+}
+
+// investmentAssetSearchResponseJSON contains the JSON metadata for the struct
+// [InvestmentAssetSearchResponse]
+type investmentAssetSearchResponseJSON struct {
+	Hits        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *InvestmentAssetSearchResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r investmentAssetSearchResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type InvestmentAssetSearchParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Minimum desired ESG score (0-10).
-	MinEsgScore param.Field[int64] `query:"minESGScore"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-	// Search query for asset name or symbol.
-	Query param.Field[string] `query:"query"`
+	Query     param.Field[string]                               `query:"query,required"`
+	AssetType param.Field[InvestmentAssetSearchParamsAssetType] `query:"assetType"`
 }
 
 // URLQuery serializes [InvestmentAssetSearchParams]'s query parameters as
@@ -62,4 +75,21 @@ func (r InvestmentAssetSearchParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type InvestmentAssetSearchParamsAssetType string
+
+const (
+	InvestmentAssetSearchParamsAssetTypeEquity InvestmentAssetSearchParamsAssetType = "EQUITY"
+	InvestmentAssetSearchParamsAssetTypeCrypto InvestmentAssetSearchParamsAssetType = "CRYPTO"
+	InvestmentAssetSearchParamsAssetTypeEtf    InvestmentAssetSearchParamsAssetType = "ETF"
+	InvestmentAssetSearchParamsAssetTypeBond   InvestmentAssetSearchParamsAssetType = "BOND"
+)
+
+func (r InvestmentAssetSearchParamsAssetType) IsKnown() bool {
+	switch r {
+	case InvestmentAssetSearchParamsAssetTypeEquity, InvestmentAssetSearchParamsAssetTypeCrypto, InvestmentAssetSearchParamsAssetTypeEtf, InvestmentAssetSearchParamsAssetTypeBond:
+		return true
+	}
+	return false
 }

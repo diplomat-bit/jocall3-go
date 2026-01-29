@@ -54,18 +54,16 @@ func main() {
 		option.WithEnvironmentSandbox(), // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
 	)
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
-		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
-			"volatility_index":     "VIX_HIGHER_30",
-			"geopolitical_tension": "high",
-		}),
-		PersonalAssumptions: githubcomjocall3go.F[any](map[string]interface{}{
-			"stop_loss_triggered": true,
-		}),
+		Prompt: githubcomjocall3go.F("Analyze systemic risk of a 20% BTC drop."),
+		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
+			Name:        githubcomjocall3go.F("Crypto Black Swan"),
+			Description: githubcomjocall3go.F("Extreme market volatility scenario."),
+		}}),
 	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response)
+	fmt.Printf("%+v\n", response.SimulationID)
 }
 
 ```
@@ -183,7 +181,11 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{})
+_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
+	Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+	Name:     githubcomjocall3go.F("Standard User"),
+	Password: githubcomjocall3go.F("DefaultPassword123!"),
+})
 if err != nil {
 	var apierr *githubcomjocall3go.Error
 	if errors.As(err, &apierr) {
@@ -210,7 +212,11 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Users.Register(
 	ctx,
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -229,6 +235,24 @@ file returned by `os.Open` will be sent with the file name on disk.
 We also provide a helper `githubcomjocall3go.FileParam(reader io.Reader, filename string, contentType string)`
 which can be used to wrap any `io.Reader` with the appropriate file name and content type.
 
+```go
+// A file from the file system
+file, err := os.Open("/path/to/file")
+githubcomjocall3go.SystemVerificationVerifyDocumentParams{
+	File: githubcomjocall3go.F[io.Reader](file),
+}
+
+// A file from a string
+githubcomjocall3go.SystemVerificationVerifyDocumentParams{
+	File: githubcomjocall3go.F[io.Reader](strings.NewReader("my file contents")),
+}
+
+// With a custom filename and contentType
+githubcomjocall3go.SystemVerificationVerifyDocumentParams{
+	File: githubcomjocall3go.FileParam(strings.NewReader(`{"hello": "foo"}`), "file.go", "application/json"),
+}
+```
+
 ### Retries
 
 Certain errors will be automatically retried 2 times by default, with a short exponential backoff.
@@ -246,7 +270,11 @@ client := githubcomjocall3go.NewClient(
 // Override per-request:
 client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithMaxRetries(5),
 )
 ```
@@ -261,7 +289,11 @@ you need to examine response headers, status codes, or other details.
 var response *http.Response
 response, err := client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithResponseInto(&response),
 )
 if err != nil {

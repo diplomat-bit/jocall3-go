@@ -38,18 +38,32 @@ func NewCorporateTreasuryService(opts ...option.RequestOption) (r *CorporateTrea
 	return
 }
 
-// Retrieves an advanced AI-driven cash flow forecast for the organization,
-// projecting liquidity, identifying potential surpluses or deficits, and providing
-// recommendations for optimal treasury management.
-func (r *CorporateTreasuryService) ForecastCashFlow(ctx context.Context, query CorporateTreasuryForecastCashFlowParams, opts ...option.RequestOption) (res *CorporateTreasuryForecastCashFlowResponse, err error) {
+// Execute bulk payouts
+func (r *CorporateTreasuryService) ExecuteBulkPayouts(ctx context.Context, body CorporateTreasuryExecuteBulkPayoutsParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "corporate/treasury/bulk-payouts"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// AI Liquidity Optimization Engine
+func (r *CorporateTreasuryService) OptimizeLiquidity(ctx context.Context, body CorporateTreasuryOptimizeLiquidityParams, opts ...option.RequestOption) (res *CorporateTreasuryOptimizeLiquidityResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/treasury/liquidity/optimize"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+// Corporate Cash Flow Projection
+func (r *CorporateTreasuryService) GetCashFlowForecast(ctx context.Context, query CorporateTreasuryGetCashFlowForecastParams, opts ...option.RequestOption) (res *CorporateTreasuryGetCashFlowForecastResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/treasury/cash-flow/forecast"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
-// Provides a real-time overview of the organization's liquidity across all
-// accounts, currencies, and short-term investments.
+// Get current liquidity positions
 func (r *CorporateTreasuryService) GetLiquidityPositions(ctx context.Context, opts ...option.RequestOption) (res *CorporateTreasuryGetLiquidityPositionsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/treasury/liquidity-positions"
@@ -57,46 +71,67 @@ func (r *CorporateTreasuryService) GetLiquidityPositions(ctx context.Context, op
 	return
 }
 
-type CorporateTreasuryForecastCashFlowResponse struct {
-	// Forecast of cash inflows by source.
-	InflowForecast interface{} `json:"inflowForecast,required"`
-	// Forecast of cash outflows by category.
-	OutflowForecast interface{}                                   `json:"outflowForecast,required"`
-	JSON            corporateTreasuryForecastCashFlowResponseJSON `json:"-"`
+type CorporateTreasuryOptimizeLiquidityResponse struct {
+	ProjectedYield float64                                        `json:"projectedYield"`
+	StrategyID     string                                         `json:"strategyId"`
+	JSON           corporateTreasuryOptimizeLiquidityResponseJSON `json:"-"`
 }
 
-// corporateTreasuryForecastCashFlowResponseJSON contains the JSON metadata for the
-// struct [CorporateTreasuryForecastCashFlowResponse]
-type corporateTreasuryForecastCashFlowResponseJSON struct {
-	InflowForecast  apijson.Field
-	OutflowForecast apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+// corporateTreasuryOptimizeLiquidityResponseJSON contains the JSON metadata for
+// the struct [CorporateTreasuryOptimizeLiquidityResponse]
+type corporateTreasuryOptimizeLiquidityResponseJSON struct {
+	ProjectedYield apijson.Field
+	StrategyID     apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
 }
 
-func (r *CorporateTreasuryForecastCashFlowResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *CorporateTreasuryOptimizeLiquidityResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r corporateTreasuryForecastCashFlowResponseJSON) RawJSON() string {
+func (r corporateTreasuryOptimizeLiquidityResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateTreasuryGetCashFlowForecastResponse struct {
+	AIRecommendations []string                                         `json:"aiRecommendations"`
+	ForecastID        string                                           `json:"forecastId"`
+	ProjectedRunway   int64                                            `json:"projectedRunway"`
+	JSON              corporateTreasuryGetCashFlowForecastResponseJSON `json:"-"`
+}
+
+// corporateTreasuryGetCashFlowForecastResponseJSON contains the JSON metadata for
+// the struct [CorporateTreasuryGetCashFlowForecastResponse]
+type corporateTreasuryGetCashFlowForecastResponseJSON struct {
+	AIRecommendations apijson.Field
+	ForecastID        apijson.Field
+	ProjectedRunway   apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *CorporateTreasuryGetCashFlowForecastResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateTreasuryGetCashFlowForecastResponseJSON) RawJSON() string {
 	return r.raw
 }
 
 type CorporateTreasuryGetLiquidityPositionsResponse struct {
-	// AI's overall assessment of liquidity.
-	AILiquidityAssessment interface{} `json:"aiLiquidityAssessment,required"`
-	// Details on short-term investments contributing to liquidity.
-	ShortTermInvestments interface{}                                        `json:"shortTermInvestments,required"`
-	JSON                 corporateTreasuryGetLiquidityPositionsResponseJSON `json:"-"`
+	Positions      []interface{}                                      `json:"positions"`
+	TotalLiquidity float64                                            `json:"total_liquidity"`
+	JSON           corporateTreasuryGetLiquidityPositionsResponseJSON `json:"-"`
 }
 
 // corporateTreasuryGetLiquidityPositionsResponseJSON contains the JSON metadata
 // for the struct [CorporateTreasuryGetLiquidityPositionsResponse]
 type corporateTreasuryGetLiquidityPositionsResponseJSON struct {
-	AILiquidityAssessment apijson.Field
-	ShortTermInvestments  apijson.Field
-	raw                   string
-	ExtraFields           map[string]apijson.Field
+	Positions      apijson.Field
+	TotalLiquidity apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
 }
 
 func (r *CorporateTreasuryGetLiquidityPositionsResponse) UnmarshalJSON(data []byte) (err error) {
@@ -107,18 +142,39 @@ func (r corporateTreasuryGetLiquidityPositionsResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type CorporateTreasuryForecastCashFlowParams struct {
-	// The number of days into the future for which to generate the cash flow forecast
-	// (e.g., 30, 90, 180).
-	ForecastHorizonDays param.Field[int64] `query:"forecastHorizonDays"`
-	// If true, the forecast will include best-case and worst-case scenario analysis
-	// alongside the most likely projection.
-	IncludeScenarioAnalysis param.Field[bool] `query:"includeScenarioAnalysis"`
+type CorporateTreasuryExecuteBulkPayoutsParams struct {
+	Payouts param.Field[[]CorporateTreasuryExecuteBulkPayoutsParamsPayout] `json:"payouts,required"`
 }
 
-// URLQuery serializes [CorporateTreasuryForecastCashFlowParams]'s query parameters
-// as `url.Values`.
-func (r CorporateTreasuryForecastCashFlowParams) URLQuery() (v url.Values) {
+func (r CorporateTreasuryExecuteBulkPayoutsParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CorporateTreasuryExecuteBulkPayoutsParamsPayout struct {
+	Amount      param.Field[float64] `json:"amount"`
+	RecipientID param.Field[string]  `json:"recipient_id"`
+}
+
+func (r CorporateTreasuryExecuteBulkPayoutsParamsPayout) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CorporateTreasuryOptimizeLiquidityParams struct {
+	SweepExcess   param.Field[bool]    `json:"sweepExcess"`
+	TargetReserve param.Field[float64] `json:"targetReserve"`
+}
+
+func (r CorporateTreasuryOptimizeLiquidityParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CorporateTreasuryGetCashFlowForecastParams struct {
+	HorizonDays param.Field[int64] `query:"horizonDays"`
+}
+
+// URLQuery serializes [CorporateTreasuryGetCashFlowForecastParams]'s query
+// parameters as `url.Values`.
+func (r CorporateTreasuryGetCashFlowForecastParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

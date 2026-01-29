@@ -33,24 +33,44 @@ func NewMarketplaceOfferService(opts ...option.RequestOption) (r *MarketplaceOff
 	return
 }
 
-// Redeems a personalized, exclusive offer from the Plato AI marketplace, often
-// resulting in a discount, special rate, or credit to the user's account.
-func (r *MarketplaceOfferService) Redeem(ctx context.Context, offerID string, body MarketplaceOfferRedeemParams, opts ...option.RequestOption) (res *MarketplaceOfferRedeemResponse, err error) {
+// List AI-Targeted Loyalty Offers
+func (r *MarketplaceOfferService) List(ctx context.Context, opts ...option.RequestOption) (res *MarketplaceOfferListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
+	path := "marketplace/offers"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+// Redeem Marketplace Reward
+func (r *MarketplaceOfferService) Redeem(ctx context.Context, offerID string, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if offerID == "" {
 		err = errors.New("missing required offerId parameter")
 		return
 	}
 	path := fmt.Sprintf("marketplace/offers/%s/redeem", offerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
 	return
 }
 
-type MarketplaceOfferRedeemResponse = interface{}
-
-type MarketplaceOfferRedeemParams struct {
+type MarketplaceOfferListResponse struct {
+	Data []interface{}                    `json:"data"`
+	JSON marketplaceOfferListResponseJSON `json:"-"`
 }
 
-func (r MarketplaceOfferRedeemParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+// marketplaceOfferListResponseJSON contains the JSON metadata for the struct
+// [MarketplaceOfferListResponse]
+type marketplaceOfferListResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *MarketplaceOfferListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r marketplaceOfferListResponseJSON) RawJSON() string {
+	return r.raw
 }

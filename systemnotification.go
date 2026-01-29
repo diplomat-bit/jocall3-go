@@ -3,6 +3,13 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -23,4 +30,56 @@ func NewSystemNotificationService(opts ...option.RequestOption) (r *SystemNotifi
 	r = &SystemNotificationService{}
 	r.Options = opts
 	return
+}
+
+// List notification templates
+func (r *SystemNotificationService) ListTemplates(ctx context.Context, opts ...option.RequestOption) (res *[]SystemNotificationListTemplatesResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "system/notifications/templates"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+// Send push notification
+func (r *SystemNotificationService) SendPush(ctx context.Context, body SystemNotificationSendPushParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "system/notifications/push"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type SystemNotificationListTemplatesResponse struct {
+	ID      string                                      `json:"id,required"`
+	Channel string                                      `json:"channel,required"`
+	Name    string                                      `json:"name,required"`
+	JSON    systemNotificationListTemplatesResponseJSON `json:"-"`
+}
+
+// systemNotificationListTemplatesResponseJSON contains the JSON metadata for the
+// struct [SystemNotificationListTemplatesResponse]
+type systemNotificationListTemplatesResponseJSON struct {
+	ID          apijson.Field
+	Channel     apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SystemNotificationListTemplatesResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r systemNotificationListTemplatesResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SystemNotificationSendPushParams struct {
+	Body   param.Field[string] `json:"body,required"`
+	Title  param.Field[string] `json:"title,required"`
+	UserID param.Field[string] `json:"user_id,required"`
+}
+
+func (r SystemNotificationSendPushParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

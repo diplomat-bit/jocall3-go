@@ -25,17 +25,15 @@ func TestUsage(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
-		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
-			"volatility_index":     "VIX_HIGHER_30",
-			"geopolitical_tension": "high",
-		}),
-		PersonalAssumptions: githubcomjocall3go.F[any](map[string]interface{}{
-			"stop_loss_triggered": true,
-		}),
+		Prompt: githubcomjocall3go.F("Analyze systemic risk of a 20% BTC drop."),
+		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
+			Name:        githubcomjocall3go.F("Crypto Black Swan"),
+			Description: githubcomjocall3go.F("Extreme market volatility scenario."),
+		}}),
 	})
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", response)
+	t.Logf("%+v\n", response.SimulationID)
 }

@@ -7,11 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"slices"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -35,8 +33,7 @@ func NewAIOracleSimulationService(opts ...option.RequestOption) (r *AIOracleSimu
 	return
 }
 
-// Retrieves the full, detailed results of a specific financial simulation by its
-// ID.
+// Get Specific Simulation Result
 func (r *AIOracleSimulationService) Get(ctx context.Context, simulationID string, opts ...option.RequestOption) (res *AIOracleSimulationGetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if simulationID == "" {
@@ -48,29 +45,85 @@ func (r *AIOracleSimulationService) Get(ctx context.Context, simulationID string
 	return
 }
 
-// Retrieves a list of all financial simulations previously run by the user,
-// including their status and summaries.
-func (r *AIOracleSimulationService) List(ctx context.Context, query AIOracleSimulationListParams, opts ...option.RequestOption) (res *AIOracleSimulationListResponse, err error) {
+// List All Past Simulations
+func (r *AIOracleSimulationService) List(ctx context.Context, opts ...option.RequestOption) (res *AIOracleSimulationListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/oracle/simulations"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-type AIOracleSimulationListResponse = interface{}
-
-type AIOracleSimulationListParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
+type AIOracleSimulationGetResponse struct {
+	SimulationID     string                            `json:"simulationId,required"`
+	Status           string                            `json:"status,required"`
+	OutcomeNarrative string                            `json:"outcomeNarrative"`
+	ProjectedValue   float64                           `json:"projectedValue"`
+	JSON             aiOracleSimulationGetResponseJSON `json:"-"`
 }
 
-// URLQuery serializes [AIOracleSimulationListParams]'s query parameters as
-// `url.Values`.
-func (r AIOracleSimulationListParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+// aiOracleSimulationGetResponseJSON contains the JSON metadata for the struct
+// [AIOracleSimulationGetResponse]
+type aiOracleSimulationGetResponseJSON struct {
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AIOracleSimulationGetResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiOracleSimulationGetResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AIOracleSimulationListResponse struct {
+	Data []AIOracleSimulationListResponseData `json:"data"`
+	JSON aiOracleSimulationListResponseJSON   `json:"-"`
+}
+
+// aiOracleSimulationListResponseJSON contains the JSON metadata for the struct
+// [AIOracleSimulationListResponse]
+type aiOracleSimulationListResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AIOracleSimulationListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiOracleSimulationListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AIOracleSimulationListResponseData struct {
+	SimulationID     string                                 `json:"simulationId,required"`
+	Status           string                                 `json:"status,required"`
+	OutcomeNarrative string                                 `json:"outcomeNarrative"`
+	ProjectedValue   float64                                `json:"projectedValue"`
+	JSON             aiOracleSimulationListResponseDataJSON `json:"-"`
+}
+
+// aiOracleSimulationListResponseDataJSON contains the JSON metadata for the struct
+// [AIOracleSimulationListResponseData]
+type aiOracleSimulationListResponseDataJSON struct {
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AIOracleSimulationListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiOracleSimulationListResponseDataJSON) RawJSON() string {
+	return r.raw
 }
