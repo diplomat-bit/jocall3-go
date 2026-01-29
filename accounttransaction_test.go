@@ -14,7 +14,6 @@ import (
 )
 
 func TestAccountTransactionListPendingWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +24,6 @@ func TestAccountTransactionListPendingWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.Transactions.ListPending(
 		context.TODO(),

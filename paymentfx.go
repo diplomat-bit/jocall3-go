@@ -36,7 +36,7 @@ func NewPaymentFxService(opts ...option.RequestOption) (r *PaymentFxService) {
 
 // Executes an instant currency conversion between two currencies, either from a
 // balance or into a specified account.
-func (r *PaymentFxService) Convert(ctx context.Context, body PaymentFxConvertParams, opts ...option.RequestOption) (res *PaymentFxConvertResponse, err error) {
+func (r *PaymentFxService) ConvertCurrency(ctx context.Context, body PaymentFxConvertCurrencyParams, opts ...option.RequestOption) (res *PaymentFxConvertCurrencyResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "payments/fx/convert"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -53,7 +53,7 @@ func (r *PaymentFxService) GetRates(ctx context.Context, query PaymentFxGetRates
 	return
 }
 
-type PaymentFxConvertResponse = interface{}
+type PaymentFxConvertCurrencyResponse = interface{}
 
 type PaymentFxGetRatesResponse struct {
 	// Real-time foreign exchange rates.
@@ -79,10 +79,10 @@ func (r paymentFxGetRatesResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type PaymentFxConvertParams struct {
+type PaymentFxConvertCurrencyParams struct {
 }
 
-func (r PaymentFxConvertParams) MarshalJSON() (data []byte, err error) {
+func (r PaymentFxConvertCurrencyParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

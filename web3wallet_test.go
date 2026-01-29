@@ -14,7 +14,6 @@ import (
 )
 
 func TestWeb3WalletNew(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +24,6 @@ func TestWeb3WalletNew(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Web3.Wallets.New(context.TODO(), githubcomjocall3go.Web3WalletNewParams{})
 	if err != nil {
@@ -38,7 +36,6 @@ func TestWeb3WalletNew(t *testing.T) {
 }
 
 func TestWeb3WalletListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -49,7 +46,6 @@ func TestWeb3WalletListWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Web3.Wallets.List(context.TODO(), githubcomjocall3go.Web3WalletListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
@@ -64,8 +60,7 @@ func TestWeb3WalletListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestWeb3WalletGetBalanceWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestWeb3WalletGetBalancesWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -76,12 +71,11 @@ func TestWeb3WalletGetBalanceWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Web3.Wallets.GetBalance(
+	_, err := client.Web3.Wallets.GetBalances(
 		context.TODO(),
 		"wallet_conn_eth_0xabc123",
-		githubcomjocall3go.Web3WalletGetBalanceParams{
+		githubcomjocall3go.Web3WalletGetBalancesParams{
 			Limit:  githubcomjocall3go.F(int64(0)),
 			Offset: githubcomjocall3go.F(int64(0)),
 		},

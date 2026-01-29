@@ -13,32 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAccountGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
-	)
-	_, err := client.Accounts.Get(context.TODO(), "acc_chase_checking_4567")
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
 func TestAccountListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -49,7 +24,6 @@ func TestAccountListWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Accounts.List(context.TODO(), githubcomjocall3go.AccountListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
@@ -65,7 +39,6 @@ func TestAccountListWithOptionalParams(t *testing.T) {
 }
 
 func TestAccountLink(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -76,9 +49,33 @@ func TestAccountLink(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{})
+	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{
+		CountryCode:     githubcomjocall3go.F("US"),
+		InstitutionName: githubcomjocall3go.F("Bank of America"),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAccountGetDetails(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.Accounts.GetDetails(context.TODO(), "acc_chase_checking_4567")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

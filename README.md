@@ -24,7 +24,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/diplomat-bit/jocall3-go@v0.1.0'
+go get -u 'github.com/diplomat-bit/jocall3-go@v0.2.0'
 ```
 
 <!-- x-release-please-end -->
@@ -175,7 +175,11 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{})
+_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
+	Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+	Name:     githubcomjocall3go.F("Standard User"),
+	Password: githubcomjocall3go.F("DefaultPassword123!"),
+})
 if err != nil {
 	var apierr *githubcomjocall3go.Error
 	if errors.As(err, &apierr) {
@@ -202,7 +206,11 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Users.Register(
 	ctx,
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -238,7 +246,11 @@ client := githubcomjocall3go.NewClient(
 // Override per-request:
 client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithMaxRetries(5),
 )
 ```
@@ -253,7 +265,11 @@ you need to examine response headers, status codes, or other details.
 var response *http.Response
 response, err := client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithResponseInto(&response),
 )
 if err != nil {

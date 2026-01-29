@@ -14,7 +14,6 @@ import (
 )
 
 func TestCorporateCardListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +24,6 @@ func TestCorporateCardListWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Corporate.Cards.List(context.TODO(), githubcomjocall3go.CorporateCardListParams{
 		Limit:  githubcomjocall3go.F(int64(0)),
@@ -41,7 +39,6 @@ func TestCorporateCardListWithOptionalParams(t *testing.T) {
 }
 
 func TestCorporateCardFreeze(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -52,7 +49,6 @@ func TestCorporateCardFreeze(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Corporate.Cards.Freeze(
 		context.TODO(),
@@ -69,7 +65,6 @@ func TestCorporateCardFreeze(t *testing.T) {
 }
 
 func TestCorporateCardIssueVirtual(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -80,7 +75,6 @@ func TestCorporateCardIssueVirtual(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Corporate.Cards.IssueVirtual(context.TODO(), githubcomjocall3go.CorporateCardIssueVirtualParams{
 		Controls: githubcomjocall3go.F[any](map[string]interface{}{
@@ -100,6 +94,37 @@ func TestCorporateCardIssueVirtual(t *testing.T) {
 			},
 		}),
 	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestCorporateCardListTransactionsWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.Corporate.Cards.ListTransactions(
+		context.TODO(),
+		"corp_card_xyz987654",
+		githubcomjocall3go.CorporateCardListTransactionsParams{
+			EndDate:   githubcomjocall3go.F("endDate"),
+			Limit:     githubcomjocall3go.F(int64(0)),
+			Offset:    githubcomjocall3go.F(int64(0)),
+			StartDate: githubcomjocall3go.F("startDate"),
+		},
+	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

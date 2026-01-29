@@ -27,6 +27,8 @@ type Client struct {
 	Sustainability *SustainabilityService
 	Marketplace    *MarketplaceService
 	Lending        *LendingService
+	Investments    *InvestmentService
+	System         *SystemService
 }
 
 // DefaultClientOptions read from the environment (JOCALL3_API_KEY, GEMINI_API_KEY,
@@ -64,6 +66,8 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Sustainability = NewSustainabilityService(opts...)
 	r.Marketplace = NewMarketplaceService(opts...)
 	r.Lending = NewLendingService(opts...)
+	r.Investments = NewInvestmentService(opts...)
+	r.System = NewSystemService(opts...)
 
 	return
 }

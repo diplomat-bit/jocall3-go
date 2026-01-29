@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
+	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
@@ -24,10 +25,11 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewAccountService] method instead.
 type AccountService struct {
-	Options      []option.RequestOption
-	Transactions *AccountTransactionService
-	Statements   *AccountStatementService
-	Overdraft    *AccountOverdraftService
+	Options        []option.RequestOption
+	Transactions   *AccountTransactionService
+	BalanceHistory *AccountBalanceHistoryService
+	Statements     *AccountStatementService
+	Overdraft      *AccountOverdraftService
 }
 
 // NewAccountService generates a new service that applies the given options to each
@@ -37,22 +39,9 @@ func NewAccountService(opts ...option.RequestOption) (r *AccountService) {
 	r = &AccountService{}
 	r.Options = opts
 	r.Transactions = NewAccountTransactionService(opts...)
+	r.BalanceHistory = NewAccountBalanceHistoryService(opts...)
 	r.Statements = NewAccountStatementService(opts...)
 	r.Overdraft = NewAccountOverdraftService(opts...)
-	return
-}
-
-// Retrieves comprehensive analytics for a specific financial account, including
-// historical balance trends, projected cash flow, and AI-driven insights into
-// spending patterns.
-func (r *AccountService) Get(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountGetResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if accountID == "" {
-		err = errors.New("missing required accountId parameter")
-		return
-	}
-	path := fmt.Sprintf("accounts/%s/details", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
@@ -76,30 +65,217 @@ func (r *AccountService) Link(ctx context.Context, body AccountLinkParams, opts 
 	return
 }
 
-type AccountGetResponse struct {
-	ProjectedCashFlow interface{}            `json:"projectedCashFlow"`
-	JSON              accountGetResponseJSON `json:"-"`
+// Retrieves comprehensive analytics for a specific financial account, including
+// historical balance trends, projected cash flow, and AI-driven insights into
+// spending patterns.
+func (r *AccountService) GetDetails(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountGetDetailsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if accountID == "" {
+		err = errors.New("missing required accountId parameter")
+		return
+	}
+	path := fmt.Sprintf("accounts/%s/details", accountID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
 }
 
-// accountGetResponseJSON contains the JSON metadata for the struct
-// [AccountGetResponse]
-type accountGetResponseJSON struct {
+type AccountListResponse struct {
+	Data       []AccountListResponseData `json:"data,required"`
+	Limit      int64                     `json:"limit,required"`
+	Offset     int64                     `json:"offset,required"`
+	Total      int64                     `json:"total,required"`
+	NextOffset int64                     `json:"nextOffset"`
+	JSON       accountListResponseJSON   `json:"-"`
+}
+
+// accountListResponseJSON contains the JSON metadata for the struct
+// [AccountListResponse]
+type accountListResponseJSON struct {
+	Data        apijson.Field
+	Limit       apijson.Field
+	Offset      apijson.Field
+	Total       apijson.Field
+	NextOffset  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AccountListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountListResponseData struct {
+	ID               string                      `json:"id"`
+	AvailableBalance float64                     `json:"availableBalance"`
+	Currency         string                      `json:"currency"`
+	CurrentBalance   float64                     `json:"currentBalance"`
+	ExternalID       string                      `json:"externalId"`
+	InstitutionName  string                      `json:"institutionName"`
+	LastUpdated      time.Time                   `json:"lastUpdated" format:"date-time"`
+	Mask             string                      `json:"mask"`
+	Name             string                      `json:"name"`
+	Subtype          string                      `json:"subtype"`
+	Type             string                      `json:"type"`
+	JSON             accountListResponseDataJSON `json:"-"`
+}
+
+// accountListResponseDataJSON contains the JSON metadata for the struct
+// [AccountListResponseData]
+type accountListResponseDataJSON struct {
+	ID               apijson.Field
+	AvailableBalance apijson.Field
+	Currency         apijson.Field
+	CurrentBalance   apijson.Field
+	ExternalID       apijson.Field
+	InstitutionName  apijson.Field
+	LastUpdated      apijson.Field
+	Mask             apijson.Field
+	Name             apijson.Field
+	Subtype          apijson.Field
+	Type             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AccountListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountListResponseDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountLinkResponse struct {
+	AuthUri       string                  `json:"authUri,required"`
+	LinkSessionID string                  `json:"linkSessionId,required"`
+	Status        string                  `json:"status,required"`
+	Message       string                  `json:"message"`
+	JSON          accountLinkResponseJSON `json:"-"`
+}
+
+// accountLinkResponseJSON contains the JSON metadata for the struct
+// [AccountLinkResponse]
+type accountLinkResponseJSON struct {
+	AuthUri       apijson.Field
+	LinkSessionID apijson.Field
+	Status        apijson.Field
+	Message       apijson.Field
+	raw           string
+	ExtraFields   map[string]apijson.Field
+}
+
+func (r *AccountLinkResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountLinkResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountGetDetailsResponse struct {
+	ID                string                                     `json:"id,required"`
+	Currency          string                                     `json:"currency,required"`
+	CurrentBalance    float64                                    `json:"currentBalance,required"`
+	InstitutionName   string                                     `json:"institutionName,required"`
+	LastUpdated       time.Time                                  `json:"lastUpdated,required" format:"date-time"`
+	Name              string                                     `json:"name,required"`
+	Type              string                                     `json:"type,required"`
+	AccountHolder     string                                     `json:"accountHolder"`
+	AvailableBalance  float64                                    `json:"availableBalance"`
+	BalanceHistory    []AccountGetDetailsResponseBalanceHistory  `json:"balanceHistory"`
+	ExternalID        string                                     `json:"externalId"`
+	InterestRate      float64                                    `json:"interestRate"`
+	Mask              string                                     `json:"mask"`
+	OpenedDate        time.Time                                  `json:"openedDate" format:"date"`
+	ProjectedCashFlow AccountGetDetailsResponseProjectedCashFlow `json:"projectedCashFlow"`
+	Subtype           string                                     `json:"subtype"`
+	TransactionsCount int64                                      `json:"transactionsCount"`
+	JSON              accountGetDetailsResponseJSON              `json:"-"`
+}
+
+// accountGetDetailsResponseJSON contains the JSON metadata for the struct
+// [AccountGetDetailsResponse]
+type accountGetDetailsResponseJSON struct {
+	ID                apijson.Field
+	Currency          apijson.Field
+	CurrentBalance    apijson.Field
+	InstitutionName   apijson.Field
+	LastUpdated       apijson.Field
+	Name              apijson.Field
+	Type              apijson.Field
+	AccountHolder     apijson.Field
+	AvailableBalance  apijson.Field
+	BalanceHistory    apijson.Field
+	ExternalID        apijson.Field
+	InterestRate      apijson.Field
+	Mask              apijson.Field
+	OpenedDate        apijson.Field
 	ProjectedCashFlow apijson.Field
+	Subtype           apijson.Field
+	TransactionsCount apijson.Field
 	raw               string
 	ExtraFields       map[string]apijson.Field
 }
 
-func (r *AccountGetResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *AccountGetDetailsResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r accountGetResponseJSON) RawJSON() string {
+func (r accountGetDetailsResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type AccountListResponse = interface{}
+type AccountGetDetailsResponseBalanceHistory struct {
+	Balance float64                                     `json:"balance"`
+	Date    time.Time                                   `json:"date" format:"date"`
+	JSON    accountGetDetailsResponseBalanceHistoryJSON `json:"-"`
+}
 
-type AccountLinkResponse = interface{}
+// accountGetDetailsResponseBalanceHistoryJSON contains the JSON metadata for the
+// struct [AccountGetDetailsResponseBalanceHistory]
+type accountGetDetailsResponseBalanceHistoryJSON struct {
+	Balance     apijson.Field
+	Date        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AccountGetDetailsResponseBalanceHistory) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountGetDetailsResponseBalanceHistoryJSON) RawJSON() string {
+	return r.raw
+}
+
+type AccountGetDetailsResponseProjectedCashFlow struct {
+	ConfidenceScore int64                                          `json:"confidenceScore"`
+	Days30          float64                                        `json:"days30"`
+	Days90          float64                                        `json:"days90"`
+	JSON            accountGetDetailsResponseProjectedCashFlowJSON `json:"-"`
+}
+
+// accountGetDetailsResponseProjectedCashFlowJSON contains the JSON metadata for
+// the struct [AccountGetDetailsResponseProjectedCashFlow]
+type accountGetDetailsResponseProjectedCashFlowJSON struct {
+	ConfidenceScore apijson.Field
+	Days30          apijson.Field
+	Days90          apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *AccountGetDetailsResponseProjectedCashFlow) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r accountGetDetailsResponseProjectedCashFlowJSON) RawJSON() string {
+	return r.raw
+}
 
 type AccountListParams struct {
 	// Maximum number of items to return in a single page.
@@ -117,6 +293,8 @@ func (r AccountListParams) URLQuery() (v url.Values) {
 }
 
 type AccountLinkParams struct {
+	CountryCode     param.Field[string] `json:"countryCode,required"`
+	InstitutionName param.Field[string] `json:"institutionName,required"`
 }
 
 func (r AccountLinkParams) MarshalJSON() (data []byte, err error) {

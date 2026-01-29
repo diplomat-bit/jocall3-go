@@ -13,8 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestTransactionInsightGetTrends(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestTransactionInsightGetSpendingTrends(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,9 +24,8 @@ func TestTransactionInsightGetTrends(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Transactions.Insights.GetTrends(context.TODO())
+	_, err := client.Transactions.Insights.GetSpendingTrends(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

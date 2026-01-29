@@ -72,6 +72,19 @@ func (r *CorporateCardService) IssueVirtual(ctx context.Context, body CorporateC
 	return
 }
 
+// Retrieves a paginated list of transactions made with a specific corporate card,
+// including AI categorization and compliance flags.
+func (r *CorporateCardService) ListTransactions(ctx context.Context, cardID string, query CorporateCardListTransactionsParams, opts ...option.RequestOption) (res *CorporateCardListTransactionsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if cardID == "" {
+		err = errors.New("missing required cardId parameter")
+		return
+	}
+	path := fmt.Sprintf("corporate/cards/%s/transactions", cardID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
 type CorporateCardListResponse = interface{}
 
 type CorporateCardFreezeResponse struct {
@@ -118,6 +131,8 @@ func (r corporateCardIssueVirtualResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type CorporateCardListTransactionsResponse = interface{}
+
 type CorporateCardListParams struct {
 	// Maximum number of items to return in a single page.
 	Limit param.Field[int64] `query:"limit"`
@@ -148,4 +163,24 @@ type CorporateCardIssueVirtualParams struct {
 
 func (r CorporateCardIssueVirtualParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type CorporateCardListTransactionsParams struct {
+	// End date for filtering results (inclusive, YYYY-MM-DD).
+	EndDate param.Field[string] `query:"endDate"`
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
+	// Start date for filtering results (inclusive, YYYY-MM-DD).
+	StartDate param.Field[string] `query:"startDate"`
+}
+
+// URLQuery serializes [CorporateCardListTransactionsParams]'s query parameters as
+// `url.Values`.
+func (r CorporateCardListTransactionsParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

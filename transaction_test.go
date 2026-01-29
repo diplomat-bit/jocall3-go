@@ -14,7 +14,6 @@ import (
 )
 
 func TestTransactionGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +24,6 @@ func TestTransactionGet(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.Get(context.TODO(), "txn_quantum-2024-07-21-A7B8C9")
 	if err != nil {
@@ -38,7 +36,6 @@ func TestTransactionGet(t *testing.T) {
 }
 
 func TestTransactionListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -49,7 +46,6 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Transactions.List(context.TODO(), githubcomjocall3go.TransactionListParams{
 		Category:    githubcomjocall3go.F("category"),
@@ -71,8 +67,7 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestTransactionCategorize(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestTransactionAddNotes(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -83,12 +78,43 @@ func TestTransactionCategorize(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
+	)
+	_, err := client.Transactions.AddNotes(
+		context.TODO(),
+		"txn_quantum-2024-07-21-A7B8C9",
+		githubcomjocall3go.TransactionAddNotesParams{
+			Notes: githubcomjocall3go.F("This was a special coffee for a client meeting."),
+		},
+	)
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestTransactionCategorizeWithOptionalParams(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Transactions.Categorize(
 		context.TODO(),
 		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionCategorizeParams{},
+		githubcomjocall3go.TransactionCategorizeParams{
+			Category:      githubcomjocall3go.F("Home > Groceries"),
+			ApplyToFuture: githubcomjocall3go.F(true),
+			Notes:         githubcomjocall3go.F("Bulk purchase for party"),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

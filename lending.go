@@ -13,8 +13,9 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewLendingService] method instead.
 type LendingService struct {
-	Options   []option.RequestOption
-	Decisions *LendingDecisionService
+	Options      []option.RequestOption
+	Applications *LendingApplicationService
+	Decisions    *LendingDecisionService
 }
 
 // NewLendingService generates a new service that applies the given options to each
@@ -23,6 +24,7 @@ type LendingService struct {
 func NewLendingService(opts ...option.RequestOption) (r *LendingService) {
 	r = &LendingService{}
 	r.Options = opts
+	r.Applications = NewLendingApplicationService(opts...)
 	r.Decisions = NewLendingDecisionService(opts...)
 	return
 }

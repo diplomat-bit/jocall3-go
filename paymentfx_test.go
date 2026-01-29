@@ -13,8 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestPaymentFxConvert(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestPaymentFxConvertCurrency(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,9 +24,8 @@ func TestPaymentFxConvert(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
-	_, err := client.Payments.Fx.Convert(context.TODO(), githubcomjocall3go.PaymentFxConvertParams{})
+	_, err := client.Payments.Fx.ConvertCurrency(context.TODO(), githubcomjocall3go.PaymentFxConvertCurrencyParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -38,7 +36,6 @@ func TestPaymentFxConvert(t *testing.T) {
 }
 
 func TestPaymentFxGetRatesWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -49,7 +46,6 @@ func TestPaymentFxGetRatesWithOptionalParams(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
-		option.WithGeminiAPIKey("My Gemini API Key"),
 	)
 	_, err := client.Payments.Fx.GetRates(context.TODO(), githubcomjocall3go.PaymentFxGetRatesParams{
 		BaseCurrency:   githubcomjocall3go.F("baseCurrency"),

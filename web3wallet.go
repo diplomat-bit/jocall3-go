@@ -58,7 +58,7 @@ func (r *Web3WalletService) List(ctx context.Context, query Web3WalletListParams
 
 // Retrieves the current balances of all recognized crypto assets within a specific
 // connected wallet.
-func (r *Web3WalletService) GetBalance(ctx context.Context, walletID string, query Web3WalletGetBalanceParams, opts ...option.RequestOption) (res *Web3WalletGetBalanceResponse, err error) {
+func (r *Web3WalletService) GetBalances(ctx context.Context, walletID string, query Web3WalletGetBalancesParams, opts ...option.RequestOption) (res *Web3WalletGetBalancesResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if walletID == "" {
 		err = errors.New("missing required walletId parameter")
@@ -73,7 +73,7 @@ type Web3WalletNewResponse = interface{}
 
 type Web3WalletListResponse = interface{}
 
-type Web3WalletGetBalanceResponse = interface{}
+type Web3WalletGetBalancesResponse = interface{}
 
 type Web3WalletNewParams struct {
 }
@@ -97,16 +97,16 @@ func (r Web3WalletListParams) URLQuery() (v url.Values) {
 	})
 }
 
-type Web3WalletGetBalanceParams struct {
+type Web3WalletGetBalancesParams struct {
 	// Maximum number of items to return in a single page.
 	Limit param.Field[int64] `query:"limit"`
 	// Number of items to skip before starting to collect the result set.
 	Offset param.Field[int64] `query:"offset"`
 }
 
-// URLQuery serializes [Web3WalletGetBalanceParams]'s query parameters as
+// URLQuery serializes [Web3WalletGetBalancesParams]'s query parameters as
 // `url.Values`.
-func (r Web3WalletGetBalanceParams) URLQuery() (v url.Values) {
+func (r Web3WalletGetBalancesParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

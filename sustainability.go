@@ -37,11 +37,11 @@ func NewSustainabilityService(opts ...option.RequestOption) (r *SustainabilitySe
 // Generates a detailed report of the user's estimated carbon footprint based on
 // transaction data, lifestyle choices, and AI-driven impact assessments, offering
 // insights and reduction strategies.
-func (r *SustainabilityService) GetFootprint(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityGetFootprintResponse, err error) {
+func (r *SustainabilityService) GetCarbonFootprint(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityGetCarbonFootprintResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "sustainability/carbon-footprint"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-type SustainabilityGetFootprintResponse = interface{}
+type SustainabilityGetCarbonFootprintResponse = interface{}

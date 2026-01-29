@@ -18,6 +18,8 @@ type CorporateService struct {
 	Treasury   *CorporateTreasuryService
 	Cards      *CorporateCardService
 	Risk       *CorporateRiskService
+	Governance *CorporateGovernanceService
+	Anomalies  *CorporateAnomalyService
 }
 
 // NewCorporateService generates a new service that applies the given options to
@@ -30,5 +32,7 @@ func NewCorporateService(opts ...option.RequestOption) (r *CorporateService) {
 	r.Treasury = NewCorporateTreasuryService(opts...)
 	r.Cards = NewCorporateCardService(opts...)
 	r.Risk = NewCorporateRiskService(opts...)
+	r.Governance = NewCorporateGovernanceService(opts...)
+	r.Anomalies = NewCorporateAnomalyService(opts...)
 	return
 }
