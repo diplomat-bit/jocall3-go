@@ -4,6 +4,7 @@ package githubcomjocall3go_test
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 
@@ -12,7 +13,8 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestUsage(t *testing.T) {
+func TestWeb3NFTListWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -23,11 +25,15 @@ func TestUsage(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	t.Skip("Prism tests are disabled")
-	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
+	_, err := client.Web3.NFTs.List(context.TODO(), githubcomjocall3go.Web3NFTListParams{
+		Limit:  githubcomjocall3go.F(int64(0)),
+		Offset: githubcomjocall3go.F(int64(0)),
+	})
 	if err != nil {
-		t.Error(err)
-		return
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
 	}
-	t.Logf("%+v\n", response)
 }

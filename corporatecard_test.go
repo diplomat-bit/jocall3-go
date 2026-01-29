@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestTransactionGet(t *testing.T) {
+func TestCorporateCardListWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,38 +25,9 @@ func TestTransactionGet(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Transactions.Get(context.TODO(), "txn_quantum-2024-07-21-A7B8C9")
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestTransactionListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-	)
-	_, err := client.Transactions.List(context.TODO(), githubcomjocall3go.TransactionListParams{
-		Category:    githubcomjocall3go.F("category"),
-		EndDate:     githubcomjocall3go.F("endDate"),
-		Limit:       githubcomjocall3go.F(int64(0)),
-		MaxAmount:   githubcomjocall3go.F(int64(0)),
-		MinAmount:   githubcomjocall3go.F(int64(0)),
-		Offset:      githubcomjocall3go.F(int64(0)),
-		SearchQuery: githubcomjocall3go.F("searchQuery"),
-		StartDate:   githubcomjocall3go.F("startDate"),
-		Type:        githubcomjocall3go.F("type"),
+	_, err := client.Corporate.Cards.List(context.TODO(), githubcomjocall3go.CorporateCardListParams{
+		Limit:  githubcomjocall3go.F(int64(0)),
+		Offset: githubcomjocall3go.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -67,7 +38,7 @@ func TestTransactionListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestTransactionAddNotes(t *testing.T) {
+func TestCorporateCardFreeze(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -79,10 +50,10 @@ func TestTransactionAddNotes(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Transactions.AddNotes(
+	_, err := client.Corporate.Cards.Freeze(
 		context.TODO(),
-		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionAddNotesParams{},
+		"corp_card_xyz987654",
+		githubcomjocall3go.CorporateCardFreezeParams{},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -93,7 +64,7 @@ func TestTransactionAddNotes(t *testing.T) {
 	}
 }
 
-func TestTransactionCategorize(t *testing.T) {
+func TestCorporateCardIssueVirtual(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -105,10 +76,54 @@ func TestTransactionCategorize(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Transactions.Categorize(
+	_, err := client.Corporate.Cards.IssueVirtual(context.TODO(), githubcomjocall3go.CorporateCardIssueVirtualParams{
+		Controls: githubcomjocall3go.F[any](map[string]interface{}{
+			"atmWithdrawals":            false,
+			"contactlessPayments":       false,
+			"onlineTransactions":        true,
+			"internationalTransactions": false,
+			"monthlyLimit":              1000,
+			"dailyLimit":                500,
+			"singleTransactionLimit":    200,
+			"merchantCategoryRestrictions": []string{
+				"Advertising",
+			},
+			"vendorRestrictions": []string{
+				"Facebook Ads",
+				"Google Ads",
+			},
+		}),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestCorporateCardListTransactionsWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+	)
+	_, err := client.Corporate.Cards.ListTransactions(
 		context.TODO(),
-		"txn_quantum-2024-07-21-A7B8C9",
-		githubcomjocall3go.TransactionCategorizeParams{},
+		"corp_card_xyz987654",
+		githubcomjocall3go.CorporateCardListTransactionsParams{
+			EndDate:   githubcomjocall3go.F("endDate"),
+			Limit:     githubcomjocall3go.F(int64(0)),
+			Offset:    githubcomjocall3go.F(int64(0)),
+			StartDate: githubcomjocall3go.F("startDate"),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

@@ -50,20 +50,15 @@ func (r *AccountStatementService) List(ctx context.Context, accountID string, qu
 }
 
 type AccountStatementListResponse struct {
-	AccountID    string                                   `json:"accountId,required"`
-	DownloadURLs AccountStatementListResponseDownloadURLs `json:"downloadUrls,required"`
-	Period       string                                   `json:"period,required"`
-	StatementID  string                                   `json:"statementId,required"`
-	JSON         accountStatementListResponseJSON         `json:"-"`
+	// Map of available download URLs for different formats.
+	DownloadURLs interface{}                      `json:"downloadUrls,required"`
+	JSON         accountStatementListResponseJSON `json:"-"`
 }
 
 // accountStatementListResponseJSON contains the JSON metadata for the struct
 // [AccountStatementListResponse]
 type accountStatementListResponseJSON struct {
-	AccountID    apijson.Field
 	DownloadURLs apijson.Field
-	Period       apijson.Field
-	StatementID  apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
 }
@@ -73,29 +68,6 @@ func (r *AccountStatementListResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r accountStatementListResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountStatementListResponseDownloadURLs struct {
-	Csv  string                                       `json:"csv"`
-	Pdf  string                                       `json:"pdf"`
-	JSON accountStatementListResponseDownloadURLsJSON `json:"-"`
-}
-
-// accountStatementListResponseDownloadURLsJSON contains the JSON metadata for the
-// struct [AccountStatementListResponseDownloadURLs]
-type accountStatementListResponseDownloadURLsJSON struct {
-	Csv         apijson.Field
-	Pdf         apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountStatementListResponseDownloadURLs) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountStatementListResponseDownloadURLsJSON) RawJSON() string {
 	return r.raw
 }
 

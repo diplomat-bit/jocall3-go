@@ -6,10 +6,8 @@ import (
 	"context"
 	"net/http"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -51,84 +49,11 @@ func (r *UserMeBiometricService) Verify(ctx context.Context, body UserMeBiometri
 	return
 }
 
-// Current biometric enrollment status for a user.
-type UserMeBiometricGetStatusResponse struct {
-	BiometricsEnrolled bool                                                `json:"biometricsEnrolled,required"`
-	EnrolledBiometrics []UserMeBiometricGetStatusResponseEnrolledBiometric `json:"enrolledBiometrics,required"`
-	LastUsed           time.Time                                           `json:"lastUsed" format:"date-time"`
-	JSON               userMeBiometricGetStatusResponseJSON                `json:"-"`
-}
+type UserMeBiometricGetStatusResponse = interface{}
 
-// userMeBiometricGetStatusResponseJSON contains the JSON metadata for the struct
-// [UserMeBiometricGetStatusResponse]
-type userMeBiometricGetStatusResponseJSON struct {
-	BiometricsEnrolled apijson.Field
-	EnrolledBiometrics apijson.Field
-	LastUsed           apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
-}
-
-func (r *UserMeBiometricGetStatusResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userMeBiometricGetStatusResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type UserMeBiometricGetStatusResponseEnrolledBiometric struct {
-	DeviceID       string                                                `json:"deviceId"`
-	EnrollmentDate time.Time                                             `json:"enrollmentDate" format:"date-time"`
-	Type           string                                                `json:"type"`
-	JSON           userMeBiometricGetStatusResponseEnrolledBiometricJSON `json:"-"`
-}
-
-// userMeBiometricGetStatusResponseEnrolledBiometricJSON contains the JSON metadata
-// for the struct [UserMeBiometricGetStatusResponseEnrolledBiometric]
-type userMeBiometricGetStatusResponseEnrolledBiometricJSON struct {
-	DeviceID       apijson.Field
-	EnrollmentDate apijson.Field
-	Type           apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
-}
-
-func (r *UserMeBiometricGetStatusResponseEnrolledBiometric) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userMeBiometricGetStatusResponseEnrolledBiometricJSON) RawJSON() string {
-	return r.raw
-}
-
-type UserMeBiometricVerifyResponse struct {
-	Message            string                            `json:"message"`
-	VerificationStatus string                            `json:"verificationStatus"`
-	JSON               userMeBiometricVerifyResponseJSON `json:"-"`
-}
-
-// userMeBiometricVerifyResponseJSON contains the JSON metadata for the struct
-// [UserMeBiometricVerifyResponse]
-type userMeBiometricVerifyResponseJSON struct {
-	Message            apijson.Field
-	VerificationStatus apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
-}
-
-func (r *UserMeBiometricVerifyResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userMeBiometricVerifyResponseJSON) RawJSON() string {
-	return r.raw
-}
+type UserMeBiometricVerifyResponse = interface{}
 
 type UserMeBiometricVerifyParams struct {
-	BiometricSignature param.Field[string] `json:"biometricSignature,required"`
-	BiometricType      param.Field[string] `json:"biometricType,required"`
-	DeviceID           param.Field[string] `json:"deviceId,required"`
 }
 
 func (r UserMeBiometricVerifyParams) MarshalJSON() (data []byte, err error) {

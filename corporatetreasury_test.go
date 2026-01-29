@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAccountGet(t *testing.T) {
+func TestCorporateTreasuryForecastCashFlowWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,31 +25,9 @@ func TestAccountGet(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Accounts.Get(context.TODO(), "acc_chase_checking_4567")
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestAccountListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-	)
-	_, err := client.Accounts.List(context.TODO(), githubcomjocall3go.AccountListParams{
-		Limit:  githubcomjocall3go.F(int64(0)),
-		Offset: githubcomjocall3go.F(int64(0)),
+	_, err := client.Corporate.Treasury.ForecastCashFlow(context.TODO(), githubcomjocall3go.CorporateTreasuryForecastCashFlowParams{
+		ForecastHorizonDays:     githubcomjocall3go.F(int64(0)),
+		IncludeScenarioAnalysis: githubcomjocall3go.F(true),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -60,7 +38,7 @@ func TestAccountListWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAccountLink(t *testing.T) {
+func TestCorporateTreasuryGetLiquidityPositions(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -72,7 +50,7 @@ func TestAccountLink(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Accounts.Link(context.TODO(), githubcomjocall3go.AccountLinkParams{})
+	_, err := client.Corporate.Treasury.GetLiquidityPositions(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
