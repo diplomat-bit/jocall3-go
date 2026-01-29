@@ -3,15 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"net/url"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -32,66 +23,4 @@ func NewInvestmentPerformanceService(opts ...option.RequestOption) (r *Investmen
 	r = &InvestmentPerformanceService{}
 	r.Options = opts
 	return
-}
-
-// Get Historical Performance Curves
-func (r *InvestmentPerformanceService) GetHistorical(ctx context.Context, query InvestmentPerformanceGetHistoricalParams, opts ...option.RequestOption) (res *InvestmentPerformanceGetHistoricalResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "investments/performance/historical"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
-}
-
-type InvestmentPerformanceGetHistoricalResponse struct {
-	BenchmarkComparison float64                                        `json:"benchmarkComparison"`
-	Points              []interface{}                                  `json:"points"`
-	JSON                investmentPerformanceGetHistoricalResponseJSON `json:"-"`
-}
-
-// investmentPerformanceGetHistoricalResponseJSON contains the JSON metadata for
-// the struct [InvestmentPerformanceGetHistoricalResponse]
-type investmentPerformanceGetHistoricalResponseJSON struct {
-	BenchmarkComparison apijson.Field
-	Points              apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *InvestmentPerformanceGetHistoricalResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r investmentPerformanceGetHistoricalResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type InvestmentPerformanceGetHistoricalParams struct {
-	Range param.Field[InvestmentPerformanceGetHistoricalParamsRange] `query:"range"`
-}
-
-// URLQuery serializes [InvestmentPerformanceGetHistoricalParams]'s query
-// parameters as `url.Values`.
-func (r InvestmentPerformanceGetHistoricalParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
-type InvestmentPerformanceGetHistoricalParamsRange string
-
-const (
-	InvestmentPerformanceGetHistoricalParamsRange1m  InvestmentPerformanceGetHistoricalParamsRange = "1m"
-	InvestmentPerformanceGetHistoricalParamsRange3m  InvestmentPerformanceGetHistoricalParamsRange = "3m"
-	InvestmentPerformanceGetHistoricalParamsRange1y  InvestmentPerformanceGetHistoricalParamsRange = "1y"
-	InvestmentPerformanceGetHistoricalParamsRange5y  InvestmentPerformanceGetHistoricalParamsRange = "5y"
-	InvestmentPerformanceGetHistoricalParamsRangeMax InvestmentPerformanceGetHistoricalParamsRange = "max"
-)
-
-func (r InvestmentPerformanceGetHistoricalParamsRange) IsKnown() bool {
-	switch r {
-	case InvestmentPerformanceGetHistoricalParamsRange1m, InvestmentPerformanceGetHistoricalParamsRange3m, InvestmentPerformanceGetHistoricalParamsRange1y, InvestmentPerformanceGetHistoricalParamsRange5y, InvestmentPerformanceGetHistoricalParamsRangeMax:
-		return true
-	}
-	return false
 }

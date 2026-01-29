@@ -4,12 +4,12 @@ package githubcomjocall3go
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -33,44 +33,30 @@ func NewAIAdvisorToolService(opts ...option.RequestOption) (r *AIAdvisorToolServ
 	return
 }
 
-// List AI-Executable Financial Tools
-func (r *AIAdvisorToolService) List(ctx context.Context, opts ...option.RequestOption) (res *AIAdvisorToolListResponse, err error) {
+// Retrieves a dynamic manifest of all integrated AI tools that Quantum can invoke
+// and execute, providing details on their capabilities, parameters, and access
+// requirements.
+func (r *AIAdvisorToolService) List(ctx context.Context, query AIAdvisorToolListParams, opts ...option.RequestOption) (res *AIAdvisorToolListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/advisor/tools"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
-// Grant AI Execution Permission for Tool
-func (r *AIAdvisorToolService) Enable(ctx context.Context, toolID string, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if toolID == "" {
-		err = errors.New("missing required toolId parameter")
-		return
-	}
-	path := fmt.Sprintf("ai/advisor/tools/%s/enable", toolID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
-	return
+type AIAdvisorToolListResponse = interface{}
+
+type AIAdvisorToolListParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
 }
 
-type AIAdvisorToolListResponse struct {
-	Data []interface{}                 `json:"data"`
-	JSON aiAdvisorToolListResponseJSON `json:"-"`
-}
-
-// aiAdvisorToolListResponseJSON contains the JSON metadata for the struct
-// [AIAdvisorToolListResponse]
-type aiAdvisorToolListResponseJSON struct {
-	Data        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AIAdvisorToolListResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiAdvisorToolListResponseJSON) RawJSON() string {
-	return r.raw
+// URLQuery serializes [AIAdvisorToolListParams]'s query parameters as
+// `url.Values`.
+func (r AIAdvisorToolListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

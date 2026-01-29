@@ -48,8 +48,7 @@ func TestUserMePreferenceUpdateWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Update(context.TODO(), githubcomjocall3go.UserMePreferenceUpdateParams{
-		AIInteractionMode: githubcomjocall3go.F("aiInteractionMode"),
-		Theme:             githubcomjocall3go.F("theme"),
+		NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

@@ -25,7 +25,7 @@ func TestAIOracleSimulationGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Oracle.Simulations.Get(context.TODO(), "simulationId")
+	_, err := client.AI.Oracle.Simulations.Get(context.TODO(), "sim_oracle-growth-2024-xyz")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -35,7 +35,7 @@ func TestAIOracleSimulationGet(t *testing.T) {
 	}
 }
 
-func TestAIOracleSimulationList(t *testing.T) {
+func TestAIOracleSimulationListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -47,7 +47,10 @@ func TestAIOracleSimulationList(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Oracle.Simulations.List(context.TODO())
+	_, err := client.AI.Oracle.Simulations.List(context.TODO(), githubcomjocall3go.AIOracleSimulationListParams{
+		Limit:  githubcomjocall3go.F(int64(0)),
+		Offset: githubcomjocall3go.F(int64(0)),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

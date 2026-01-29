@@ -7,7 +7,6 @@ import (
 	"errors"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go"
 	"github.com/diplomat-bit/jocall3-go/internal/testutil"
@@ -26,11 +25,7 @@ func TestCorporateComplianceAuditRequest(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Corporate.Compliance.Audits.Request(context.TODO(), githubcomjocall3go.CorporateComplianceAuditRequestParams{
-		AuditScope: githubcomjocall3go.F("auditScope"),
-		EndDate:    githubcomjocall3go.F(time.Now()),
-		StartDate:  githubcomjocall3go.F(time.Now()),
-	})
+	_, err := client.Corporate.Compliance.Audits.Request(context.TODO(), githubcomjocall3go.CorporateComplianceAuditRequestParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -52,7 +47,7 @@ func TestCorporateComplianceAuditGetReport(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Corporate.Compliance.Audits.GetReport(context.TODO(), "auditId")
+	_, err := client.Corporate.Compliance.Audits.GetReport(context.TODO(), "audit_corp_xyz789")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
