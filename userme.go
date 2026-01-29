@@ -72,8 +72,7 @@ type UserMeGetResponse struct {
 	IdentityVerified bool                            `json:"identityVerified,required"`
 	Name             string                          `json:"name,required"`
 	Address          UserMeGetResponseAddress        `json:"address"`
-	Phone            string                          `json:"phone"`
-	Preferences      UserMeGetResponsePreferences    `json:"preferences"`
+	Preferences      map[string]interface{}          `json:"preferences"`
 	SecurityStatus   UserMeGetResponseSecurityStatus `json:"securityStatus"`
 	JSON             userMeGetResponseJSON           `json:"-"`
 }
@@ -86,7 +85,6 @@ type userMeGetResponseJSON struct {
 	IdentityVerified apijson.Field
 	Name             apijson.Field
 	Address          apijson.Field
-	Phone            apijson.Field
 	Preferences      apijson.Field
 	SecurityStatus   apijson.Field
 	raw              string
@@ -102,10 +100,10 @@ func (r userMeGetResponseJSON) RawJSON() string {
 }
 
 type UserMeGetResponseAddress struct {
-	City    string                       `json:"city"`
-	Country string                       `json:"country"`
+	City    string                       `json:"city,required"`
+	Country string                       `json:"country,required"`
+	Street  string                       `json:"street,required"`
 	State   string                       `json:"state"`
-	Street  string                       `json:"street"`
 	Zip     string                       `json:"zip"`
 	JSON    userMeGetResponseAddressJSON `json:"-"`
 }
@@ -115,8 +113,8 @@ type UserMeGetResponseAddress struct {
 type userMeGetResponseAddressJSON struct {
 	City        apijson.Field
 	Country     apijson.Field
-	State       apijson.Field
 	Street      apijson.Field
+	State       apijson.Field
 	Zip         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -127,29 +125,6 @@ func (r *UserMeGetResponseAddress) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r userMeGetResponseAddressJSON) RawJSON() string {
-	return r.raw
-}
-
-type UserMeGetResponsePreferences struct {
-	NotificationChannels interface{}                      `json:"notificationChannels"`
-	Theme                string                           `json:"theme"`
-	JSON                 userMeGetResponsePreferencesJSON `json:"-"`
-}
-
-// userMeGetResponsePreferencesJSON contains the JSON metadata for the struct
-// [UserMeGetResponsePreferences]
-type userMeGetResponsePreferencesJSON struct {
-	NotificationChannels apijson.Field
-	Theme                apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *UserMeGetResponsePreferences) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userMeGetResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -182,8 +157,7 @@ type UserMeUpdateResponse struct {
 	IdentityVerified bool                               `json:"identityVerified,required"`
 	Name             string                             `json:"name,required"`
 	Address          UserMeUpdateResponseAddress        `json:"address"`
-	Phone            string                             `json:"phone"`
-	Preferences      UserMeUpdateResponsePreferences    `json:"preferences"`
+	Preferences      map[string]interface{}             `json:"preferences"`
 	SecurityStatus   UserMeUpdateResponseSecurityStatus `json:"securityStatus"`
 	JSON             userMeUpdateResponseJSON           `json:"-"`
 }
@@ -196,7 +170,6 @@ type userMeUpdateResponseJSON struct {
 	IdentityVerified apijson.Field
 	Name             apijson.Field
 	Address          apijson.Field
-	Phone            apijson.Field
 	Preferences      apijson.Field
 	SecurityStatus   apijson.Field
 	raw              string
@@ -212,10 +185,10 @@ func (r userMeUpdateResponseJSON) RawJSON() string {
 }
 
 type UserMeUpdateResponseAddress struct {
-	City    string                          `json:"city"`
-	Country string                          `json:"country"`
+	City    string                          `json:"city,required"`
+	Country string                          `json:"country,required"`
+	Street  string                          `json:"street,required"`
 	State   string                          `json:"state"`
-	Street  string                          `json:"street"`
 	Zip     string                          `json:"zip"`
 	JSON    userMeUpdateResponseAddressJSON `json:"-"`
 }
@@ -225,8 +198,8 @@ type UserMeUpdateResponseAddress struct {
 type userMeUpdateResponseAddressJSON struct {
 	City        apijson.Field
 	Country     apijson.Field
-	State       apijson.Field
 	Street      apijson.Field
+	State       apijson.Field
 	Zip         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -237,29 +210,6 @@ func (r *UserMeUpdateResponseAddress) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r userMeUpdateResponseAddressJSON) RawJSON() string {
-	return r.raw
-}
-
-type UserMeUpdateResponsePreferences struct {
-	NotificationChannels interface{}                         `json:"notificationChannels"`
-	Theme                string                              `json:"theme"`
-	JSON                 userMeUpdateResponsePreferencesJSON `json:"-"`
-}
-
-// userMeUpdateResponsePreferencesJSON contains the JSON metadata for the struct
-// [UserMeUpdateResponsePreferences]
-type userMeUpdateResponsePreferencesJSON struct {
-	NotificationChannels apijson.Field
-	Theme                apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *UserMeUpdateResponsePreferences) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userMeUpdateResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -297,10 +247,10 @@ func (r UserMeUpdateParams) MarshalJSON() (data []byte, err error) {
 }
 
 type UserMeUpdateParamsAddress struct {
-	City    param.Field[string] `json:"city"`
-	Country param.Field[string] `json:"country"`
+	City    param.Field[string] `json:"city,required"`
+	Country param.Field[string] `json:"country,required"`
+	Street  param.Field[string] `json:"street,required"`
 	State   param.Field[string] `json:"state"`
-	Street  param.Field[string] `json:"street"`
 	Zip     param.Field[string] `json:"zip"`
 }
 

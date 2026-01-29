@@ -28,12 +28,11 @@ func TestAIOracleSimulateRunAdvancedWithOptionalParams(t *testing.T) {
 	_, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
 		Prompt: githubcomjocall3go.F("prompt"),
 		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			DurationYears: githubcomjocall3go.F(int64(0)),
-			Name:          githubcomjocall3go.F("name"),
-			Events: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenariosEvent{{
-				Details: githubcomjocall3go.F[any](map[string]interface{}{}),
-				Type:    githubcomjocall3go.F("type"),
-			}}),
+			Name:        githubcomjocall3go.F("name"),
+			Description: githubcomjocall3go.F("description"),
+			Variables: githubcomjocall3go.F(map[string]interface{}{
+				"foo": "bar",
+			}),
 		}}),
 		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{}),
 		PersonalAssumptions:   githubcomjocall3go.F[any](map[string]interface{}{}),

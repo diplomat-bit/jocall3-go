@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
@@ -73,26 +72,22 @@ func (r *Web3WalletService) GetBalance(ctx context.Context, walletID string, opt
 }
 
 type Web3WalletNewResponse struct {
-	ID                string                    `json:"id,required"`
-	BlockchainNetwork string                    `json:"blockchainNetwork,required"`
-	Status            string                    `json:"status,required"`
-	WalletAddress     string                    `json:"walletAddress,required"`
-	LastSynced        time.Time                 `json:"lastSynced" format:"date-time"`
-	WalletProvider    string                    `json:"walletProvider"`
-	JSON              web3WalletNewResponseJSON `json:"-"`
+	ID      string                    `json:"id,required"`
+	Address string                    `json:"address,required"`
+	Network string                    `json:"network,required"`
+	Label   string                    `json:"label"`
+	JSON    web3WalletNewResponseJSON `json:"-"`
 }
 
 // web3WalletNewResponseJSON contains the JSON metadata for the struct
 // [Web3WalletNewResponse]
 type web3WalletNewResponseJSON struct {
-	ID                apijson.Field
-	BlockchainNetwork apijson.Field
-	Status            apijson.Field
-	WalletAddress     apijson.Field
-	LastSynced        apijson.Field
-	WalletProvider    apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	ID          apijson.Field
+	Address     apijson.Field
+	Network     apijson.Field
+	Label       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *Web3WalletNewResponse) UnmarshalJSON(data []byte) (err error) {
@@ -125,26 +120,22 @@ func (r web3WalletListResponseJSON) RawJSON() string {
 }
 
 type Web3WalletListResponseData struct {
-	ID                string                         `json:"id,required"`
-	BlockchainNetwork string                         `json:"blockchainNetwork,required"`
-	Status            string                         `json:"status,required"`
-	WalletAddress     string                         `json:"walletAddress,required"`
-	LastSynced        time.Time                      `json:"lastSynced" format:"date-time"`
-	WalletProvider    string                         `json:"walletProvider"`
-	JSON              web3WalletListResponseDataJSON `json:"-"`
+	ID      string                         `json:"id,required"`
+	Address string                         `json:"address,required"`
+	Network string                         `json:"network,required"`
+	Label   string                         `json:"label"`
+	JSON    web3WalletListResponseDataJSON `json:"-"`
 }
 
 // web3WalletListResponseDataJSON contains the JSON metadata for the struct
 // [Web3WalletListResponseData]
 type web3WalletListResponseDataJSON struct {
-	ID                apijson.Field
-	BlockchainNetwork apijson.Field
-	Status            apijson.Field
-	WalletAddress     apijson.Field
-	LastSynced        apijson.Field
-	WalletProvider    apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	ID          apijson.Field
+	Address     apijson.Field
+	Network     apijson.Field
+	Label       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *Web3WalletListResponseData) UnmarshalJSON(data []byte) (err error) {

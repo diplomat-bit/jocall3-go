@@ -56,20 +56,7 @@ func main() {
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
 		Prompt: githubcomjocall3go.F("Analyze the systemic risk of a 20% drop in BTC prices on my cross-chain collateralized debt positions, factoring in a simultaneous 50bps hike by the Fed and a liquidity squeeze on Aave."),
 		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			Name:          githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
-			DurationYears: githubcomjocall3go.F(int64(1)),
-			Events: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenariosEvent{{
-				Type: githubcomjocall3go.F("liquidation_cascade"),
-				Details: githubcomjocall3go.F[any](map[string]interface{}{
-					"magnitude": "extreme",
-					"threshold": "0.85",
-				}),
-			}, {
-				Type: githubcomjocall3go.F("interest_rate_shock"),
-				Details: githubcomjocall3go.F[any](map[string]interface{}{
-					"basis_points": 50,
-				}),
-			}}),
+			Name: githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
 		}}),
 		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
 			"volatility_index":     "VIX_HIGHER_30",
@@ -82,7 +69,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response.OverallSummary)
+	fmt.Printf("%+v\n", response.ConfidenceScore)
 }
 
 ```
@@ -253,6 +240,24 @@ file returned by `os.Open` will be sent with the file name on disk.
 
 We also provide a helper `githubcomjocall3go.FileParam(reader io.Reader, filename string, contentType string)`
 which can be used to wrap any `io.Reader` with the appropriate file name and content type.
+
+```go
+// A file from the file system
+file, err := os.Open("/path/to/file")
+githubcomjocall3go.SystemVerificationDocumentParams{
+	File: githubcomjocall3go.F[io.Reader](file),
+}
+
+// A file from a string
+githubcomjocall3go.SystemVerificationDocumentParams{
+	File: githubcomjocall3go.F[io.Reader](strings.NewReader("my file contents")),
+}
+
+// With a custom filename and contentType
+githubcomjocall3go.SystemVerificationDocumentParams{
+	File: githubcomjocall3go.FileParam(strings.NewReader(`{"hello": "foo"}`), "file.go", "application/json"),
+}
+```
 
 ### Retries
 

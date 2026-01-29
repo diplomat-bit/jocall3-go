@@ -4,6 +4,8 @@ package githubcomjocall3go
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"slices"
 
@@ -38,6 +40,19 @@ func (r *CorporateRiskFraudRuleService) New(ctx context.Context, body CorporateR
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "corporate/risk/fraud/rules"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Update a fraud rule
+func (r *CorporateRiskFraudRuleService) Update(ctx context.Context, ruleID string, body CorporateRiskFraudRuleUpdateParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	if ruleID == "" {
+		err = errors.New("missing required ruleId parameter")
+		return
+	}
+	path := fmt.Sprintf("corporate/risk/fraud/rules/%s", ruleID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
 	return
 }
 
@@ -76,5 +91,14 @@ type CorporateRiskFraudRuleNewParams struct {
 }
 
 func (r CorporateRiskFraudRuleNewParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CorporateRiskFraudRuleUpdateParams struct {
+	Action param.Field[string] `json:"action"`
+	Name   param.Field[string] `json:"name"`
+}
+
+func (r CorporateRiskFraudRuleUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }

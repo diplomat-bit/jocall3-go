@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -34,6 +36,14 @@ func NewCorporateCardService(opts ...option.RequestOption) (r *CorporateCardServ
 	r = &CorporateCardService{}
 	r.Options = opts
 	r.Controls = NewCorporateCardControlService(opts...)
+	return
+}
+
+// List all corporate cards
+func (r *CorporateCardService) List(ctx context.Context, query CorporateCardListParams, opts ...option.RequestOption) (res *CorporateCardListResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/cards"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
@@ -66,15 +76,80 @@ func (r *CorporateCardService) IssueVirtual(ctx context.Context, body CorporateC
 	return
 }
 
+// Get card transactions
+func (r *CorporateCardService) ListTransactions(ctx context.Context, cardID string, opts ...option.RequestOption) (res *CorporateCardListTransactionsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if cardID == "" {
+		err = errors.New("missing required cardId parameter")
+		return
+	}
+	path := fmt.Sprintf("corporate/cards/%s/transactions", cardID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+type CorporateCardListResponse struct {
+	Data  []CorporateCardListResponseData `json:"data"`
+	Total int64                           `json:"total"`
+	JSON  corporateCardListResponseJSON   `json:"-"`
+}
+
+// corporateCardListResponseJSON contains the JSON metadata for the struct
+// [CorporateCardListResponse]
+type corporateCardListResponseJSON struct {
+	Data        apijson.Field
+	Total       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateCardListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateCardListResponseData struct {
+	ID             string                            `json:"id,required"`
+	CardNumberMask string                            `json:"cardNumberMask,required"`
+	HolderName     string                            `json:"holderName,required"`
+	Status         string                            `json:"status,required"`
+	Controls       map[string]interface{}            `json:"controls"`
+	Frozen         bool                              `json:"frozen"`
+	JSON           corporateCardListResponseDataJSON `json:"-"`
+}
+
+// corporateCardListResponseDataJSON contains the JSON metadata for the struct
+// [CorporateCardListResponseData]
+type corporateCardListResponseDataJSON struct {
+	ID             apijson.Field
+	CardNumberMask apijson.Field
+	HolderName     apijson.Field
+	Status         apijson.Field
+	Controls       apijson.Field
+	Frozen         apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *CorporateCardListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardListResponseDataJSON) RawJSON() string {
+	return r.raw
+}
+
 type CorporateCardIssuePhysicalResponse struct {
-	ID             string                                     `json:"id,required"`
-	CardNumberMask string                                     `json:"cardNumberMask,required"`
-	HolderName     string                                     `json:"holderName,required"`
-	Status         string                                     `json:"status,required"`
-	Controls       CorporateCardIssuePhysicalResponseControls `json:"controls"`
-	ExpirationDate time.Time                                  `json:"expirationDate" format:"date"`
-	Frozen         bool                                       `json:"frozen"`
-	JSON           corporateCardIssuePhysicalResponseJSON     `json:"-"`
+	ID             string                                 `json:"id,required"`
+	CardNumberMask string                                 `json:"cardNumberMask,required"`
+	HolderName     string                                 `json:"holderName,required"`
+	Status         string                                 `json:"status,required"`
+	Controls       map[string]interface{}                 `json:"controls"`
+	Frozen         bool                                   `json:"frozen"`
+	JSON           corporateCardIssuePhysicalResponseJSON `json:"-"`
 }
 
 // corporateCardIssuePhysicalResponseJSON contains the JSON metadata for the struct
@@ -85,7 +160,6 @@ type corporateCardIssuePhysicalResponseJSON struct {
 	HolderName     apijson.Field
 	Status         apijson.Field
 	Controls       apijson.Field
-	ExpirationDate apijson.Field
 	Frozen         apijson.Field
 	raw            string
 	ExtraFields    map[string]apijson.Field
@@ -99,38 +173,14 @@ func (r corporateCardIssuePhysicalResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type CorporateCardIssuePhysicalResponseControls struct {
-	Categories   []string                                       `json:"categories"`
-	MonthlyLimit float64                                        `json:"monthlyLimit"`
-	JSON         corporateCardIssuePhysicalResponseControlsJSON `json:"-"`
-}
-
-// corporateCardIssuePhysicalResponseControlsJSON contains the JSON metadata for
-// the struct [CorporateCardIssuePhysicalResponseControls]
-type corporateCardIssuePhysicalResponseControlsJSON struct {
-	Categories   apijson.Field
-	MonthlyLimit apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *CorporateCardIssuePhysicalResponseControls) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r corporateCardIssuePhysicalResponseControlsJSON) RawJSON() string {
-	return r.raw
-}
-
 type CorporateCardIssueVirtualResponse struct {
-	ID             string                                    `json:"id,required"`
-	CardNumberMask string                                    `json:"cardNumberMask,required"`
-	HolderName     string                                    `json:"holderName,required"`
-	Status         string                                    `json:"status,required"`
-	Controls       CorporateCardIssueVirtualResponseControls `json:"controls"`
-	ExpirationDate time.Time                                 `json:"expirationDate" format:"date"`
-	Frozen         bool                                      `json:"frozen"`
-	JSON           corporateCardIssueVirtualResponseJSON     `json:"-"`
+	ID             string                                `json:"id,required"`
+	CardNumberMask string                                `json:"cardNumberMask,required"`
+	HolderName     string                                `json:"holderName,required"`
+	Status         string                                `json:"status,required"`
+	Controls       map[string]interface{}                `json:"controls"`
+	Frozen         bool                                  `json:"frozen"`
+	JSON           corporateCardIssueVirtualResponseJSON `json:"-"`
 }
 
 // corporateCardIssueVirtualResponseJSON contains the JSON metadata for the struct
@@ -141,7 +191,6 @@ type corporateCardIssueVirtualResponseJSON struct {
 	HolderName     apijson.Field
 	Status         apijson.Field
 	Controls       apijson.Field
-	ExpirationDate apijson.Field
 	Frozen         apijson.Field
 	raw            string
 	ExtraFields    map[string]apijson.Field
@@ -155,27 +204,72 @@ func (r corporateCardIssueVirtualResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type CorporateCardIssueVirtualResponseControls struct {
-	Categories   []string                                      `json:"categories"`
-	MonthlyLimit float64                                       `json:"monthlyLimit"`
-	JSON         corporateCardIssueVirtualResponseControlsJSON `json:"-"`
+type CorporateCardListTransactionsResponse struct {
+	Data []CorporateCardListTransactionsResponseData `json:"data"`
+	JSON corporateCardListTransactionsResponseJSON   `json:"-"`
 }
 
-// corporateCardIssueVirtualResponseControlsJSON contains the JSON metadata for the
-// struct [CorporateCardIssueVirtualResponseControls]
-type corporateCardIssueVirtualResponseControlsJSON struct {
-	Categories   apijson.Field
-	MonthlyLimit apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
+// corporateCardListTransactionsResponseJSON contains the JSON metadata for the
+// struct [CorporateCardListTransactionsResponse]
+type corporateCardListTransactionsResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
-func (r *CorporateCardIssueVirtualResponseControls) UnmarshalJSON(data []byte) (err error) {
+func (r *CorporateCardListTransactionsResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r corporateCardIssueVirtualResponseControlsJSON) RawJSON() string {
+func (r corporateCardListTransactionsResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+type CorporateCardListTransactionsResponseData struct {
+	ID          string                                        `json:"id,required"`
+	Amount      float64                                       `json:"amount,required"`
+	Currency    string                                        `json:"currency,required"`
+	Date        time.Time                                     `json:"date,required" format:"date"`
+	Description string                                        `json:"description,required"`
+	Category    string                                        `json:"category"`
+	Notes       string                                        `json:"notes"`
+	JSON        corporateCardListTransactionsResponseDataJSON `json:"-"`
+}
+
+// corporateCardListTransactionsResponseDataJSON contains the JSON metadata for the
+// struct [CorporateCardListTransactionsResponseData]
+type corporateCardListTransactionsResponseDataJSON struct {
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateCardListTransactionsResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardListTransactionsResponseDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateCardListParams struct {
+	Limit  param.Field[int64] `query:"limit"`
+	Offset param.Field[int64] `query:"offset"`
+}
+
+// URLQuery serializes [CorporateCardListParams]'s query parameters as
+// `url.Values`.
+func (r CorporateCardListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type CorporateCardFreezeParams struct {
@@ -196,10 +290,10 @@ func (r CorporateCardIssuePhysicalParams) MarshalJSON() (data []byte, err error)
 }
 
 type CorporateCardIssuePhysicalParamsShippingAddress struct {
-	City    param.Field[string] `json:"city"`
-	Country param.Field[string] `json:"country"`
+	City    param.Field[string] `json:"city,required"`
+	Country param.Field[string] `json:"country,required"`
+	Street  param.Field[string] `json:"street,required"`
 	State   param.Field[string] `json:"state"`
-	Street  param.Field[string] `json:"street"`
 	Zip     param.Field[string] `json:"zip"`
 }
 
