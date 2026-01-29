@@ -10,7 +10,6 @@ import (
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -34,20 +33,20 @@ func NewAccountOverdraftService(opts ...option.RequestOption) (r *AccountOverdra
 	return
 }
 
-// Update Overdraft Settings
-func (r *AccountOverdraftService) Update(ctx context.Context, accountID string, body AccountOverdraftUpdateParams, opts ...option.RequestOption) (err error) {
+// Updates the overdraft protection settings for a specific account, enabling or
+// disabling protection and configuring preferences.
+func (r *AccountOverdraftService) Update(ctx context.Context, accountID string, body AccountOverdraftUpdateParams, opts ...option.RequestOption) (res *AccountOverdraftUpdateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if accountID == "" {
 		err = errors.New("missing required accountId parameter")
 		return
 	}
 	path := fmt.Sprintf("accounts/%s/overdraft-settings", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
-// Get Overdraft Settings
+// Retrieves the current overdraft protection settings for a specific account.
 func (r *AccountOverdraftService) Get(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountOverdraftGetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if accountID == "" {
@@ -59,34 +58,11 @@ func (r *AccountOverdraftService) Get(ctx context.Context, accountID string, opt
 	return
 }
 
-type AccountOverdraftGetResponse struct {
-	Enabled       bool                            `json:"enabled"`
-	FeePreference string                          `json:"feePreference"`
-	Limit         float64                         `json:"limit"`
-	JSON          accountOverdraftGetResponseJSON `json:"-"`
-}
+type AccountOverdraftUpdateResponse = interface{}
 
-// accountOverdraftGetResponseJSON contains the JSON metadata for the struct
-// [AccountOverdraftGetResponse]
-type accountOverdraftGetResponseJSON struct {
-	Enabled       apijson.Field
-	FeePreference apijson.Field
-	Limit         apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *AccountOverdraftGetResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountOverdraftGetResponseJSON) RawJSON() string {
-	return r.raw
-}
+type AccountOverdraftGetResponse = interface{}
 
 type AccountOverdraftUpdateParams struct {
-	Enabled param.Field[bool]    `json:"enabled"`
-	Limit   param.Field[float64] `json:"limit"`
 }
 
 func (r AccountOverdraftUpdateParams) MarshalJSON() (data []byte, err error) {

@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestCorporateCardControlUpdateWithOptionalParams(t *testing.T) {
+func TestCorporateCardControlUpdate(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,14 +25,10 @@ func TestCorporateCardControlUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Corporate.Cards.Controls.Update(
+	_, err := client.Corporate.Cards.Controls.Update(
 		context.TODO(),
-		"cardId",
-		githubcomjocall3go.CorporateCardControlUpdateParams{
-			AllowedCategories: githubcomjocall3go.F([]string{"string"}),
-			GeoRestriction:    githubcomjocall3go.F([]string{"string"}),
-			MonthlyLimit:      githubcomjocall3go.F(0.000000),
-		},
+		"corp_card_xyz987654",
+		githubcomjocall3go.CorporateCardControlUpdateParams{},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

@@ -3,15 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"net/url"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -32,81 +23,4 @@ func NewSustainabilityImpactService(opts ...option.RequestOption) (r *Sustainabi
 	r = &SustainabilityImpactService{}
 	r.Options = opts
 	return
-}
-
-// ESG Portfolio Impact Analysis
-func (r *SustainabilityImpactService) PortfolioAnalysis(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityImpactPortfolioAnalysisResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "sustainability/impact/portfolio"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-// Search Global Green Projects
-func (r *SustainabilityImpactService) ProjectSearch(ctx context.Context, query SustainabilityImpactProjectSearchParams, opts ...option.RequestOption) (res *SustainabilityImpactProjectSearchResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "sustainability/impact/projects"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
-}
-
-type SustainabilityImpactPortfolioAnalysisResponse struct {
-	EsgScore                int64                                             `json:"esgScore"`
-	FossilFuelExposure      float64                                           `json:"fossilFuelExposure"`
-	GreenProjectInvolvement []string                                          `json:"greenProjectInvolvement"`
-	SocialJusticeRating     string                                            `json:"socialJusticeRating"`
-	JSON                    sustainabilityImpactPortfolioAnalysisResponseJSON `json:"-"`
-}
-
-// sustainabilityImpactPortfolioAnalysisResponseJSON contains the JSON metadata for
-// the struct [SustainabilityImpactPortfolioAnalysisResponse]
-type sustainabilityImpactPortfolioAnalysisResponseJSON struct {
-	EsgScore                apijson.Field
-	FossilFuelExposure      apijson.Field
-	GreenProjectInvolvement apijson.Field
-	SocialJusticeRating     apijson.Field
-	raw                     string
-	ExtraFields             map[string]apijson.Field
-}
-
-func (r *SustainabilityImpactPortfolioAnalysisResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r sustainabilityImpactPortfolioAnalysisResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type SustainabilityImpactProjectSearchResponse struct {
-	Data []interface{}                                 `json:"data"`
-	JSON sustainabilityImpactProjectSearchResponseJSON `json:"-"`
-}
-
-// sustainabilityImpactProjectSearchResponseJSON contains the JSON metadata for the
-// struct [SustainabilityImpactProjectSearchResponse]
-type sustainabilityImpactProjectSearchResponseJSON struct {
-	Data        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *SustainabilityImpactProjectSearchResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r sustainabilityImpactProjectSearchResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type SustainabilityImpactProjectSearchParams struct {
-	Continent param.Field[string] `query:"continent"`
-}
-
-// URLQuery serializes [SustainabilityImpactProjectSearchParams]'s query parameters
-// as `url.Values`.
-func (r SustainabilityImpactProjectSearchParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
 }

@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -34,71 +36,79 @@ func NewCorporateRiskFraudRuleService(opts ...option.RequestOption) (r *Corporat
 	return
 }
 
-// Create Custom Fraud Rule
-func (r *CorporateRiskFraudRuleService) New(ctx context.Context, body CorporateRiskFraudRuleNewParams, opts ...option.RequestOption) (err error) {
+// Updates an existing custom AI-powered fraud detection rule, modifying its
+// criteria, actions, or status.
+func (r *CorporateRiskFraudRuleService) Update(ctx context.Context, ruleID string, body CorporateRiskFraudRuleUpdateParams, opts ...option.RequestOption) (res *CorporateRiskFraudRuleUpdateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "corporate/risk/fraud/rules"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-// Update a fraud rule
-func (r *CorporateRiskFraudRuleService) Update(ctx context.Context, ruleID string, body CorporateRiskFraudRuleUpdateParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if ruleID == "" {
 		err = errors.New("missing required ruleId parameter")
 		return
 	}
 	path := fmt.Sprintf("corporate/risk/fraud/rules/%s", ruleID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
-// List Active Fraud Rule Set
-func (r *CorporateRiskFraudRuleService) List(ctx context.Context, opts ...option.RequestOption) (res *CorporateRiskFraudRuleListResponse, err error) {
+// Retrieves a list of AI-powered fraud detection rules currently active for the
+// organization, including their parameters, thresholds, and associated actions
+// (e.g., flag, block, alert).
+func (r *CorporateRiskFraudRuleService) List(ctx context.Context, query CorporateRiskFraudRuleListParams, opts ...option.RequestOption) (res *CorporateRiskFraudRuleListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/risk/fraud/rules"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
-type CorporateRiskFraudRuleListResponse struct {
-	Rules []interface{}                          `json:"rules"`
-	JSON  corporateRiskFraudRuleListResponseJSON `json:"-"`
+type CorporateRiskFraudRuleUpdateResponse struct {
+	// Action to take when a fraud rule is triggered.
+	Action interface{} `json:"action,required"`
+	// Criteria that define when a fraud rule should trigger.
+	Criteria interface{}                              `json:"criteria,required"`
+	JSON     corporateRiskFraudRuleUpdateResponseJSON `json:"-"`
 }
 
-// corporateRiskFraudRuleListResponseJSON contains the JSON metadata for the struct
-// [CorporateRiskFraudRuleListResponse]
-type corporateRiskFraudRuleListResponseJSON struct {
-	Rules       apijson.Field
+// corporateRiskFraudRuleUpdateResponseJSON contains the JSON metadata for the
+// struct [CorporateRiskFraudRuleUpdateResponse]
+type corporateRiskFraudRuleUpdateResponseJSON struct {
+	Action      apijson.Field
+	Criteria    apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *CorporateRiskFraudRuleListResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *CorporateRiskFraudRuleUpdateResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r corporateRiskFraudRuleListResponseJSON) RawJSON() string {
+func (r corporateRiskFraudRuleUpdateResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type CorporateRiskFraudRuleNewParams struct {
-	Logic param.Field[interface{}] `json:"logic,required"`
-	Name  param.Field[string]      `json:"name,required"`
-}
-
-func (r CorporateRiskFraudRuleNewParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
+type CorporateRiskFraudRuleListResponse = interface{}
 
 type CorporateRiskFraudRuleUpdateParams struct {
-	Action param.Field[string] `json:"action"`
-	Name   param.Field[string] `json:"name"`
+	// Action to take when a fraud rule is triggered.
+	Action param.Field[interface{}] `json:"action"`
+	// Criteria that define when a fraud rule should trigger.
+	Criteria param.Field[interface{}] `json:"criteria"`
 }
 
 func (r CorporateRiskFraudRuleUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type CorporateRiskFraudRuleListParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
+}
+
+// URLQuery serializes [CorporateRiskFraudRuleListParams]'s query parameters as
+// `url.Values`.
+func (r CorporateRiskFraudRuleListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

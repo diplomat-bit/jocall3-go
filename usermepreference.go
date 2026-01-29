@@ -32,7 +32,9 @@ func NewUserMePreferenceService(opts ...option.RequestOption) (r *UserMePreferen
 	return
 }
 
-// Get User Personalization Preferences
+// Retrieves the user's deep personalization preferences, including AI
+// customization settings, notification channel priorities, thematic choices, and
+// data sharing consents.
 func (r *UserMePreferenceService) Get(ctx context.Context, opts ...option.RequestOption) (res *UserMePreferenceGetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me/preferences"
@@ -40,7 +42,9 @@ func (r *UserMePreferenceService) Get(ctx context.Context, opts ...option.Reques
 	return
 }
 
-// Update User Personalization Preferences
+// Updates the user's deep personalization preferences, allowing dynamic control
+// over AI behavior, notification delivery, thematic choices, and data privacy
+// settings.
 func (r *UserMePreferenceService) Update(ctx context.Context, body UserMePreferenceUpdateParams, opts ...option.RequestOption) (res *UserMePreferenceUpdateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me/preferences"
@@ -48,23 +52,19 @@ func (r *UserMePreferenceService) Update(ctx context.Context, body UserMePrefere
 	return
 }
 
+// User's personalized preferences for the platform.
 type UserMePreferenceGetResponse struct {
-	AIInteractionMode  UserMePreferenceGetResponseAIInteractionMode `json:"aiInteractionMode"`
-	DataSharingConsent bool                                         `json:"dataSharingConsent"`
-	PreferredLanguage  string                                       `json:"preferredLanguage"`
-	Theme              string                                       `json:"theme"`
-	JSON               userMePreferenceGetResponseJSON              `json:"-"`
+	// Preferred channels for receiving notifications.
+	NotificationChannels interface{}                     `json:"notificationChannels"`
+	JSON                 userMePreferenceGetResponseJSON `json:"-"`
 }
 
 // userMePreferenceGetResponseJSON contains the JSON metadata for the struct
 // [UserMePreferenceGetResponse]
 type userMePreferenceGetResponseJSON struct {
-	AIInteractionMode  apijson.Field
-	DataSharingConsent apijson.Field
-	PreferredLanguage  apijson.Field
-	Theme              apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
+	NotificationChannels apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *UserMePreferenceGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -75,35 +75,19 @@ func (r userMePreferenceGetResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type UserMePreferenceGetResponseAIInteractionMode string
-
-const (
-	UserMePreferenceGetResponseAIInteractionModeProactive UserMePreferenceGetResponseAIInteractionMode = "proactive"
-	UserMePreferenceGetResponseAIInteractionModeReactive  UserMePreferenceGetResponseAIInteractionMode = "reactive"
-	UserMePreferenceGetResponseAIInteractionModeSilent    UserMePreferenceGetResponseAIInteractionMode = "silent"
-)
-
-func (r UserMePreferenceGetResponseAIInteractionMode) IsKnown() bool {
-	switch r {
-	case UserMePreferenceGetResponseAIInteractionModeProactive, UserMePreferenceGetResponseAIInteractionModeReactive, UserMePreferenceGetResponseAIInteractionModeSilent:
-		return true
-	}
-	return false
-}
-
+// User's personalized preferences for the platform.
 type UserMePreferenceUpdateResponse struct {
-	AIInteractionMode string                             `json:"aiInteractionMode"`
-	Theme             string                             `json:"theme"`
-	JSON              userMePreferenceUpdateResponseJSON `json:"-"`
+	// Preferred channels for receiving notifications.
+	NotificationChannels interface{}                        `json:"notificationChannels"`
+	JSON                 userMePreferenceUpdateResponseJSON `json:"-"`
 }
 
 // userMePreferenceUpdateResponseJSON contains the JSON metadata for the struct
 // [UserMePreferenceUpdateResponse]
 type userMePreferenceUpdateResponseJSON struct {
-	AIInteractionMode apijson.Field
-	Theme             apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	NotificationChannels apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *UserMePreferenceUpdateResponse) UnmarshalJSON(data []byte) (err error) {
@@ -115,8 +99,8 @@ func (r userMePreferenceUpdateResponseJSON) RawJSON() string {
 }
 
 type UserMePreferenceUpdateParams struct {
-	AIInteractionMode param.Field[string] `json:"aiInteractionMode"`
-	Theme             param.Field[string] `json:"theme"`
+	// Preferred channels for receiving notifications.
+	NotificationChannels param.Field[interface{}] `json:"notificationChannels"`
 }
 
 func (r UserMePreferenceUpdateParams) MarshalJSON() (data []byte, err error) {

@@ -6,13 +6,11 @@ import (
 	"context"
 	"net/http"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
-	"github.com/diplomat-bit/jocall3-go/shared"
 )
 
 // UserService contains methods and other services that help with interacting with
@@ -38,6 +36,8 @@ func NewUserService(opts ...option.RequestOption) (r *UserService) {
 	return
 }
 
+// Authenticates a user and creates a secure session, returning access tokens. May
+// require MFA depending on user settings.
 func (r *UserService) Login(ctx context.Context, body UserLoginParams, opts ...option.RequestOption) (res *UserLoginResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/login"
@@ -45,14 +45,8 @@ func (r *UserService) Login(ctx context.Context, body UserLoginParams, opts ...o
 	return
 }
 
-func (r *UserService) Logout(ctx context.Context, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "users/logout"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
-	return
-}
-
+// Registers a new user account with , initiating the onboarding process. Requires
+// basic user details.
 func (r *UserService) Register(ctx context.Context, body UserRegisterParams, opts ...option.RequestOption) (res *UserRegisterResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/register"
@@ -60,56 +54,25 @@ func (r *UserService) Register(ctx context.Context, body UserRegisterParams, opt
 	return
 }
 
-type UserLoginResponse struct {
-	AccessToken  string                `json:"accessToken,required"`
-	ExpiresIn    int64                 `json:"expiresIn"`
-	RefreshToken string                `json:"refreshToken"`
-	TokenType    string                `json:"tokenType"`
-	JSON         userLoginResponseJSON `json:"-"`
-}
-
-// userLoginResponseJSON contains the JSON metadata for the struct
-// [UserLoginResponse]
-type userLoginResponseJSON struct {
-	AccessToken  apijson.Field
-	ExpiresIn    apijson.Field
-	RefreshToken apijson.Field
-	TokenType    apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
-}
-
-func (r *UserLoginResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userLoginResponseJSON) RawJSON() string {
-	return r.raw
-}
+type UserLoginResponse = interface{}
 
 type UserRegisterResponse struct {
-	ID               string                             `json:"id,required"`
-	Email            string                             `json:"email,required" format:"email"`
-	IdentityVerified bool                               `json:"identityVerified,required"`
-	Name             string                             `json:"name,required"`
-	Address          shared.Address                     `json:"address"`
-	Preferences      map[string]interface{}             `json:"preferences"`
-	SecurityStatus   UserRegisterResponseSecurityStatus `json:"securityStatus"`
-	JSON             userRegisterResponseJSON           `json:"-"`
+	Address interface{} `json:"address"`
+	// User's personalized preferences for the platform.
+	Preferences UserRegisterResponsePreferences `json:"preferences"`
+	// Security-related status for the user account.
+	SecurityStatus interface{}              `json:"securityStatus"`
+	JSON           userRegisterResponseJSON `json:"-"`
 }
 
 // userRegisterResponseJSON contains the JSON metadata for the struct
 // [UserRegisterResponse]
 type userRegisterResponseJSON struct {
-	ID               apijson.Field
-	Email            apijson.Field
-	IdentityVerified apijson.Field
-	Name             apijson.Field
-	Address          apijson.Field
-	Preferences      apijson.Field
-	SecurityStatus   apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
+	Address        apijson.Field
+	Preferences    apijson.Field
+	SecurityStatus apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
 }
 
 func (r *UserRegisterResponse) UnmarshalJSON(data []byte) (err error) {
@@ -120,32 +83,30 @@ func (r userRegisterResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type UserRegisterResponseSecurityStatus struct {
-	LastLogin        time.Time                              `json:"lastLogin" format:"date-time"`
-	TwoFactorEnabled bool                                   `json:"twoFactorEnabled"`
-	JSON             userRegisterResponseSecurityStatusJSON `json:"-"`
+// User's personalized preferences for the platform.
+type UserRegisterResponsePreferences struct {
+	// Preferred channels for receiving notifications.
+	NotificationChannels interface{}                         `json:"notificationChannels"`
+	JSON                 userRegisterResponsePreferencesJSON `json:"-"`
 }
 
-// userRegisterResponseSecurityStatusJSON contains the JSON metadata for the struct
-// [UserRegisterResponseSecurityStatus]
-type userRegisterResponseSecurityStatusJSON struct {
-	LastLogin        apijson.Field
-	TwoFactorEnabled apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
+// userRegisterResponsePreferencesJSON contains the JSON metadata for the struct
+// [UserRegisterResponsePreferences]
+type userRegisterResponsePreferencesJSON struct {
+	NotificationChannels apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
-func (r *UserRegisterResponseSecurityStatus) UnmarshalJSON(data []byte) (err error) {
+func (r *UserRegisterResponsePreferences) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r userRegisterResponseSecurityStatusJSON) RawJSON() string {
+func (r userRegisterResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
 type UserLoginParams struct {
-	Email    param.Field[string] `json:"email,required"`
-	Password param.Field[string] `json:"password,required"`
 }
 
 func (r UserLoginParams) MarshalJSON() (data []byte, err error) {
@@ -153,9 +114,7 @@ func (r UserLoginParams) MarshalJSON() (data []byte, err error) {
 }
 
 type UserRegisterParams struct {
-	Email    param.Field[string] `json:"email,required"`
-	Name     param.Field[string] `json:"name,required"`
-	Password param.Field[string] `json:"password,required"`
+	Address param.Field[interface{}] `json:"address"`
 }
 
 func (r UserRegisterParams) MarshalJSON() (data []byte, err error) {
