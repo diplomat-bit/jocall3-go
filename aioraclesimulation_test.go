@@ -14,7 +14,6 @@ import (
 )
 
 func TestAIOracleSimulationGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,8 +23,9 @@ func TestAIOracleSimulationGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Oracle.Simulations.Get(context.TODO(), "sim_oracle-growth-2024-xyz")
+	_, err := client.AI.Oracle.Simulations.Get(context.TODO(), "simulationId")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -35,8 +35,7 @@ func TestAIOracleSimulationGet(t *testing.T) {
 	}
 }
 
-func TestAIOracleSimulationListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestAIOracleSimulationList(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -46,11 +45,9 @@ func TestAIOracleSimulationListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Oracle.Simulations.List(context.TODO(), githubcomjocall3go.AIOracleSimulationListParams{
-		Limit:  githubcomjocall3go.F(int64(0)),
-		Offset: githubcomjocall3go.F(int64(0)),
-	})
+	_, err := client.AI.Oracle.Simulations.List(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

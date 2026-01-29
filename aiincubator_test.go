@@ -14,7 +14,6 @@ import (
 )
 
 func TestAIIncubatorGeneratePitch(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,19 +23,13 @@ func TestAIIncubatorGeneratePitch(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.AI.Incubator.GeneratePitch(context.TODO(), githubcomjocall3go.AIIncubatorGeneratePitchParams{
-		FinancialProjections: githubcomjocall3go.F[any](map[string]interface{}{
-			"seedRoundAmount":   2500000,
-			"valuationPreMoney": 10000000,
-			"projectionYears":   3,
-			"revenueForecast": []float64{
-				500000,
-				2000000,
-				6000000,
-			},
-			"profitabilityEstimate": "Achieve profitability within 18 months.",
-		}),
+		BusinessPlan:         githubcomjocall3go.F("businessPlan"),
+		FinancialProjections: githubcomjocall3go.F[any](map[string]interface{}{}),
+		FoundingTeam:         githubcomjocall3go.F([]interface{}{map[string]interface{}{}}),
+		MarketOpportunity:    githubcomjocall3go.F("marketOpportunity"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -47,8 +40,7 @@ func TestAIIncubatorGeneratePitch(t *testing.T) {
 	}
 }
 
-func TestAIIncubatorListPitchesWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestAIIncubatorValidateIdea(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -58,11 +50,10 @@ func TestAIIncubatorListPitchesWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Incubator.ListPitches(context.TODO(), githubcomjocall3go.AIIncubatorListPitchesParams{
-		Limit:  githubcomjocall3go.F(int64(0)),
-		Offset: githubcomjocall3go.F(int64(0)),
-		Status: githubcomjocall3go.F("status"),
+	_, err := client.AI.Incubator.ValidateIdea(context.TODO(), githubcomjocall3go.AIIncubatorValidateIdeaParams{
+		Concept: githubcomjocall3go.F("concept"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

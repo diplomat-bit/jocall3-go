@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
@@ -22,6 +23,7 @@ import (
 type UserMeService struct {
 	Options     []option.RequestOption
 	Preferences *UserMePreferenceService
+	Security    *UserMeSecurityService
 	Devices     *UserMeDeviceService
 	Biometrics  *UserMeBiometricService
 }
@@ -33,14 +35,13 @@ func NewUserMeService(opts ...option.RequestOption) (r *UserMeService) {
 	r = &UserMeService{}
 	r.Options = opts
 	r.Preferences = NewUserMePreferenceService(opts...)
+	r.Security = NewUserMeSecurityService(opts...)
 	r.Devices = NewUserMeDeviceService(opts...)
 	r.Biometrics = NewUserMeBiometricService(opts...)
 	return
 }
 
-// Fetches the complete and dynamically updated profile information for the
-// currently authenticated user, encompassing personal details, security status,
-// gamification level, loyalty points, and linked identity attributes.
+// Retrieve Comprehensive Current User Profile
 func (r *UserMeService) Get(ctx context.Context, opts ...option.RequestOption) (res *UserMeGetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me"
@@ -48,8 +49,7 @@ func (r *UserMeService) Get(ctx context.Context, opts ...option.RequestOption) (
 	return
 }
 
-// Updates selected fields of the currently authenticated user's profile
-// information.
+// Update Current User Profile
 func (r *UserMeService) Update(ctx context.Context, body UserMeUpdateParams, opts ...option.RequestOption) (res *UserMeUpdateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/me"
@@ -57,23 +57,40 @@ func (r *UserMeService) Update(ctx context.Context, body UserMeUpdateParams, opt
 	return
 }
 
+// Delete User Account
+func (r *UserMeService) Delete(ctx context.Context, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "users/me"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
+	return
+}
+
 type UserMeGetResponse struct {
-	Address interface{} `json:"address"`
-	// User's personalized preferences for the platform.
-	Preferences UserMeGetResponsePreferences `json:"preferences"`
-	// Security-related status for the user account.
-	SecurityStatus interface{}           `json:"securityStatus"`
-	JSON           userMeGetResponseJSON `json:"-"`
+	ID               string                          `json:"id,required"`
+	Email            string                          `json:"email,required" format:"email"`
+	IdentityVerified bool                            `json:"identityVerified,required"`
+	Name             string                          `json:"name,required"`
+	Address          UserMeGetResponseAddress        `json:"address"`
+	Phone            string                          `json:"phone"`
+	Preferences      UserMeGetResponsePreferences    `json:"preferences"`
+	SecurityStatus   UserMeGetResponseSecurityStatus `json:"securityStatus"`
+	JSON             userMeGetResponseJSON           `json:"-"`
 }
 
 // userMeGetResponseJSON contains the JSON metadata for the struct
 // [UserMeGetResponse]
 type userMeGetResponseJSON struct {
-	Address        apijson.Field
-	Preferences    apijson.Field
-	SecurityStatus apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
+	ID               apijson.Field
+	Email            apijson.Field
+	IdentityVerified apijson.Field
+	Name             apijson.Field
+	Address          apijson.Field
+	Phone            apijson.Field
+	Preferences      apijson.Field
+	SecurityStatus   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *UserMeGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -84,10 +101,38 @@ func (r userMeGetResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// User's personalized preferences for the platform.
+type UserMeGetResponseAddress struct {
+	City    string                       `json:"city"`
+	Country string                       `json:"country"`
+	State   string                       `json:"state"`
+	Street  string                       `json:"street"`
+	Zip     string                       `json:"zip"`
+	JSON    userMeGetResponseAddressJSON `json:"-"`
+}
+
+// userMeGetResponseAddressJSON contains the JSON metadata for the struct
+// [UserMeGetResponseAddress]
+type userMeGetResponseAddressJSON struct {
+	City        apijson.Field
+	Country     apijson.Field
+	State       apijson.Field
+	Street      apijson.Field
+	Zip         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserMeGetResponseAddress) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeGetResponseAddressJSON) RawJSON() string {
+	return r.raw
+}
+
 type UserMeGetResponsePreferences struct {
-	// Preferred channels for receiving notifications.
 	NotificationChannels interface{}                      `json:"notificationChannels"`
+	Theme                string                           `json:"theme"`
 	JSON                 userMeGetResponsePreferencesJSON `json:"-"`
 }
 
@@ -95,6 +140,7 @@ type UserMeGetResponsePreferences struct {
 // [UserMeGetResponsePreferences]
 type userMeGetResponsePreferencesJSON struct {
 	NotificationChannels apijson.Field
+	Theme                apijson.Field
 	raw                  string
 	ExtraFields          map[string]apijson.Field
 }
@@ -107,23 +153,54 @@ func (r userMeGetResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
+type UserMeGetResponseSecurityStatus struct {
+	LastLogin        time.Time                           `json:"lastLogin" format:"date-time"`
+	TwoFactorEnabled bool                                `json:"twoFactorEnabled"`
+	JSON             userMeGetResponseSecurityStatusJSON `json:"-"`
+}
+
+// userMeGetResponseSecurityStatusJSON contains the JSON metadata for the struct
+// [UserMeGetResponseSecurityStatus]
+type userMeGetResponseSecurityStatusJSON struct {
+	LastLogin        apijson.Field
+	TwoFactorEnabled apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *UserMeGetResponseSecurityStatus) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeGetResponseSecurityStatusJSON) RawJSON() string {
+	return r.raw
+}
+
 type UserMeUpdateResponse struct {
-	Address interface{} `json:"address"`
-	// User's personalized preferences for the platform.
-	Preferences UserMeUpdateResponsePreferences `json:"preferences"`
-	// Security-related status for the user account.
-	SecurityStatus interface{}              `json:"securityStatus"`
-	JSON           userMeUpdateResponseJSON `json:"-"`
+	ID               string                             `json:"id,required"`
+	Email            string                             `json:"email,required" format:"email"`
+	IdentityVerified bool                               `json:"identityVerified,required"`
+	Name             string                             `json:"name,required"`
+	Address          UserMeUpdateResponseAddress        `json:"address"`
+	Phone            string                             `json:"phone"`
+	Preferences      UserMeUpdateResponsePreferences    `json:"preferences"`
+	SecurityStatus   UserMeUpdateResponseSecurityStatus `json:"securityStatus"`
+	JSON             userMeUpdateResponseJSON           `json:"-"`
 }
 
 // userMeUpdateResponseJSON contains the JSON metadata for the struct
 // [UserMeUpdateResponse]
 type userMeUpdateResponseJSON struct {
-	Address        apijson.Field
-	Preferences    apijson.Field
-	SecurityStatus apijson.Field
-	raw            string
-	ExtraFields    map[string]apijson.Field
+	ID               apijson.Field
+	Email            apijson.Field
+	IdentityVerified apijson.Field
+	Name             apijson.Field
+	Address          apijson.Field
+	Phone            apijson.Field
+	Preferences      apijson.Field
+	SecurityStatus   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *UserMeUpdateResponse) UnmarshalJSON(data []byte) (err error) {
@@ -134,10 +211,38 @@ func (r userMeUpdateResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-// User's personalized preferences for the platform.
+type UserMeUpdateResponseAddress struct {
+	City    string                          `json:"city"`
+	Country string                          `json:"country"`
+	State   string                          `json:"state"`
+	Street  string                          `json:"street"`
+	Zip     string                          `json:"zip"`
+	JSON    userMeUpdateResponseAddressJSON `json:"-"`
+}
+
+// userMeUpdateResponseAddressJSON contains the JSON metadata for the struct
+// [UserMeUpdateResponseAddress]
+type userMeUpdateResponseAddressJSON struct {
+	City        apijson.Field
+	Country     apijson.Field
+	State       apijson.Field
+	Street      apijson.Field
+	Zip         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserMeUpdateResponseAddress) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeUpdateResponseAddressJSON) RawJSON() string {
+	return r.raw
+}
+
 type UserMeUpdateResponsePreferences struct {
-	// Preferred channels for receiving notifications.
 	NotificationChannels interface{}                         `json:"notificationChannels"`
+	Theme                string                              `json:"theme"`
 	JSON                 userMeUpdateResponsePreferencesJSON `json:"-"`
 }
 
@@ -145,6 +250,7 @@ type UserMeUpdateResponsePreferences struct {
 // [UserMeUpdateResponsePreferences]
 type userMeUpdateResponsePreferencesJSON struct {
 	NotificationChannels apijson.Field
+	Theme                apijson.Field
 	raw                  string
 	ExtraFields          map[string]apijson.Field
 }
@@ -157,22 +263,47 @@ func (r userMeUpdateResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
+type UserMeUpdateResponseSecurityStatus struct {
+	LastLogin        time.Time                              `json:"lastLogin" format:"date-time"`
+	TwoFactorEnabled bool                                   `json:"twoFactorEnabled"`
+	JSON             userMeUpdateResponseSecurityStatusJSON `json:"-"`
+}
+
+// userMeUpdateResponseSecurityStatusJSON contains the JSON metadata for the struct
+// [UserMeUpdateResponseSecurityStatus]
+type userMeUpdateResponseSecurityStatusJSON struct {
+	LastLogin        apijson.Field
+	TwoFactorEnabled apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *UserMeUpdateResponseSecurityStatus) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeUpdateResponseSecurityStatusJSON) RawJSON() string {
+	return r.raw
+}
+
 type UserMeUpdateParams struct {
-	Address param.Field[interface{}] `json:"address"`
-	// User's personalized preferences for the platform.
-	Preferences param.Field[UserMeUpdateParamsPreferences] `json:"preferences"`
+	Address param.Field[UserMeUpdateParamsAddress] `json:"address"`
+	Name    param.Field[string]                    `json:"name"`
+	Phone   param.Field[string]                    `json:"phone"`
 }
 
 func (r UserMeUpdateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// User's personalized preferences for the platform.
-type UserMeUpdateParamsPreferences struct {
-	// Preferred channels for receiving notifications.
-	NotificationChannels param.Field[interface{}] `json:"notificationChannels"`
+type UserMeUpdateParamsAddress struct {
+	City    param.Field[string] `json:"city"`
+	Country param.Field[string] `json:"country"`
+	State   param.Field[string] `json:"state"`
+	Street  param.Field[string] `json:"street"`
+	Zip     param.Field[string] `json:"zip"`
 }
 
-func (r UserMeUpdateParamsPreferences) MarshalJSON() (data []byte, err error) {
+func (r UserMeUpdateParamsAddress) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }

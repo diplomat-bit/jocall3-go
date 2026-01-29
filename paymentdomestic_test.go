@@ -13,8 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestBudgetGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestPaymentDomesticACH(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,8 +23,13 @@ func TestBudgetGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Budgets.Get(context.TODO(), "budget_monthly_aug")
+	err := client.Payments.Domestic.ACH(context.TODO(), githubcomjocall3go.PaymentDomesticACHParams{
+		Account: githubcomjocall3go.F("account"),
+		Amount:  githubcomjocall3go.F(0.000000),
+		Routing: githubcomjocall3go.F("routing"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -35,8 +39,7 @@ func TestBudgetGet(t *testing.T) {
 	}
 }
 
-func TestBudgetUpdate(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestPaymentDomesticRtp(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -46,12 +49,12 @@ func TestBudgetUpdate(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Budgets.Update(
-		context.TODO(),
-		"budget_monthly_aug",
-		githubcomjocall3go.BudgetUpdateParams{},
-	)
+	err := client.Payments.Domestic.Rtp(context.TODO(), githubcomjocall3go.PaymentDomesticRtpParams{
+		Amount:      githubcomjocall3go.F(0.000000),
+		RecipientID: githubcomjocall3go.F("recipientId"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -61,8 +64,7 @@ func TestBudgetUpdate(t *testing.T) {
 	}
 }
 
-func TestBudgetListWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestPaymentDomesticWire(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -72,10 +74,12 @@ func TestBudgetListWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Budgets.List(context.TODO(), githubcomjocall3go.BudgetListParams{
-		Limit:  githubcomjocall3go.F(int64(0)),
-		Offset: githubcomjocall3go.F(int64(0)),
+	err := client.Payments.Domestic.Wire(context.TODO(), githubcomjocall3go.PaymentDomesticWireParams{
+		Account: githubcomjocall3go.F("account"),
+		Amount:  githubcomjocall3go.F(0.000000),
+		Routing: githubcomjocall3go.F("routing"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

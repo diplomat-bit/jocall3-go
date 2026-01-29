@@ -18,6 +18,8 @@ type AIService struct {
 	Oracle    *AIOracleService
 	Incubator *AIIncubatorService
 	Ads       *AIAdService
+	Agent     *AIAgentService
+	Models    *AIModelService
 }
 
 // NewAIService generates a new service that applies the given options to each
@@ -30,5 +32,7 @@ func NewAIService(opts ...option.RequestOption) (r *AIService) {
 	r.Oracle = NewAIOracleService(opts...)
 	r.Incubator = NewAIIncubatorService(opts...)
 	r.Ads = NewAIAdService(opts...)
+	r.Agent = NewAIAgentService(opts...)
+	r.Models = NewAIModelService(opts...)
 	return
 }

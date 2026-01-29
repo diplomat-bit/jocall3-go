@@ -13,8 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestSustainabilityInvestmentAnalyzeImpact(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestWeb3SmartContractDeploy(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,8 +23,12 @@ func TestSustainabilityInvestmentAnalyzeImpact(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Sustainability.Investments.AnalyzeImpact(context.TODO())
+	err := client.Web3.SmartContracts.Deploy(context.TODO(), githubcomjocall3go.Web3SmartContractDeployParams{
+		Abi:      githubcomjocall3go.F[any](map[string]interface{}{}),
+		Bytecode: githubcomjocall3go.F("bytecode"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

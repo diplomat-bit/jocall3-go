@@ -4,11 +4,11 @@ package githubcomjocall3go
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
 	"slices"
 
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -32,17 +32,40 @@ func NewPaymentInternationalService(opts ...option.RequestOption) (r *PaymentInt
 	return
 }
 
-// Retrieves the current processing status and details of an initiated
-// international payment.
-func (r *PaymentInternationalService) GetStatus(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *PaymentInternationalGetStatusResponse, err error) {
+// EU SEPA Credit Transfer
+func (r *PaymentInternationalService) Sepa(ctx context.Context, body PaymentInternationalSepaParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	if paymentID == "" {
-		err = errors.New("missing required paymentId parameter")
-		return
-	}
-	path := fmt.Sprintf("payments/international/%s/status", paymentID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "payments/international/sepa"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
 	return
 }
 
-type PaymentInternationalGetStatusResponse = interface{}
+// Global SWIFT Transaction
+func (r *PaymentInternationalService) Swift(ctx context.Context, body PaymentInternationalSwiftParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "payments/international/swift"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type PaymentInternationalSepaParams struct {
+	Amount param.Field[float64] `json:"amount,required"`
+	Iban   param.Field[string]  `json:"iban,required"`
+}
+
+func (r PaymentInternationalSepaParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type PaymentInternationalSwiftParams struct {
+	Amount   param.Field[float64] `json:"amount,required"`
+	Bic      param.Field[string]  `json:"bic,required"`
+	Currency param.Field[string]  `json:"currency,required"`
+	Iban     param.Field[string]  `json:"iban,required"`
+}
+
+func (r PaymentInternationalSwiftParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}

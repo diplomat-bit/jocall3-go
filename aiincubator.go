@@ -5,11 +5,9 @@ package githubcomjocall3go
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -22,8 +20,9 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewAIIncubatorService] method instead.
 type AIIncubatorService struct {
-	Options []option.RequestOption
-	Pitch   *AIIncubatorPitchService
+	Options  []option.RequestOption
+	Analysis *AIIncubatorAnalysisService
+	Pitch    *AIIncubatorPitchService
 }
 
 // NewAIIncubatorService generates a new service that applies the given options to
@@ -32,14 +31,12 @@ type AIIncubatorService struct {
 func NewAIIncubatorService(opts ...option.RequestOption) (r *AIIncubatorService) {
 	r = &AIIncubatorService{}
 	r.Options = opts
+	r.Analysis = NewAIIncubatorAnalysisService(opts...)
 	r.Pitch = NewAIIncubatorPitchService(opts...)
 	return
 }
 
-// Submits a detailed business plan to the Quantum Weaver AI for rigorous analysis,
-// market validation, and seed funding consideration. This initiates the AI-driven
-// incubation journey, aiming to transform innovative ideas into commercially
-// successful ventures.
+// Submit a High-Potential Business Plan
 func (r *AIIncubatorService) GeneratePitch(ctx context.Context, body AIIncubatorGeneratePitchParams, opts ...option.RequestOption) (res *AIIncubatorGeneratePitchResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/incubator/pitch"
@@ -47,42 +44,76 @@ func (r *AIIncubatorService) GeneratePitch(ctx context.Context, body AIIncubator
 	return
 }
 
-// Retrieves a summary list of all business pitches submitted by the authenticated
-// user to Quantum Weaver.
-func (r *AIIncubatorService) ListPitches(ctx context.Context, query AIIncubatorListPitchesParams, opts ...option.RequestOption) (res *AIIncubatorListPitchesResponse, err error) {
+// Rapid Idea Validation Engine
+func (r *AIIncubatorService) ValidateIdea(ctx context.Context, body AIIncubatorValidateIdeaParams, opts ...option.RequestOption) (res *AIIncubatorValidateIdeaResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	path := "ai/incubator/pitches"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	path := "ai/incubator/validate"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
-type AIIncubatorGeneratePitchResponse = interface{}
+type AIIncubatorGeneratePitchResponse struct {
+	PitchID string                               `json:"pitchId"`
+	Status  string                               `json:"status"`
+	JSON    aiIncubatorGeneratePitchResponseJSON `json:"-"`
+}
 
-type AIIncubatorListPitchesResponse = interface{}
+// aiIncubatorGeneratePitchResponseJSON contains the JSON metadata for the struct
+// [AIIncubatorGeneratePitchResponse]
+type aiIncubatorGeneratePitchResponseJSON struct {
+	PitchID     apijson.Field
+	Status      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AIIncubatorGeneratePitchResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiIncubatorGeneratePitchResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AIIncubatorValidateIdeaResponse struct {
+	CriticalFlaws    []string                            `json:"criticalFlaws"`
+	FeasibilityScore float64                             `json:"feasibilityScore"`
+	JSON             aiIncubatorValidateIdeaResponseJSON `json:"-"`
+}
+
+// aiIncubatorValidateIdeaResponseJSON contains the JSON metadata for the struct
+// [AIIncubatorValidateIdeaResponse]
+type aiIncubatorValidateIdeaResponseJSON struct {
+	CriticalFlaws    apijson.Field
+	FeasibilityScore apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AIIncubatorValidateIdeaResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiIncubatorValidateIdeaResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type AIIncubatorGeneratePitchParams struct {
-	// Key financial metrics and projections for the next 3-5 years.
-	FinancialProjections param.Field[interface{}] `json:"financialProjections,required"`
+	// Full text of the concept
+	BusinessPlan         param.Field[string]        `json:"businessPlan,required"`
+	FinancialProjections param.Field[interface{}]   `json:"financialProjections,required"`
+	FoundingTeam         param.Field[[]interface{}] `json:"foundingTeam,required"`
+	MarketOpportunity    param.Field[string]        `json:"marketOpportunity,required"`
 }
 
 func (r AIIncubatorGeneratePitchParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type AIIncubatorListPitchesParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-	// Filter pitches by their current stage.
-	Status param.Field[string] `query:"status"`
+type AIIncubatorValidateIdeaParams struct {
+	Concept param.Field[string] `json:"concept,required"`
 }
 
-// URLQuery serializes [AIIncubatorListPitchesParams]'s query parameters as
-// `url.Values`.
-func (r AIIncubatorListPitchesParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+func (r AIIncubatorValidateIdeaParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

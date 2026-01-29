@@ -13,9 +13,10 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewInvestmentService] method instead.
 type InvestmentService struct {
-	Options    []option.RequestOption
-	Portfolios *InvestmentPortfolioService
-	Assets     *InvestmentAssetService
+	Options     []option.RequestOption
+	Portfolios  *InvestmentPortfolioService
+	Assets      *InvestmentAssetService
+	Performance *InvestmentPerformanceService
 }
 
 // NewInvestmentService generates a new service that applies the given options to
@@ -26,5 +27,6 @@ func NewInvestmentService(opts ...option.RequestOption) (r *InvestmentService) {
 	r.Options = opts
 	r.Portfolios = NewInvestmentPortfolioService(opts...)
 	r.Assets = NewInvestmentAssetService(opts...)
+	r.Performance = NewInvestmentPerformanceService(opts...)
 	return
 }

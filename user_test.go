@@ -14,7 +14,6 @@ import (
 )
 
 func TestUserLogin(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,8 +23,34 @@ func TestUserLogin(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{})
+	_, err := client.Users.Login(context.TODO(), githubcomjocall3go.UserLoginParams{
+		Email:    githubcomjocall3go.F("dev@stainless.com"),
+		Password: githubcomjocall3go.F("password"),
+	})
+	if err != nil {
+		var apierr *githubcomjocall3go.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestUserLogout(t *testing.T) {
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := githubcomjocall3go.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	err := client.Users.Logout(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -36,7 +61,6 @@ func TestUserLogin(t *testing.T) {
 }
 
 func TestUserRegisterWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -46,9 +70,20 @@ func TestUserRegisterWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
+		Email:    githubcomjocall3go.F("dev@stainless.com"),
+		Name:     githubcomjocall3go.F("name"),
+		Password: githubcomjocall3go.F("password"),
+		Address: githubcomjocall3go.F(githubcomjocall3go.UserRegisterParamsAddress{
+			City:    githubcomjocall3go.F("city"),
+			Country: githubcomjocall3go.F("country"),
+			State:   githubcomjocall3go.F("state"),
+			Street:  githubcomjocall3go.F("street"),
+			Zip:     githubcomjocall3go.F("zip"),
+		}),
+		Phone: githubcomjocall3go.F("phone"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
