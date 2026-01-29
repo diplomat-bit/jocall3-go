@@ -24,16 +24,10 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
-		Prompt: githubcomjocall3go.F("Analyze systemic risk of a 20% BTC drop."),
-		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			Name:        githubcomjocall3go.F("Crypto Black Swan"),
-			Description: githubcomjocall3go.F("Extreme market volatility scenario."),
-		}}),
-	})
+	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", response.SimulationID)
+	t.Logf("%+v\n", response)
 }

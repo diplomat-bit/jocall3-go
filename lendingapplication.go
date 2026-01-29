@@ -3,14 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -31,39 +23,4 @@ func NewLendingApplicationService(opts ...option.RequestOption) (r *LendingAppli
 	r = &LendingApplicationService{}
 	r.Options = opts
 	return
-}
-
-// Track Loan Processing
-func (r *LendingApplicationService) GetStatus(ctx context.Context, appID string, opts ...option.RequestOption) (res *LendingApplicationGetStatusResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if appID == "" {
-		err = errors.New("missing required appId parameter")
-		return
-	}
-	path := fmt.Sprintf("lending/applications/%s/status", appID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type LendingApplicationGetStatusResponse struct {
-	Status              string                                  `json:"status"`
-	UnderwriterQueuePos int64                                   `json:"underwriterQueuePos"`
-	JSON                lendingApplicationGetStatusResponseJSON `json:"-"`
-}
-
-// lendingApplicationGetStatusResponseJSON contains the JSON metadata for the
-// struct [LendingApplicationGetStatusResponse]
-type lendingApplicationGetStatusResponseJSON struct {
-	Status              apijson.Field
-	UnderwriterQueuePos apijson.Field
-	raw                 string
-	ExtraFields         map[string]apijson.Field
-}
-
-func (r *LendingApplicationGetStatusResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r lendingApplicationGetStatusResponseJSON) RawJSON() string {
-	return r.raw
 }

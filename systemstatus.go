@@ -3,12 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -29,39 +23,4 @@ func NewSystemStatusService(opts ...option.RequestOption) (r *SystemStatusServic
 	r = &SystemStatusService{}
 	r.Options = opts
 	return
-}
-
-// Get Global Infrastructure Health
-func (r *SystemStatusService) Get(ctx context.Context, opts ...option.RequestOption) (res *SystemStatusGetResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "system/status"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type SystemStatusGetResponse struct {
-	ActiveNodes       int64                       `json:"activeNodes"`
-	APIStatus         string                      `json:"apiStatus"`
-	GeminiUptime      string                      `json:"geminiUptime"`
-	MockServerLatency int64                       `json:"mockServerLatency"`
-	JSON              systemStatusGetResponseJSON `json:"-"`
-}
-
-// systemStatusGetResponseJSON contains the JSON metadata for the struct
-// [SystemStatusGetResponse]
-type systemStatusGetResponseJSON struct {
-	ActiveNodes       apijson.Field
-	APIStatus         apijson.Field
-	GeminiUptime      apijson.Field
-	MockServerLatency apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *SystemStatusGetResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r systemStatusGetResponseJSON) RawJSON() string {
-	return r.raw
 }

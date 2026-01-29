@@ -32,7 +32,8 @@ func NewUserPasswordResetService(opts ...option.RequestOption) (r *UserPasswordR
 	return
 }
 
-// Confirm Password Reset with Code
+// Confirms the password reset using the received verification code and sets a new
+// password.
 func (r *UserPasswordResetService) Confirm(ctx context.Context, body UserPasswordResetConfirmParams, opts ...option.RequestOption) (res *UserPasswordResetConfirmResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/password-reset/confirm"
@@ -40,7 +41,8 @@ func (r *UserPasswordResetService) Confirm(ctx context.Context, body UserPasswor
 	return
 }
 
-// Initiate Password Reset Flow
+// Starts the password reset flow by sending a verification code or link to the
+// user's registered email or phone.
 func (r *UserPasswordResetService) Initiate(ctx context.Context, body UserPasswordResetInitiateParams, opts ...option.RequestOption) (res *UserPasswordResetInitiateResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "users/password-reset/initiate"
@@ -91,9 +93,8 @@ func (r userPasswordResetInitiateResponseJSON) RawJSON() string {
 }
 
 type UserPasswordResetConfirmParams struct {
-	Identifier  param.Field[string] `json:"identifier,required"`
-	NewPassword param.Field[string] `json:"newPassword,required" format:"password"`
-	// The 6-digit code sent to user
+	Identifier       param.Field[string] `json:"identifier,required"`
+	NewPassword      param.Field[string] `json:"newPassword,required"`
 	VerificationCode param.Field[string] `json:"verificationCode,required"`
 }
 

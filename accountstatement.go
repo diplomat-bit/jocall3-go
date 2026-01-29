@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -34,46 +36,36 @@ func NewAccountStatementService(opts ...option.RequestOption) (r *AccountStateme
 	return
 }
 
-// List Available Statements
-func (r *AccountStatementService) List(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountStatementListResponse, err error) {
+// Fetches digital statements for a specific account, allowing filtering by date
+// range and format.
+func (r *AccountStatementService) List(ctx context.Context, accountID string, query AccountStatementListParams, opts ...option.RequestOption) (res *AccountStatementListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if accountID == "" {
 		err = errors.New("missing required accountId parameter")
 		return
 	}
 	path := fmt.Sprintf("accounts/%s/statements", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-// Download Statement PDF
-func (r *AccountStatementService) DownloadPdf(ctx context.Context, accountID string, statementID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "application/pdf")}, opts...)
-	if accountID == "" {
-		err = errors.New("missing required accountId parameter")
-		return
-	}
-	if statementID == "" {
-		err = errors.New("missing required statementId parameter")
-		return
-	}
-	path := fmt.Sprintf("accounts/%s/statements/%s/pdf", accountID, statementID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
 type AccountStatementListResponse struct {
-	Data []AccountStatementListResponseData `json:"data"`
-	JSON accountStatementListResponseJSON   `json:"-"`
+	AccountID    string                                   `json:"accountId,required"`
+	DownloadURLs AccountStatementListResponseDownloadURLs `json:"downloadUrls,required"`
+	Period       string                                   `json:"period,required"`
+	StatementID  string                                   `json:"statementId,required"`
+	JSON         accountStatementListResponseJSON         `json:"-"`
 }
 
 // accountStatementListResponseJSON contains the JSON metadata for the struct
 // [AccountStatementListResponse]
 type accountStatementListResponseJSON struct {
-	Data        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	AccountID    apijson.Field
+	DownloadURLs apijson.Field
+	Period       apijson.Field
+	StatementID  apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
 }
 
 func (r *AccountStatementListResponse) UnmarshalJSON(data []byte) (err error) {
@@ -84,27 +76,44 @@ func (r accountStatementListResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type AccountStatementListResponseData struct {
-	ID        string                               `json:"id"`
-	IssueDate time.Time                            `json:"issueDate" format:"date"`
-	Period    string                               `json:"period"`
-	JSON      accountStatementListResponseDataJSON `json:"-"`
+type AccountStatementListResponseDownloadURLs struct {
+	Csv  string                                       `json:"csv"`
+	Pdf  string                                       `json:"pdf"`
+	JSON accountStatementListResponseDownloadURLsJSON `json:"-"`
 }
 
-// accountStatementListResponseDataJSON contains the JSON metadata for the struct
-// [AccountStatementListResponseData]
-type accountStatementListResponseDataJSON struct {
-	ID          apijson.Field
-	IssueDate   apijson.Field
-	Period      apijson.Field
+// accountStatementListResponseDownloadURLsJSON contains the JSON metadata for the
+// struct [AccountStatementListResponseDownloadURLs]
+type accountStatementListResponseDownloadURLsJSON struct {
+	Csv         apijson.Field
+	Pdf         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *AccountStatementListResponseData) UnmarshalJSON(data []byte) (err error) {
+func (r *AccountStatementListResponseDownloadURLs) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r accountStatementListResponseDataJSON) RawJSON() string {
+func (r accountStatementListResponseDownloadURLsJSON) RawJSON() string {
 	return r.raw
+}
+
+type AccountStatementListParams struct {
+	// Desired format for the statement. Use 'application/json' Accept header for
+	// download links.
+	Format param.Field[string] `query:"format"`
+	// Month for the statement (1-12).
+	Month param.Field[int64] `query:"month"`
+	// Year for the statement.
+	Year param.Field[int64] `query:"year"`
+}
+
+// URLQuery serializes [AccountStatementListParams]'s query parameters as
+// `url.Values`.
+func (r AccountStatementListParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

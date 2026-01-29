@@ -48,8 +48,17 @@ func TestUserMePreferenceUpdateWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Update(context.TODO(), githubcomjocall3go.UserMePreferenceUpdateParams{
-		AIInteractionMode: githubcomjocall3go.F("aiInteractionMode"),
-		Theme:             githubcomjocall3go.F("theme"),
+		AIInteractionMode:  githubcomjocall3go.F("proactive"),
+		DataSharingConsent: githubcomjocall3go.F(true),
+		NotificationChannels: githubcomjocall3go.F(githubcomjocall3go.UserMePreferenceUpdateParamsNotificationChannels{
+			Email: githubcomjocall3go.F(true),
+			InApp: githubcomjocall3go.F(true),
+			Push:  githubcomjocall3go.F(true),
+			SMS:   githubcomjocall3go.F(true),
+		}),
+		PreferredLanguage:   githubcomjocall3go.F("preferredLanguage"),
+		Theme:               githubcomjocall3go.F("Dark-Quantum"),
+		TransactionGrouping: githubcomjocall3go.F("transactionGrouping"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
