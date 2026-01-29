@@ -13,8 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestCorporateSanctionScreeningScreenWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
+func TestSystemAuditLogListWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,9 +23,12 @@ func TestCorporateSanctionScreeningScreenWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Corporate.SanctionScreening.Screen(context.TODO(), githubcomjocall3go.CorporateSanctionScreeningScreenParams{
-		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
+	_, err := client.System.AuditLogs.List(context.TODO(), githubcomjocall3go.SystemAuditLogListParams{
+		ActorID: githubcomjocall3go.F("actorId"),
+		Limit:   githubcomjocall3go.F(int64(0)),
+		Offset:  githubcomjocall3go.F(int64(0)),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

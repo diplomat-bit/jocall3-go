@@ -14,7 +14,6 @@ import (
 )
 
 func TestUserMePreferenceGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,6 +23,7 @@ func TestUserMePreferenceGet(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Get(context.TODO())
 	if err != nil {
@@ -36,7 +36,6 @@ func TestUserMePreferenceGet(t *testing.T) {
 }
 
 func TestUserMePreferenceUpdateWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -46,9 +45,11 @@ func TestUserMePreferenceUpdateWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Users.Me.Preferences.Update(context.TODO(), githubcomjocall3go.UserMePreferenceUpdateParams{
-		NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
+		AIInteractionMode: githubcomjocall3go.F("aiInteractionMode"),
+		Theme:             githubcomjocall3go.F("theme"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

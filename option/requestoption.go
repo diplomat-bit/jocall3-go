@@ -263,14 +263,14 @@ func WithRequestTimeout(dur time.Duration) RequestOption {
 // environment to be the "production" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentProduction() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://api.quantum-core.finance/v1/")
+	return requestconfig.WithDefaultBaseURL("https://75975599-8fdc-4274-8701-05fc0b8089cc.mock.pstmn.io/")
 }
 
 // WithEnvironmentSandbox returns a RequestOption that sets the current
 // environment to be the "sandbox" environment. An environment specifies which base URL
 // to use by default.
 func WithEnvironmentSandbox() RequestOption {
-	return requestconfig.WithDefaultBaseURL("https://sandbox.quantum-core.finance/v1/")
+	return requestconfig.WithDefaultBaseURL("https://75975599-8fdc-4274-8701-05fc0b8089cc.mock.pstmn.io/")
 }
 
 // WithEnvironmentGeminiDirect returns a RequestOption that sets the current
@@ -284,7 +284,7 @@ func WithEnvironmentGeminiDirect() RequestOption {
 func WithAPIKey(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
 		r.APIKey = value
-		return nil
+		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.APIKey)))
 	})
 }
 
@@ -292,6 +292,6 @@ func WithAPIKey(value string) RequestOption {
 func WithGeminiAPIKey(value string) RequestOption {
 	return requestconfig.RequestOptionFunc(func(r *requestconfig.RequestConfig) error {
 		r.GeminiAPIKey = value
-		return nil
+		return r.Apply(WithHeader("x-goog-api-key", r.GeminiAPIKey))
 	})
 }

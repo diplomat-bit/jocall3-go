@@ -14,7 +14,6 @@ import (
 )
 
 func TestInvestmentAssetSearchWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,12 +23,11 @@ func TestInvestmentAssetSearchWithOptionalParams(t *testing.T) {
 	}
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Investments.Assets.Search(context.TODO(), githubcomjocall3go.InvestmentAssetSearchParams{
-		Limit:       githubcomjocall3go.F(int64(0)),
-		MinEsgScore: githubcomjocall3go.F(int64(0)),
-		Offset:      githubcomjocall3go.F(int64(0)),
-		Query:       githubcomjocall3go.F("query"),
+		Query:     githubcomjocall3go.F("query"),
+		AssetType: githubcomjocall3go.F(githubcomjocall3go.InvestmentAssetSearchParamsAssetTypeEquity),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

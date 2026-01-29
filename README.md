@@ -50,13 +50,39 @@ import (
 
 func main() {
 	client := githubcomjocall3go.NewClient(
-		option.WithEnvironmentSandbox(), // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
+		option.WithGeminiAPIKey("My Gemini API Key"), // defaults to os.LookupEnv("GEMINI_API_KEY")
+		option.WithEnvironmentSandbox(),              // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
 	)
-	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
+	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
+		Prompt: githubcomjocall3go.F("Analyze the systemic risk of a 20% drop in BTC prices on my cross-chain collateralized debt positions, factoring in a simultaneous 50bps hike by the Fed and a liquidity squeeze on Aave."),
+		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
+			Name:          githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
+			DurationYears: githubcomjocall3go.F(int64(1)),
+			Events: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenariosEvent{{
+				Type: githubcomjocall3go.F("liquidation_cascade"),
+				Details: githubcomjocall3go.F[any](map[string]interface{}{
+					"magnitude": "extreme",
+					"threshold": "0.85",
+				}),
+			}, {
+				Type: githubcomjocall3go.F("interest_rate_shock"),
+				Details: githubcomjocall3go.F[any](map[string]interface{}{
+					"basis_points": 50,
+				}),
+			}}),
+		}}),
+		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
+			"volatility_index":     "VIX_HIGHER_30",
+			"geopolitical_tension": "high",
+		}),
+		PersonalAssumptions: githubcomjocall3go.F[any](map[string]interface{}{
+			"stop_loss_triggered": true,
+		}),
+	})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response)
+	fmt.Printf("%+v\n", response.OverallSummary)
 }
 
 ```
@@ -174,7 +200,11 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{})
+_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
+	Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+	Name:     githubcomjocall3go.F("Standard User"),
+	Password: githubcomjocall3go.F("DefaultPassword123!"),
+})
 if err != nil {
 	var apierr *githubcomjocall3go.Error
 	if errors.As(err, &apierr) {
@@ -201,7 +231,11 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Users.Register(
 	ctx,
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -237,7 +271,11 @@ client := githubcomjocall3go.NewClient(
 // Override per-request:
 client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithMaxRetries(5),
 )
 ```
@@ -252,7 +290,11 @@ you need to examine response headers, status codes, or other details.
 var response *http.Response
 response, err := client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{},
+	githubcomjocall3go.UserRegisterParams{
+		Email:    githubcomjocall3go.F("user@quantum-ledger.com"),
+		Name:     githubcomjocall3go.F("Standard User"),
+		Password: githubcomjocall3go.F("DefaultPassword123!"),
+	},
 	option.WithResponseInto(&response),
 )
 if err != nil {

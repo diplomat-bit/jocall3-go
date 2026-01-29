@@ -5,11 +5,9 @@ package githubcomjocall3go
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -36,10 +34,7 @@ func NewAIAdvisorService(opts ...option.RequestOption) (r *AIAdvisorService) {
 	return
 }
 
-// Initiates or continues a sophisticated conversation with Quantum, the AI
-// Advisor. Quantum can provide advanced financial insights, execute complex tasks
-// via an expanding suite of intelligent tools, and learn from user interactions to
-// offer hyper-personalized guidance.
+// The primary orchestration point. Connects Postman Data to Gemini Logic.
 func (r *AIAdvisorService) Chat(ctx context.Context, body AIAdvisorChatParams, opts ...option.RequestOption) (res *AIAdvisorChatResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/advisor/chat"
@@ -47,43 +42,67 @@ func (r *AIAdvisorService) Chat(ctx context.Context, body AIAdvisorChatParams, o
 	return
 }
 
-// Fetches the full conversation history with the Quantum AI Advisor for a given
-// session or user.
-func (r *AIAdvisorService) History(ctx context.Context, query AIAdvisorHistoryParams, opts ...option.RequestOption) (res *AIAdvisorHistoryResponse, err error) {
+// Get Full Chat Transcript
+func (r *AIAdvisorService) History(ctx context.Context, opts ...option.RequestOption) (res *AIAdvisorHistoryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/advisor/chat/history"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-type AIAdvisorChatResponse = interface{}
+type AIAdvisorChatResponse struct {
+	Reply            string                    `json:"reply"`
+	SessionID        string                    `json:"sessionId"`
+	SuggestedActions []interface{}             `json:"suggestedActions"`
+	JSON             aiAdvisorChatResponseJSON `json:"-"`
+}
 
-type AIAdvisorHistoryResponse = interface{}
+// aiAdvisorChatResponseJSON contains the JSON metadata for the struct
+// [AIAdvisorChatResponse]
+type aiAdvisorChatResponseJSON struct {
+	Reply            apijson.Field
+	SessionID        apijson.Field
+	SuggestedActions apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
+}
+
+func (r *AIAdvisorChatResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiAdvisorChatResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type AIAdvisorHistoryResponse struct {
+	Messages []interface{}                `json:"messages"`
+	JSON     aiAdvisorHistoryResponseJSON `json:"-"`
+}
+
+// aiAdvisorHistoryResponseJSON contains the JSON metadata for the struct
+// [AIAdvisorHistoryResponse]
+type aiAdvisorHistoryResponseJSON struct {
+	Messages    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AIAdvisorHistoryResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiAdvisorHistoryResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type AIAdvisorChatParams struct {
-	// Optional: The output from a tool function that the AI previously requested to be
-	// executed.
-	FunctionResponse param.Field[interface{}] `json:"functionResponse"`
+	Message           param.Field[string]   `json:"message,required"`
+	ContextAccountIDs param.Field[[]string] `json:"contextAccountIds"`
+	Mode              param.Field[string]   `json:"mode"`
+	Stream            param.Field[bool]     `json:"stream"`
 }
 
 func (r AIAdvisorChatParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type AIAdvisorHistoryParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-	// Optional: Filter history by a specific session ID. If omitted, recent
-	// conversations will be returned.
-	SessionID param.Field[string] `query:"sessionId"`
-}
-
-// URLQuery serializes [AIAdvisorHistoryParams]'s query parameters as `url.Values`.
-func (r AIAdvisorHistoryParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
 }

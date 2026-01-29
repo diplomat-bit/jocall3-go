@@ -20,13 +20,15 @@ type Client struct {
 	Users          *UserService
 	Accounts       *AccountService
 	Transactions   *TransactionService
-	Budgets        *BudgetService
-	Investments    *InvestmentService
 	AI             *AIService
 	Corporate      *CorporateService
 	Web3           *Web3Service
 	Payments       *PaymentService
 	Sustainability *SustainabilityService
+	Marketplace    *MarketplaceService
+	Lending        *LendingService
+	Investments    *InvestmentService
+	System         *SystemService
 }
 
 // DefaultClientOptions read from the environment (JOCALL3_API_KEY, GEMINI_API_KEY,
@@ -57,13 +59,15 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Users = NewUserService(opts...)
 	r.Accounts = NewAccountService(opts...)
 	r.Transactions = NewTransactionService(opts...)
-	r.Budgets = NewBudgetService(opts...)
-	r.Investments = NewInvestmentService(opts...)
 	r.AI = NewAIService(opts...)
 	r.Corporate = NewCorporateService(opts...)
 	r.Web3 = NewWeb3Service(opts...)
 	r.Payments = NewPaymentService(opts...)
 	r.Sustainability = NewSustainabilityService(opts...)
+	r.Marketplace = NewMarketplaceService(opts...)
+	r.Lending = NewLendingService(opts...)
+	r.Investments = NewInvestmentService(opts...)
+	r.System = NewSystemService(opts...)
 
 	return
 }

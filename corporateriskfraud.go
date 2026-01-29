@@ -3,6 +3,13 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -25,4 +32,59 @@ func NewCorporateRiskFraudService(opts ...option.RequestOption) (r *CorporateRis
 	r.Options = opts
 	r.Rules = NewCorporateRiskFraudRuleService(opts...)
 	return
+}
+
+// Real-time Transaction Fraud Analysis
+func (r *CorporateRiskFraudService) AnalyzeTransaction(ctx context.Context, body CorporateRiskFraudAnalyzeTransactionParams, opts ...option.RequestOption) (res *CorporateRiskFraudAnalyzeTransactionResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/risk/fraud/analyze"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+type CorporateRiskFraudAnalyzeTransactionResponse struct {
+	Decision  CorporateRiskFraudAnalyzeTransactionResponseDecision `json:"decision"`
+	RiskScore int64                                                `json:"riskScore"`
+	JSON      corporateRiskFraudAnalyzeTransactionResponseJSON     `json:"-"`
+}
+
+// corporateRiskFraudAnalyzeTransactionResponseJSON contains the JSON metadata for
+// the struct [CorporateRiskFraudAnalyzeTransactionResponse]
+type corporateRiskFraudAnalyzeTransactionResponseJSON struct {
+	Decision    apijson.Field
+	RiskScore   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateRiskFraudAnalyzeTransactionResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateRiskFraudAnalyzeTransactionResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateRiskFraudAnalyzeTransactionResponseDecision string
+
+const (
+	CorporateRiskFraudAnalyzeTransactionResponseDecisionApprove CorporateRiskFraudAnalyzeTransactionResponseDecision = "APPROVE"
+	CorporateRiskFraudAnalyzeTransactionResponseDecisionFlag    CorporateRiskFraudAnalyzeTransactionResponseDecision = "FLAG"
+	CorporateRiskFraudAnalyzeTransactionResponseDecisionBlock   CorporateRiskFraudAnalyzeTransactionResponseDecision = "BLOCK"
+)
+
+func (r CorporateRiskFraudAnalyzeTransactionResponseDecision) IsKnown() bool {
+	switch r {
+	case CorporateRiskFraudAnalyzeTransactionResponseDecisionApprove, CorporateRiskFraudAnalyzeTransactionResponseDecisionFlag, CorporateRiskFraudAnalyzeTransactionResponseDecisionBlock:
+		return true
+	}
+	return false
+}
+
+type CorporateRiskFraudAnalyzeTransactionParams struct {
+	TransactionID param.Field[string] `json:"transactionId,required"`
+}
+
+func (r CorporateRiskFraudAnalyzeTransactionParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

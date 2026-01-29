@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"slices"
 
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -18,8 +19,9 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewSustainabilityService] method instead.
 type SustainabilityService struct {
-	Options     []option.RequestOption
-	Investments *SustainabilityInvestmentService
+	Options []option.RequestOption
+	Offsets *SustainabilityOffsetService
+	Impact  *SustainabilityImpactService
 }
 
 // NewSustainabilityService generates a new service that applies the given options
@@ -28,13 +30,12 @@ type SustainabilityService struct {
 func NewSustainabilityService(opts ...option.RequestOption) (r *SustainabilityService) {
 	r = &SustainabilityService{}
 	r.Options = opts
-	r.Investments = NewSustainabilityInvestmentService(opts...)
+	r.Offsets = NewSustainabilityOffsetService(opts...)
+	r.Impact = NewSustainabilityImpactService(opts...)
 	return
 }
 
-// Generates a detailed report of the user's estimated carbon footprint based on
-// transaction data, lifestyle choices, and AI-driven impact assessments, offering
-// insights and reduction strategies.
+// Analysis of ledger data through Gemini to estimate CO2e output.
 func (r *SustainabilityService) GetFootprint(ctx context.Context, opts ...option.RequestOption) (res *SustainabilityGetFootprintResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "sustainability/carbon-footprint"
@@ -42,4 +43,70 @@ func (r *SustainabilityService) GetFootprint(ctx context.Context, opts ...option
 	return
 }
 
-type SustainabilityGetFootprintResponse = interface{}
+type SustainabilityGetFootprintResponse struct {
+	Period            string                                        `json:"period,required"`
+	Status            SustainabilityGetFootprintResponseStatus      `json:"status,required"`
+	TotalKgCo2e       float64                                       `json:"totalKgCO2e,required"`
+	AIRecommendations []string                                      `json:"aiRecommendations"`
+	Breakdown         []SustainabilityGetFootprintResponseBreakdown `json:"breakdown"`
+	JSON              sustainabilityGetFootprintResponseJSON        `json:"-"`
+}
+
+// sustainabilityGetFootprintResponseJSON contains the JSON metadata for the struct
+// [SustainabilityGetFootprintResponse]
+type sustainabilityGetFootprintResponseJSON struct {
+	Period            apijson.Field
+	Status            apijson.Field
+	TotalKgCo2e       apijson.Field
+	AIRecommendations apijson.Field
+	Breakdown         apijson.Field
+	raw               string
+	ExtraFields       map[string]apijson.Field
+}
+
+func (r *SustainabilityGetFootprintResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r sustainabilityGetFootprintResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type SustainabilityGetFootprintResponseStatus string
+
+const (
+	SustainabilityGetFootprintResponseStatusOptimal    SustainabilityGetFootprintResponseStatus = "OPTIMAL"
+	SustainabilityGetFootprintResponseStatusHighOutput SustainabilityGetFootprintResponseStatus = "HIGH_OUTPUT"
+	SustainabilityGetFootprintResponseStatusCritical   SustainabilityGetFootprintResponseStatus = "CRITICAL"
+)
+
+func (r SustainabilityGetFootprintResponseStatus) IsKnown() bool {
+	switch r {
+	case SustainabilityGetFootprintResponseStatusOptimal, SustainabilityGetFootprintResponseStatusHighOutput, SustainabilityGetFootprintResponseStatusCritical:
+		return true
+	}
+	return false
+}
+
+type SustainabilityGetFootprintResponseBreakdown struct {
+	Category string                                          `json:"category"`
+	Value    float64                                         `json:"value"`
+	JSON     sustainabilityGetFootprintResponseBreakdownJSON `json:"-"`
+}
+
+// sustainabilityGetFootprintResponseBreakdownJSON contains the JSON metadata for
+// the struct [SustainabilityGetFootprintResponseBreakdown]
+type sustainabilityGetFootprintResponseBreakdownJSON struct {
+	Category    apijson.Field
+	Value       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SustainabilityGetFootprintResponseBreakdown) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r sustainabilityGetFootprintResponseBreakdownJSON) RawJSON() string {
+	return r.raw
+}
