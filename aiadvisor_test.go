@@ -26,7 +26,10 @@ func TestAIAdvisorChatWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.AI.Advisor.Chat(context.TODO(), githubcomjocall3go.AIAdvisorChatParams{
-		FunctionResponse: githubcomjocall3go.F[any](map[string]interface{}{}),
+		Message:           githubcomjocall3go.F("message"),
+		ContextAccountIDs: githubcomjocall3go.F([]string{"string"}),
+		Mode:              githubcomjocall3go.F("mode"),
+		Stream:            githubcomjocall3go.F(true),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -37,7 +40,7 @@ func TestAIAdvisorChatWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAIAdvisorHistoryWithOptionalParams(t *testing.T) {
+func TestAIAdvisorHistory(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -49,11 +52,7 @@ func TestAIAdvisorHistoryWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.AI.Advisor.History(context.TODO(), githubcomjocall3go.AIAdvisorHistoryParams{
-		Limit:     githubcomjocall3go.F(int64(0)),
-		Offset:    githubcomjocall3go.F(int64(0)),
-		SessionID: githubcomjocall3go.F("sessionId"),
-	})
+	_, err := client.AI.Advisor.History(context.TODO())
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

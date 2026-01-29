@@ -7,11 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
@@ -36,63 +34,93 @@ func NewCorporateAnomalyService(opts ...option.RequestOption) (r *CorporateAnoma
 	return
 }
 
-// Retrieves a comprehensive list of AI-detected financial anomalies across
-// transactions, payments, and corporate cards that require immediate review and
-// potential action to mitigate risk and ensure compliance.
-func (r *CorporateAnomalyService) List(ctx context.Context, query CorporateAnomalyListParams, opts ...option.RequestOption) (res *CorporateAnomalyListResponse, err error) {
+// List detected anomalies
+func (r *CorporateAnomalyService) List(ctx context.Context, opts ...option.RequestOption) (res *CorporateAnomalyListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/anomalies"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-// Updates the review status of a specific financial anomaly, allowing compliance
-// officers to mark it as dismissed, resolved, or escalate for further
-// investigation after thorough AI-assisted and human review.
-func (r *CorporateAnomalyService) UpdateStatus(ctx context.Context, anomalyID string, body CorporateAnomalyUpdateStatusParams, opts ...option.RequestOption) (res *CorporateAnomalyUpdateStatusResponse, err error) {
+// Update anomaly status
+func (r *CorporateAnomalyService) UpdateStatus(ctx context.Context, anomalyID string, body CorporateAnomalyUpdateStatusParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if anomalyID == "" {
 		err = errors.New("missing required anomalyId parameter")
 		return
 	}
 	path := fmt.Sprintf("corporate/anomalies/%s/status", anomalyID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
 	return
 }
 
-type CorporateAnomalyListResponse = interface{}
-
-type CorporateAnomalyUpdateStatusResponse = interface{}
-
-type CorporateAnomalyListParams struct {
-	// End date for filtering results (inclusive, YYYY-MM-DD).
-	EndDate param.Field[string] `query:"endDate"`
-	// Filter anomalies by the type of financial entity they are related to.
-	EntityType param.Field[string] `query:"entityType"`
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-	// Filter anomalies by their AI-assessed severity level.
-	Severity param.Field[string] `query:"severity"`
-	// Start date for filtering results (inclusive, YYYY-MM-DD).
-	StartDate param.Field[string] `query:"startDate"`
-	// Filter anomalies by their current review status.
-	Status param.Field[string] `query:"status"`
+type CorporateAnomalyListResponse struct {
+	Data []CorporateAnomalyListResponseData `json:"data"`
+	JSON corporateAnomalyListResponseJSON   `json:"-"`
 }
 
-// URLQuery serializes [CorporateAnomalyListParams]'s query parameters as
-// `url.Values`.
-func (r CorporateAnomalyListParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+// corporateAnomalyListResponseJSON contains the JSON metadata for the struct
+// [CorporateAnomalyListResponse]
+type corporateAnomalyListResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateAnomalyListResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateAnomalyListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateAnomalyListResponseData struct {
+	ID       string                               `json:"id,required"`
+	Severity string                               `json:"severity,required"`
+	Type     string                               `json:"type,required"`
+	JSON     corporateAnomalyListResponseDataJSON `json:"-"`
+}
+
+// corporateAnomalyListResponseDataJSON contains the JSON metadata for the struct
+// [CorporateAnomalyListResponseData]
+type corporateAnomalyListResponseDataJSON struct {
+	ID          apijson.Field
+	Severity    apijson.Field
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateAnomalyListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateAnomalyListResponseDataJSON) RawJSON() string {
+	return r.raw
 }
 
 type CorporateAnomalyUpdateStatusParams struct {
+	Status param.Field[CorporateAnomalyUpdateStatusParamsStatus] `json:"status,required"`
 }
 
 func (r CorporateAnomalyUpdateStatusParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+type CorporateAnomalyUpdateStatusParamsStatus string
+
+const (
+	CorporateAnomalyUpdateStatusParamsStatusDismissed     CorporateAnomalyUpdateStatusParamsStatus = "dismissed"
+	CorporateAnomalyUpdateStatusParamsStatusInvestigating CorporateAnomalyUpdateStatusParamsStatus = "investigating"
+	CorporateAnomalyUpdateStatusParamsStatusResolved      CorporateAnomalyUpdateStatusParamsStatus = "resolved"
+)
+
+func (r CorporateAnomalyUpdateStatusParamsStatus) IsKnown() bool {
+	switch r {
+	case CorporateAnomalyUpdateStatusParamsStatusDismissed, CorporateAnomalyUpdateStatusParamsStatusInvestigating, CorporateAnomalyUpdateStatusParamsStatusResolved:
+		return true
+	}
+	return false
 }

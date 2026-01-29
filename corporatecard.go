@@ -15,6 +15,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
+	"github.com/diplomat-bit/jocall3-go/shared"
 )
 
 // CorporateCardService contains methods and other services that help with
@@ -38,9 +39,7 @@ func NewCorporateCardService(opts ...option.RequestOption) (r *CorporateCardServ
 	return
 }
 
-// Retrieves a comprehensive list of all physical and virtual corporate cards
-// associated with the user's organization, including their status, assigned
-// holder, and current spending controls.
+// List all corporate cards
 func (r *CorporateCardService) List(ctx context.Context, query CorporateCardListParams, opts ...option.RequestOption) (res *CorporateCardListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/cards"
@@ -48,23 +47,28 @@ func (r *CorporateCardService) List(ctx context.Context, query CorporateCardList
 	return
 }
 
-// Immediately changes the frozen status of a corporate card, preventing or
-// allowing transactions in real-time, critical for security and expense
-// management.
-func (r *CorporateCardService) Freeze(ctx context.Context, cardID string, body CorporateCardFreezeParams, opts ...option.RequestOption) (res *CorporateCardFreezeResponse, err error) {
+// Toggle Card Lock
+func (r *CorporateCardService) Freeze(ctx context.Context, cardID string, body CorporateCardFreezeParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if cardID == "" {
 		err = errors.New("missing required cardId parameter")
 		return
 	}
 	path := fmt.Sprintf("corporate/cards/%s/freeze", cardID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+// Request Physical Corporate Card
+func (r *CorporateCardService) IssuePhysical(ctx context.Context, body CorporateCardIssuePhysicalParams, opts ...option.RequestOption) (res *CorporateCardIssuePhysicalResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/cards/physical"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
-// Creates and issues a new virtual corporate card with specified spending limits,
-// merchant restrictions, and expiration dates, ideal for secure online purchases
-// and temporary projects.
+// Issue Corporate Virtual Card
 func (r *CorporateCardService) IssueVirtual(ctx context.Context, body CorporateCardIssueVirtualParams, opts ...option.RequestOption) (res *CorporateCardIssueVirtualResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/cards/virtual"
@@ -72,55 +76,118 @@ func (r *CorporateCardService) IssueVirtual(ctx context.Context, body CorporateC
 	return
 }
 
-// Retrieves a paginated list of transactions made with a specific corporate card,
-// including AI categorization and compliance flags.
-func (r *CorporateCardService) ListTransactions(ctx context.Context, cardID string, query CorporateCardListTransactionsParams, opts ...option.RequestOption) (res *CorporateCardListTransactionsResponse, err error) {
+// Get card transactions
+func (r *CorporateCardService) ListTransactions(ctx context.Context, cardID string, opts ...option.RequestOption) (res *CorporateCardListTransactionsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if cardID == "" {
 		err = errors.New("missing required cardId parameter")
 		return
 	}
 	path := fmt.Sprintf("corporate/cards/%s/transactions", cardID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-type CorporateCardListResponse = interface{}
-
-type CorporateCardFreezeResponse struct {
-	// Granular spending controls for a corporate card.
-	Controls interface{}                     `json:"controls,required"`
-	JSON     corporateCardFreezeResponseJSON `json:"-"`
+type CorporateCardListResponse struct {
+	Data  []CorporateCardListResponseData `json:"data"`
+	Total int64                           `json:"total"`
+	JSON  corporateCardListResponseJSON   `json:"-"`
 }
 
-// corporateCardFreezeResponseJSON contains the JSON metadata for the struct
-// [CorporateCardFreezeResponse]
-type corporateCardFreezeResponseJSON struct {
-	Controls    apijson.Field
+// corporateCardListResponseJSON contains the JSON metadata for the struct
+// [CorporateCardListResponse]
+type corporateCardListResponseJSON struct {
+	Data        apijson.Field
+	Total       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *CorporateCardFreezeResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *CorporateCardListResponse) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r corporateCardFreezeResponseJSON) RawJSON() string {
+func (r corporateCardListResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateCardListResponseData struct {
+	ID             string                            `json:"id,required"`
+	CardNumberMask string                            `json:"cardNumberMask,required"`
+	HolderName     string                            `json:"holderName,required"`
+	Status         string                            `json:"status,required"`
+	Frozen         bool                              `json:"frozen"`
+	JSON           corporateCardListResponseDataJSON `json:"-"`
+}
+
+// corporateCardListResponseDataJSON contains the JSON metadata for the struct
+// [CorporateCardListResponseData]
+type corporateCardListResponseDataJSON struct {
+	ID             apijson.Field
+	CardNumberMask apijson.Field
+	HolderName     apijson.Field
+	Status         apijson.Field
+	Frozen         apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *CorporateCardListResponseData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardListResponseDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type CorporateCardIssuePhysicalResponse struct {
+	ID             string                                 `json:"id,required"`
+	CardNumberMask string                                 `json:"cardNumberMask,required"`
+	HolderName     string                                 `json:"holderName,required"`
+	Status         string                                 `json:"status,required"`
+	Frozen         bool                                   `json:"frozen"`
+	JSON           corporateCardIssuePhysicalResponseJSON `json:"-"`
+}
+
+// corporateCardIssuePhysicalResponseJSON contains the JSON metadata for the struct
+// [CorporateCardIssuePhysicalResponse]
+type corporateCardIssuePhysicalResponseJSON struct {
+	ID             apijson.Field
+	CardNumberMask apijson.Field
+	HolderName     apijson.Field
+	Status         apijson.Field
+	Frozen         apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *CorporateCardIssuePhysicalResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardIssuePhysicalResponseJSON) RawJSON() string {
 	return r.raw
 }
 
 type CorporateCardIssueVirtualResponse struct {
-	// Granular spending controls for a corporate card.
-	Controls interface{}                           `json:"controls,required"`
-	JSON     corporateCardIssueVirtualResponseJSON `json:"-"`
+	ID             string                                `json:"id,required"`
+	CardNumberMask string                                `json:"cardNumberMask,required"`
+	HolderName     string                                `json:"holderName,required"`
+	Status         string                                `json:"status,required"`
+	Frozen         bool                                  `json:"frozen"`
+	JSON           corporateCardIssueVirtualResponseJSON `json:"-"`
 }
 
 // corporateCardIssueVirtualResponseJSON contains the JSON metadata for the struct
 // [CorporateCardIssueVirtualResponse]
 type corporateCardIssueVirtualResponseJSON struct {
-	Controls    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	ID             apijson.Field
+	CardNumberMask apijson.Field
+	HolderName     apijson.Field
+	Status         apijson.Field
+	Frozen         apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
 }
 
 func (r *CorporateCardIssueVirtualResponse) UnmarshalJSON(data []byte) (err error) {
@@ -131,12 +198,29 @@ func (r corporateCardIssueVirtualResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type CorporateCardListTransactionsResponse = interface{}
+type CorporateCardListTransactionsResponse struct {
+	Data []shared.Transaction                      `json:"data"`
+	JSON corporateCardListTransactionsResponseJSON `json:"-"`
+}
+
+// corporateCardListTransactionsResponseJSON contains the JSON metadata for the
+// struct [CorporateCardListTransactionsResponse]
+type corporateCardListTransactionsResponseJSON struct {
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *CorporateCardListTransactionsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateCardListTransactionsResponseJSON) RawJSON() string {
+	return r.raw
+}
 
 type CorporateCardListParams struct {
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
+	Limit  param.Field[int64] `query:"limit"`
 	Offset param.Field[int64] `query:"offset"`
 }
 
@@ -150,37 +234,29 @@ func (r CorporateCardListParams) URLQuery() (v url.Values) {
 }
 
 type CorporateCardFreezeParams struct {
+	Frozen param.Field[bool] `json:"frozen,required"`
 }
 
 func (r CorporateCardFreezeParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+type CorporateCardIssuePhysicalParams struct {
+	HolderName      param.Field[string]              `json:"holderName,required"`
+	ShippingAddress param.Field[shared.AddressParam] `json:"shippingAddress,required"`
+}
+
+func (r CorporateCardIssuePhysicalParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 type CorporateCardIssueVirtualParams struct {
-	// Granular spending controls for a corporate card.
-	Controls param.Field[interface{}] `json:"controls,required"`
+	HolderName   param.Field[string]      `json:"holderName,required"`
+	MonthlyLimit param.Field[float64]     `json:"monthlyLimit,required"`
+	Purpose      param.Field[string]      `json:"purpose,required"`
+	Metadata     param.Field[interface{}] `json:"metadata"`
 }
 
 func (r CorporateCardIssueVirtualParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
-}
-
-type CorporateCardListTransactionsParams struct {
-	// End date for filtering results (inclusive, YYYY-MM-DD).
-	EndDate param.Field[string] `query:"endDate"`
-	// Maximum number of items to return in a single page.
-	Limit param.Field[int64] `query:"limit"`
-	// Number of items to skip before starting to collect the result set.
-	Offset param.Field[int64] `query:"offset"`
-	// Start date for filtering results (inclusive, YYYY-MM-DD).
-	StartDate param.Field[string] `query:"startDate"`
-}
-
-// URLQuery serializes [CorporateCardListTransactionsParams]'s query parameters as
-// `url.Values`.
-func (r CorporateCardListTransactionsParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
 }

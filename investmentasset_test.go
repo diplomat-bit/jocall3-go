@@ -26,10 +26,8 @@ func TestInvestmentAssetSearchWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Investments.Assets.Search(context.TODO(), githubcomjocall3go.InvestmentAssetSearchParams{
-		Limit:       githubcomjocall3go.F(int64(0)),
-		MinEsgScore: githubcomjocall3go.F(int64(0)),
-		Offset:      githubcomjocall3go.F(int64(0)),
-		Query:       githubcomjocall3go.F("query"),
+		Query:     githubcomjocall3go.F("query"),
+		AssetType: githubcomjocall3go.F(githubcomjocall3go.InvestmentAssetSearchParamsAssetTypeEquity),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error

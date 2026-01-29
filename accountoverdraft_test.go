@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAccountOverdraftUpdate(t *testing.T) {
+func TestAccountOverdraftUpdateWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,10 +25,13 @@ func TestAccountOverdraftUpdate(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Accounts.Overdraft.Update(
+	err := client.Accounts.Overdraft.Update(
 		context.TODO(),
-		"acc_chase_checking_4567",
-		githubcomjocall3go.AccountOverdraftUpdateParams{},
+		"accountId",
+		githubcomjocall3go.AccountOverdraftUpdateParams{
+			Enabled: githubcomjocall3go.F(true),
+			Limit:   githubcomjocall3go.F(0.000000),
+		},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -51,7 +54,7 @@ func TestAccountOverdraftGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Accounts.Overdraft.Get(context.TODO(), "acc_chase_checking_4567")
+	_, err := client.Accounts.Overdraft.Get(context.TODO(), "accountId")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
