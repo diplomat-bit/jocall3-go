@@ -36,7 +36,10 @@ func NewAIIncubatorService(opts ...option.RequestOption) (r *AIIncubatorService)
 	return
 }
 
-// Submit a High-Potential Business Plan
+// Submits a detailed business plan to the Quantum Weaver AI for rigorous analysis,
+// market validation, and seed funding consideration. This initiates the AI-driven
+// incubation journey, aiming to transform innovative ideas into commercially
+// successful ventures.
 func (r *AIIncubatorService) GeneratePitch(ctx context.Context, body AIIncubatorGeneratePitchParams, opts ...option.RequestOption) (res *AIIncubatorGeneratePitchResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "ai/incubator/pitch"
@@ -44,76 +47,13 @@ func (r *AIIncubatorService) GeneratePitch(ctx context.Context, body AIIncubator
 	return
 }
 
-// Rapid Idea Validation Engine
-func (r *AIIncubatorService) ValidateIdea(ctx context.Context, body AIIncubatorValidateIdeaParams, opts ...option.RequestOption) (res *AIIncubatorValidateIdeaResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "ai/incubator/validate"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-type AIIncubatorGeneratePitchResponse struct {
-	PitchID string                               `json:"pitchId"`
-	Status  string                               `json:"status"`
-	JSON    aiIncubatorGeneratePitchResponseJSON `json:"-"`
-}
-
-// aiIncubatorGeneratePitchResponseJSON contains the JSON metadata for the struct
-// [AIIncubatorGeneratePitchResponse]
-type aiIncubatorGeneratePitchResponseJSON struct {
-	PitchID     apijson.Field
-	Status      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AIIncubatorGeneratePitchResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiIncubatorGeneratePitchResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIIncubatorValidateIdeaResponse struct {
-	CriticalFlaws    []string                            `json:"criticalFlaws"`
-	FeasibilityScore float64                             `json:"feasibilityScore"`
-	JSON             aiIncubatorValidateIdeaResponseJSON `json:"-"`
-}
-
-// aiIncubatorValidateIdeaResponseJSON contains the JSON metadata for the struct
-// [AIIncubatorValidateIdeaResponse]
-type aiIncubatorValidateIdeaResponseJSON struct {
-	CriticalFlaws    apijson.Field
-	FeasibilityScore apijson.Field
-	raw              string
-	ExtraFields      map[string]apijson.Field
-}
-
-func (r *AIIncubatorValidateIdeaResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiIncubatorValidateIdeaResponseJSON) RawJSON() string {
-	return r.raw
-}
+type AIIncubatorGeneratePitchResponse = interface{}
 
 type AIIncubatorGeneratePitchParams struct {
-	// Full text of the concept
-	BusinessPlan         param.Field[string]        `json:"businessPlan,required"`
-	FinancialProjections param.Field[interface{}]   `json:"financialProjections,required"`
-	FoundingTeam         param.Field[[]interface{}] `json:"foundingTeam,required"`
-	MarketOpportunity    param.Field[string]        `json:"marketOpportunity,required"`
+	// Key financial metrics and projections for the next 3-5 years.
+	FinancialProjections param.Field[interface{}] `json:"financialProjections,required"`
 }
 
 func (r AIIncubatorGeneratePitchParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type AIIncubatorValidateIdeaParams struct {
-	Concept param.Field[string] `json:"concept,required"`
-}
-
-func (r AIIncubatorValidateIdeaParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }

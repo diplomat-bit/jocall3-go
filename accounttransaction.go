@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
-	"time"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
 	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
@@ -37,153 +35,31 @@ func NewAccountTransactionService(opts ...option.RequestOption) (r *AccountTrans
 	return
 }
 
-// Get Historical Ledger Archive
-func (r *AccountTransactionService) ListArchived(ctx context.Context, accountID string, query AccountTransactionListArchivedParams, opts ...option.RequestOption) (res *AccountTransactionListArchivedResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if accountID == "" {
-		err = errors.New("missing required accountId parameter")
-		return
-	}
-	path := fmt.Sprintf("accounts/%s/transactions/archived", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
-}
-
-// Get Pending Ledger Entries
-func (r *AccountTransactionService) ListPending(ctx context.Context, accountID string, opts ...option.RequestOption) (res *AccountTransactionListPendingResponse, err error) {
+// Retrieves a list of pending transactions that have not yet cleared for a
+// specific financial account.
+func (r *AccountTransactionService) ListPending(ctx context.Context, accountID string, query AccountTransactionListPendingParams, opts ...option.RequestOption) (res *AccountTransactionListPendingResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if accountID == "" {
 		err = errors.New("missing required accountId parameter")
 		return
 	}
 	path := fmt.Sprintf("accounts/%s/transactions/pending", accountID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
 }
 
-type AccountTransactionListArchivedResponse struct {
-	Data       []AccountTransactionListArchivedResponseData `json:"data,required"`
-	Total      int64                                        `json:"total,required"`
-	NextOffset int64                                        `json:"nextOffset"`
-	JSON       accountTransactionListArchivedResponseJSON   `json:"-"`
+type AccountTransactionListPendingResponse = interface{}
+
+type AccountTransactionListPendingParams struct {
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
 }
 
-// accountTransactionListArchivedResponseJSON contains the JSON metadata for the
-// struct [AccountTransactionListArchivedResponse]
-type accountTransactionListArchivedResponseJSON struct {
-	Data        apijson.Field
-	Total       apijson.Field
-	NextOffset  apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListArchivedResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListArchivedResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListArchivedResponseData struct {
-	ID          string                                         `json:"id,required"`
-	Amount      float64                                        `json:"amount,required"`
-	Currency    string                                         `json:"currency,required"`
-	Date        time.Time                                      `json:"date,required" format:"date"`
-	Description string                                         `json:"description,required"`
-	Category    string                                         `json:"category"`
-	Notes       string                                         `json:"notes"`
-	JSON        accountTransactionListArchivedResponseDataJSON `json:"-"`
-}
-
-// accountTransactionListArchivedResponseDataJSON contains the JSON metadata for
-// the struct [AccountTransactionListArchivedResponseData]
-type accountTransactionListArchivedResponseDataJSON struct {
-	ID          apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Date        apijson.Field
-	Description apijson.Field
-	Category    apijson.Field
-	Notes       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListArchivedResponseData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListArchivedResponseDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListPendingResponse struct {
-	Data       []AccountTransactionListPendingResponseData `json:"data,required"`
-	Total      int64                                       `json:"total,required"`
-	NextOffset int64                                       `json:"nextOffset"`
-	JSON       accountTransactionListPendingResponseJSON   `json:"-"`
-}
-
-// accountTransactionListPendingResponseJSON contains the JSON metadata for the
-// struct [AccountTransactionListPendingResponse]
-type accountTransactionListPendingResponseJSON struct {
-	Data        apijson.Field
-	Total       apijson.Field
-	NextOffset  apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListPendingResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListPendingResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListPendingResponseData struct {
-	ID          string                                        `json:"id,required"`
-	Amount      float64                                       `json:"amount,required"`
-	Currency    string                                        `json:"currency,required"`
-	Date        time.Time                                     `json:"date,required" format:"date"`
-	Description string                                        `json:"description,required"`
-	Category    string                                        `json:"category"`
-	Notes       string                                        `json:"notes"`
-	JSON        accountTransactionListPendingResponseDataJSON `json:"-"`
-}
-
-// accountTransactionListPendingResponseDataJSON contains the JSON metadata for the
-// struct [AccountTransactionListPendingResponseData]
-type accountTransactionListPendingResponseDataJSON struct {
-	ID          apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Date        apijson.Field
-	Description apijson.Field
-	Category    apijson.Field
-	Notes       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListPendingResponseData) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListPendingResponseDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListArchivedParams struct {
-	Year param.Field[int64] `query:"year"`
-}
-
-// URLQuery serializes [AccountTransactionListArchivedParams]'s query parameters as
+// URLQuery serializes [AccountTransactionListPendingParams]'s query parameters as
 // `url.Values`.
-func (r AccountTransactionListArchivedParams) URLQuery() (v url.Values) {
+func (r AccountTransactionListPendingParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

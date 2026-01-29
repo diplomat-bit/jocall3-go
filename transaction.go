@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"slices"
-	"time"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/apiquery"
@@ -41,7 +40,9 @@ func NewTransactionService(opts ...option.RequestOption) (r *TransactionService)
 	return
 }
 
-// Get Transaction Deep Metadata
+// Retrieves granular information for a single transaction by its unique ID,
+// including AI categorization confidence, merchant details, and associated carbon
+// footprint.
 func (r *TransactionService) Get(ctx context.Context, transactionID string, opts ...option.RequestOption) (res *TransactionGetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if transactionID == "" {
@@ -53,7 +54,9 @@ func (r *TransactionService) Get(ctx context.Context, transactionID string, opts
 	return
 }
 
-// Global Transaction Search & Filter
+// Retrieves a paginated list of the user's transactions, with extensive options
+// for filtering by type, category, date range, amount, and intelligent AI-driven
+// sorting and search capabilities.
 func (r *TransactionService) List(ctx context.Context, query TransactionListParams, opts ...option.RequestOption) (res *TransactionListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "transactions"
@@ -61,20 +64,20 @@ func (r *TransactionService) List(ctx context.Context, query TransactionListPara
 	return
 }
 
-// Attach Manual Notes to Transaction
-func (r *TransactionService) AddNotes(ctx context.Context, transactionID string, body TransactionAddNotesParams, opts ...option.RequestOption) (err error) {
+// Allows the user to add or update personal notes for a specific transaction.
+func (r *TransactionService) AddNotes(ctx context.Context, transactionID string, body TransactionAddNotesParams, opts ...option.RequestOption) (res *TransactionAddNotesResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if transactionID == "" {
 		err = errors.New("missing required transactionId parameter")
 		return
 	}
 	path := fmt.Sprintf("transactions/%s/notes", transactionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
-// Override AI Categorization
+// Allows the user to override or refine the AI's categorization for a transaction,
+// improving future AI accuracy and personal financial reporting.
 func (r *TransactionService) Categorize(ctx context.Context, transactionID string, body TransactionCategorizeParams, opts ...option.RequestOption) (res *TransactionCategorizeResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if transactionID == "" {
@@ -86,55 +89,21 @@ func (r *TransactionService) Categorize(ctx context.Context, transactionID strin
 	return
 }
 
-// Initiate Transaction Dispute
-func (r *TransactionService) Dispute(ctx context.Context, transactionID string, body TransactionDisputeParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if transactionID == "" {
-		err = errors.New("missing required transactionId parameter")
-		return
-	}
-	path := fmt.Sprintf("transactions/%s/dispute", transactionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-// Split Transaction Across Multiple Categories
-func (r *TransactionService) Split(ctx context.Context, transactionID string, body TransactionSplitParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if transactionID == "" {
-		err = errors.New("missing required transactionId parameter")
-		return
-	}
-	path := fmt.Sprintf("transactions/%s/split", transactionID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
 type TransactionGetResponse struct {
-	ID          string                     `json:"id,required"`
-	Amount      float64                    `json:"amount,required"`
-	Currency    string                     `json:"currency,required"`
-	Date        time.Time                  `json:"date,required" format:"date"`
-	Description string                     `json:"description,required"`
-	Category    string                     `json:"category"`
-	Notes       string                     `json:"notes"`
-	JSON        transactionGetResponseJSON `json:"-"`
+	// Geographic location details for a transaction.
+	Location interface{} `json:"location"`
+	// Detailed information about a merchant associated with a transaction.
+	MerchantDetails TransactionGetResponseMerchantDetails `json:"merchantDetails"`
+	JSON            transactionGetResponseJSON            `json:"-"`
 }
 
 // transactionGetResponseJSON contains the JSON metadata for the struct
 // [TransactionGetResponse]
 type transactionGetResponseJSON struct {
-	ID          apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Date        apijson.Field
-	Description apijson.Field
-	Category    apijson.Field
-	Notes       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Location        apijson.Field
+	MerchantDetails apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *TransactionGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -145,87 +114,92 @@ func (r transactionGetResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type TransactionListResponse struct {
-	Data       []TransactionListResponseData `json:"data,required"`
-	Total      int64                         `json:"total,required"`
-	NextOffset int64                         `json:"nextOffset"`
-	JSON       transactionListResponseJSON   `json:"-"`
+// Detailed information about a merchant associated with a transaction.
+type TransactionGetResponseMerchantDetails struct {
+	Address interface{}                               `json:"address"`
+	JSON    transactionGetResponseMerchantDetailsJSON `json:"-"`
 }
 
-// transactionListResponseJSON contains the JSON metadata for the struct
-// [TransactionListResponse]
-type transactionListResponseJSON struct {
-	Data        apijson.Field
-	Total       apijson.Field
-	NextOffset  apijson.Field
+// transactionGetResponseMerchantDetailsJSON contains the JSON metadata for the
+// struct [TransactionGetResponseMerchantDetails]
+type transactionGetResponseMerchantDetailsJSON struct {
+	Address     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *TransactionListResponse) UnmarshalJSON(data []byte) (err error) {
+func (r *TransactionGetResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r transactionListResponseJSON) RawJSON() string {
+func (r transactionGetResponseMerchantDetailsJSON) RawJSON() string {
 	return r.raw
 }
 
-type TransactionListResponseData struct {
-	ID          string                          `json:"id,required"`
-	Amount      float64                         `json:"amount,required"`
-	Currency    string                          `json:"currency,required"`
-	Date        time.Time                       `json:"date,required" format:"date"`
-	Description string                          `json:"description,required"`
-	Category    string                          `json:"category"`
-	Notes       string                          `json:"notes"`
-	JSON        transactionListResponseDataJSON `json:"-"`
+type TransactionListResponse = interface{}
+
+type TransactionAddNotesResponse struct {
+	// Geographic location details for a transaction.
+	Location interface{} `json:"location"`
+	// Detailed information about a merchant associated with a transaction.
+	MerchantDetails TransactionAddNotesResponseMerchantDetails `json:"merchantDetails"`
+	JSON            transactionAddNotesResponseJSON            `json:"-"`
 }
 
-// transactionListResponseDataJSON contains the JSON metadata for the struct
-// [TransactionListResponseData]
-type transactionListResponseDataJSON struct {
-	ID          apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Date        apijson.Field
-	Description apijson.Field
-	Category    apijson.Field
-	Notes       apijson.Field
+// transactionAddNotesResponseJSON contains the JSON metadata for the struct
+// [TransactionAddNotesResponse]
+type transactionAddNotesResponseJSON struct {
+	Location        apijson.Field
+	MerchantDetails apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
+}
+
+func (r *TransactionAddNotesResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionAddNotesResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// Detailed information about a merchant associated with a transaction.
+type TransactionAddNotesResponseMerchantDetails struct {
+	Address interface{}                                    `json:"address"`
+	JSON    transactionAddNotesResponseMerchantDetailsJSON `json:"-"`
+}
+
+// transactionAddNotesResponseMerchantDetailsJSON contains the JSON metadata for
+// the struct [TransactionAddNotesResponseMerchantDetails]
+type transactionAddNotesResponseMerchantDetailsJSON struct {
+	Address     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *TransactionListResponseData) UnmarshalJSON(data []byte) (err error) {
+func (r *TransactionAddNotesResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r transactionListResponseDataJSON) RawJSON() string {
+func (r transactionAddNotesResponseMerchantDetailsJSON) RawJSON() string {
 	return r.raw
 }
 
 type TransactionCategorizeResponse struct {
-	ID          string                            `json:"id,required"`
-	Amount      float64                           `json:"amount,required"`
-	Currency    string                            `json:"currency,required"`
-	Date        time.Time                         `json:"date,required" format:"date"`
-	Description string                            `json:"description,required"`
-	Category    string                            `json:"category"`
-	Notes       string                            `json:"notes"`
-	JSON        transactionCategorizeResponseJSON `json:"-"`
+	// Geographic location details for a transaction.
+	Location interface{} `json:"location"`
+	// Detailed information about a merchant associated with a transaction.
+	MerchantDetails TransactionCategorizeResponseMerchantDetails `json:"merchantDetails"`
+	JSON            transactionCategorizeResponseJSON            `json:"-"`
 }
 
 // transactionCategorizeResponseJSON contains the JSON metadata for the struct
 // [TransactionCategorizeResponse]
 type transactionCategorizeResponseJSON struct {
-	ID          apijson.Field
-	Amount      apijson.Field
-	Currency    apijson.Field
-	Date        apijson.Field
-	Description apijson.Field
-	Category    apijson.Field
-	Notes       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Location        apijson.Field
+	MerchantDetails apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *TransactionCategorizeResponse) UnmarshalJSON(data []byte) (err error) {
@@ -236,12 +210,47 @@ func (r transactionCategorizeResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+// Detailed information about a merchant associated with a transaction.
+type TransactionCategorizeResponseMerchantDetails struct {
+	Address interface{}                                      `json:"address"`
+	JSON    transactionCategorizeResponseMerchantDetailsJSON `json:"-"`
+}
+
+// transactionCategorizeResponseMerchantDetailsJSON contains the JSON metadata for
+// the struct [TransactionCategorizeResponseMerchantDetails]
+type transactionCategorizeResponseMerchantDetailsJSON struct {
+	Address     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *TransactionCategorizeResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r transactionCategorizeResponseMerchantDetailsJSON) RawJSON() string {
+	return r.raw
+}
+
 type TransactionListParams struct {
-	Limit     param.Field[int64]   `query:"limit"`
-	MaxAmount param.Field[float64] `query:"maxAmount"`
-	MinAmount param.Field[float64] `query:"minAmount"`
-	Offset    param.Field[int64]   `query:"offset"`
-	Type      param.Field[string]  `query:"type"`
+	// Filter transactions by their AI-assigned or user-defined category.
+	Category param.Field[string] `query:"category"`
+	// Retrieve transactions up to this date (inclusive).
+	EndDate param.Field[string] `query:"endDate"`
+	// Maximum number of items to return in a single page.
+	Limit param.Field[int64] `query:"limit"`
+	// Filter for transactions with an amount less than or equal to this value.
+	MaxAmount param.Field[int64] `query:"maxAmount"`
+	// Filter for transactions with an amount greater than or equal to this value.
+	MinAmount param.Field[int64] `query:"minAmount"`
+	// Number of items to skip before starting to collect the result set.
+	Offset param.Field[int64] `query:"offset"`
+	// Free-text search across transaction descriptions, merchants, and notes.
+	SearchQuery param.Field[string] `query:"searchQuery"`
+	// Retrieve transactions from this date (inclusive).
+	StartDate param.Field[string] `query:"startDate"`
+	// Filter transactions by type (e.g., income, expense, transfer).
+	Type param.Field[string] `query:"type"`
 }
 
 // URLQuery serializes [TransactionListParams]'s query parameters as `url.Values`.
@@ -253,7 +262,6 @@ func (r TransactionListParams) URLQuery() (v url.Values) {
 }
 
 type TransactionAddNotesParams struct {
-	Notes param.Field[string] `json:"notes,required"`
 }
 
 func (r TransactionAddNotesParams) MarshalJSON() (data []byte, err error) {
@@ -261,54 +269,8 @@ func (r TransactionAddNotesParams) MarshalJSON() (data []byte, err error) {
 }
 
 type TransactionCategorizeParams struct {
-	Category      param.Field[string] `json:"category,required"`
-	ApplyToFuture param.Field[bool]   `json:"applyToFuture"`
 }
 
 func (r TransactionCategorizeParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type TransactionDisputeParams struct {
-	Reason param.Field[TransactionDisputeParamsReason] `json:"reason,required"`
-	// URIs to evidence
-	EvidenceFiles param.Field[[]string] `json:"evidenceFiles"`
-}
-
-func (r TransactionDisputeParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type TransactionDisputeParamsReason string
-
-const (
-	TransactionDisputeParamsReasonFraudulent         TransactionDisputeParamsReason = "fraudulent"
-	TransactionDisputeParamsReasonDuplicate          TransactionDisputeParamsReason = "duplicate"
-	TransactionDisputeParamsReasonIncorrectAmount    TransactionDisputeParamsReason = "incorrect_amount"
-	TransactionDisputeParamsReasonServiceNotRendered TransactionDisputeParamsReason = "service_not_rendered"
-)
-
-func (r TransactionDisputeParamsReason) IsKnown() bool {
-	switch r {
-	case TransactionDisputeParamsReasonFraudulent, TransactionDisputeParamsReasonDuplicate, TransactionDisputeParamsReasonIncorrectAmount, TransactionDisputeParamsReasonServiceNotRendered:
-		return true
-	}
-	return false
-}
-
-type TransactionSplitParams struct {
-	Splits param.Field[[]TransactionSplitParamsSplit] `json:"splits,required"`
-}
-
-func (r TransactionSplitParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type TransactionSplitParamsSplit struct {
-	Amount   param.Field[float64] `json:"amount"`
-	Category param.Field[string]  `json:"category"`
-}
-
-func (r TransactionSplitParamsSplit) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }

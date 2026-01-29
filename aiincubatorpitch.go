@@ -10,7 +10,6 @@ import (
 	"slices"
 
 	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -34,7 +33,9 @@ func NewAIIncubatorPitchService(opts ...option.RequestOption) (r *AIIncubatorPit
 	return
 }
 
-// Get Full Pitch AI Deep Dive
+// Retrieves the granular AI-driven analysis, strategic feedback, market validation
+// results, and any outstanding questions from Quantum Weaver for a specific
+// business pitch.
 func (r *AIIncubatorPitchService) GetDetails(ctx context.Context, pitchID string, opts ...option.RequestOption) (res *AIIncubatorPitchGetDetailsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if pitchID == "" {
@@ -46,32 +47,41 @@ func (r *AIIncubatorPitchService) GetDetails(ctx context.Context, pitchID string
 	return
 }
 
-// Submit Answers to AI Follow-up Questions
-func (r *AIIncubatorPitchService) SubmitFeedback(ctx context.Context, pitchID string, body AIIncubatorPitchSubmitFeedbackParams, opts ...option.RequestOption) (err error) {
+// Allows the entrepreneur to respond to specific questions or provide additional
+// details requested by Quantum Weaver, moving the pitch forward in the incubation
+// process.
+func (r *AIIncubatorPitchService) SubmitFeedback(ctx context.Context, pitchID string, body AIIncubatorPitchSubmitFeedbackParams, opts ...option.RequestOption) (res *AIIncubatorPitchSubmitFeedbackResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if pitchID == "" {
 		err = errors.New("missing required pitchId parameter")
 		return
 	}
 	path := fmt.Sprintf("ai/incubator/pitch/%s/feedback", pitchID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, nil, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, body, &res, opts...)
 	return
 }
 
 type AIIncubatorPitchGetDetailsResponse struct {
-	AIFeedback         string                                 `json:"aiFeedback"`
-	FundingEligibility bool                                   `json:"fundingEligibility"`
-	JSON               aiIncubatorPitchGetDetailsResponseJSON `json:"-"`
+	// AI-generated coaching plan for the entrepreneur.
+	AICoachingPlan interface{} `json:"aiCoachingPlan"`
+	// AI's detailed financial model analysis.
+	AIFinancialModel AIIncubatorPitchGetDetailsResponseAIFinancialModel `json:"aiFinancialModel"`
+	// AI's detailed market analysis.
+	AIMarketAnalysis interface{} `json:"aiMarketAnalysis"`
+	// AI's assessment of risks associated with the venture.
+	AIRiskAssessment interface{}                            `json:"aiRiskAssessment"`
+	JSON             aiIncubatorPitchGetDetailsResponseJSON `json:"-"`
 }
 
 // aiIncubatorPitchGetDetailsResponseJSON contains the JSON metadata for the struct
 // [AIIncubatorPitchGetDetailsResponse]
 type aiIncubatorPitchGetDetailsResponseJSON struct {
-	AIFeedback         apijson.Field
-	FundingEligibility apijson.Field
-	raw                string
-	ExtraFields        map[string]apijson.Field
+	AICoachingPlan   apijson.Field
+	AIFinancialModel apijson.Field
+	AIMarketAnalysis apijson.Field
+	AIRiskAssessment apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AIIncubatorPitchGetDetailsResponse) UnmarshalJSON(data []byte) (err error) {
@@ -82,8 +92,33 @@ func (r aiIncubatorPitchGetDetailsResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+// AI's detailed financial model analysis.
+type AIIncubatorPitchGetDetailsResponseAIFinancialModel struct {
+	CostStructureAnalysis interface{}                                            `json:"costStructureAnalysis"`
+	RevenueBreakdown      interface{}                                            `json:"revenueBreakdown"`
+	JSON                  aiIncubatorPitchGetDetailsResponseAIFinancialModelJSON `json:"-"`
+}
+
+// aiIncubatorPitchGetDetailsResponseAIFinancialModelJSON contains the JSON
+// metadata for the struct [AIIncubatorPitchGetDetailsResponseAIFinancialModel]
+type aiIncubatorPitchGetDetailsResponseAIFinancialModelJSON struct {
+	CostStructureAnalysis apijson.Field
+	RevenueBreakdown      apijson.Field
+	raw                   string
+	ExtraFields           map[string]apijson.Field
+}
+
+func (r *AIIncubatorPitchGetDetailsResponseAIFinancialModel) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r aiIncubatorPitchGetDetailsResponseAIFinancialModelJSON) RawJSON() string {
+	return r.raw
+}
+
+type AIIncubatorPitchSubmitFeedbackResponse = interface{}
+
 type AIIncubatorPitchSubmitFeedbackParams struct {
-	Answers param.Field[[]interface{}] `json:"answers,required"`
 }
 
 func (r AIIncubatorPitchSubmitFeedbackParams) MarshalJSON() (data []byte, err error) {

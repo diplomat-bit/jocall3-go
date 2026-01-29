@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -34,7 +32,8 @@ func NewPaymentInternationalService(opts ...option.RequestOption) (r *PaymentInt
 	return
 }
 
-// Get international payment status
+// Retrieves the current processing status and details of an initiated
+// international payment.
 func (r *PaymentInternationalService) GetStatus(ctx context.Context, paymentID string, opts ...option.RequestOption) (res *PaymentInternationalGetStatusResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if paymentID == "" {
@@ -46,63 +45,4 @@ func (r *PaymentInternationalService) GetStatus(ctx context.Context, paymentID s
 	return
 }
 
-// EU SEPA Credit Transfer
-func (r *PaymentInternationalService) Sepa(ctx context.Context, body PaymentInternationalSepaParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "payments/international/sepa"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-// Global SWIFT Transaction
-func (r *PaymentInternationalService) Swift(ctx context.Context, body PaymentInternationalSwiftParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "payments/international/swift"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-type PaymentInternationalGetStatusResponse struct {
-	FxRate float64                                   `json:"fx_rate"`
-	Status string                                    `json:"status"`
-	JSON   paymentInternationalGetStatusResponseJSON `json:"-"`
-}
-
-// paymentInternationalGetStatusResponseJSON contains the JSON metadata for the
-// struct [PaymentInternationalGetStatusResponse]
-type paymentInternationalGetStatusResponseJSON struct {
-	FxRate      apijson.Field
-	Status      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PaymentInternationalGetStatusResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r paymentInternationalGetStatusResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type PaymentInternationalSepaParams struct {
-	Amount param.Field[float64] `json:"amount,required"`
-	Iban   param.Field[string]  `json:"iban,required"`
-}
-
-func (r PaymentInternationalSepaParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type PaymentInternationalSwiftParams struct {
-	Amount   param.Field[float64] `json:"amount,required"`
-	Bic      param.Field[string]  `json:"bic,required"`
-	Currency param.Field[string]  `json:"currency,required"`
-	Iban     param.Field[string]  `json:"iban,required"`
-}
-
-func (r PaymentInternationalSwiftParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
+type PaymentInternationalGetStatusResponse = interface{}

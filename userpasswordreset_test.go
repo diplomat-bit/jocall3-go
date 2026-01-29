@@ -25,11 +25,7 @@ func TestUserPasswordResetConfirm(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.PasswordReset.Confirm(context.TODO(), githubcomjocall3go.UserPasswordResetConfirmParams{
-		Identifier:       githubcomjocall3go.F("identifier"),
-		NewPassword:      githubcomjocall3go.F("newPassword"),
-		VerificationCode: githubcomjocall3go.F("verificationCode"),
-	})
+	_, err := client.Users.PasswordReset.Confirm(context.TODO(), githubcomjocall3go.UserPasswordResetConfirmParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
@@ -51,9 +47,7 @@ func TestUserPasswordResetInitiate(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.PasswordReset.Initiate(context.TODO(), githubcomjocall3go.UserPasswordResetInitiateParams{
-		Identifier: githubcomjocall3go.F("identifier"),
-	})
+	_, err := client.Users.PasswordReset.Initiate(context.TODO(), githubcomjocall3go.UserPasswordResetInitiateParams{})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

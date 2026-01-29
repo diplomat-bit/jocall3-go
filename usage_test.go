@@ -25,10 +25,6 @@ func TestUsage(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
-		Prompt: githubcomjocall3go.F("Analyze the systemic risk of a 20% drop in BTC prices on my cross-chain collateralized debt positions, factoring in a simultaneous 50bps hike by the Fed and a liquidity squeeze on Aave."),
-		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			Name: githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
-		}}),
 		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
 			"volatility_index":     "VIX_HIGHER_30",
 			"geopolitical_tension": "high",
@@ -41,5 +37,5 @@ func TestUsage(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", response.ConfidenceScore)
+	t.Logf("%+v\n", response)
 }

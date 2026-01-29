@@ -3,13 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -30,22 +23,4 @@ func NewWeb3SmartContractService(opts ...option.RequestOption) (r *Web3SmartCont
 	r = &Web3SmartContractService{}
 	r.Options = opts
 	return
-}
-
-// Deploy Financial Smart Contract
-func (r *Web3SmartContractService) Deploy(ctx context.Context, body Web3SmartContractDeployParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	path := "web3/contracts/deploy"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return
-}
-
-type Web3SmartContractDeployParams struct {
-	Abi      param.Field[interface{}] `json:"abi,required"`
-	Bytecode param.Field[string]      `json:"bytecode,required"`
-}
-
-func (r Web3SmartContractDeployParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
