@@ -48,27 +48,9 @@ func TestUserMeUpdateWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Users.Me.Update(context.TODO(), githubcomjocall3go.UserMeUpdateParams{
-		Address: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsAddress{
-			City:    githubcomjocall3go.F("city"),
-			Country: githubcomjocall3go.F("country"),
-			State:   githubcomjocall3go.F("state"),
-			Street:  githubcomjocall3go.F("street"),
-			Zip:     githubcomjocall3go.F("zip"),
-		}),
-		Name:  githubcomjocall3go.F("Quantum Visionary Pro"),
-		Phone: githubcomjocall3go.F("+1-555-999-0000"),
+		Address: githubcomjocall3go.F[any](map[string]interface{}{}),
 		Preferences: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsPreferences{
-			AIInteractionMode:  githubcomjocall3go.F("aiInteractionMode"),
-			DataSharingConsent: githubcomjocall3go.F(true),
-			NotificationChannels: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsPreferencesNotificationChannels{
-				Email: githubcomjocall3go.F(true),
-				InApp: githubcomjocall3go.F(true),
-				Push:  githubcomjocall3go.F(true),
-				SMS:   githubcomjocall3go.F(true),
-			}),
-			PreferredLanguage:   githubcomjocall3go.F("preferredLanguage"),
-			Theme:               githubcomjocall3go.F("theme"),
-			TransactionGrouping: githubcomjocall3go.F("transactionGrouping"),
+			NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
 		}),
 	})
 	if err != nil {

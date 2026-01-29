@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestAccountOverdraftUpdate(t *testing.T) {
+func TestCorporateCardControlUpdate(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,33 +25,11 @@ func TestAccountOverdraftUpdate(t *testing.T) {
 	client := githubcomjocall3go.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Accounts.Overdraft.Update(
+	_, err := client.Corporate.Cards.Controls.Update(
 		context.TODO(),
-		"acc_chase_checking_4567",
-		githubcomjocall3go.AccountOverdraftUpdateParams{},
+		"corp_card_xyz987654",
+		githubcomjocall3go.CorporateCardControlUpdateParams{},
 	)
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestAccountOverdraftGet(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-	)
-	_, err := client.Accounts.Overdraft.Get(context.TODO(), "acc_chase_checking_4567")
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

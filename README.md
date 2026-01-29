@@ -52,16 +52,11 @@ func main() {
 	client := githubcomjocall3go.NewClient(
 		option.WithEnvironmentSandbox(), // or option.WithEnvironmentProduction() | option.WithEnvironmentGeminiDirect(); defaults to option.WithEnvironmentProduction()
 	)
-	response, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
-		Email:    githubcomjocall3go.F("executive@corp.com"),
-		Name:     githubcomjocall3go.F("Alice Wonderland"),
-		Password: githubcomjocall3go.F("ComplexPassword99!"),
-		Phone:    githubcomjocall3go.F("+1-555-0199"),
-	})
+	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("%+v\n", response.ID)
+	fmt.Printf("%+v\n", response)
 }
 
 ```
@@ -179,12 +174,7 @@ When the API returns a non-success status code, we return an error with type
 To handle errors, we recommend that you use the `errors.As` pattern:
 
 ```go
-_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{
-	Email:    githubcomjocall3go.F("executive@corp.com"),
-	Name:     githubcomjocall3go.F("Alice Wonderland"),
-	Password: githubcomjocall3go.F("ComplexPassword99!"),
-	Phone:    githubcomjocall3go.F("+1-555-0199"),
-})
+_, err := client.Users.Register(context.TODO(), githubcomjocall3go.UserRegisterParams{})
 if err != nil {
 	var apierr *githubcomjocall3go.Error
 	if errors.As(err, &apierr) {
@@ -211,12 +201,7 @@ ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 defer cancel()
 client.Users.Register(
 	ctx,
-	githubcomjocall3go.UserRegisterParams{
-		Email:    githubcomjocall3go.F("executive@corp.com"),
-		Name:     githubcomjocall3go.F("Alice Wonderland"),
-		Password: githubcomjocall3go.F("ComplexPassword99!"),
-		Phone:    githubcomjocall3go.F("+1-555-0199"),
-	},
+	githubcomjocall3go.UserRegisterParams{},
 	// This sets the per-retry timeout
 	option.WithRequestTimeout(20*time.Second),
 )
@@ -252,12 +237,7 @@ client := githubcomjocall3go.NewClient(
 // Override per-request:
 client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{
-		Email:    githubcomjocall3go.F("executive@corp.com"),
-		Name:     githubcomjocall3go.F("Alice Wonderland"),
-		Password: githubcomjocall3go.F("ComplexPassword99!"),
-		Phone:    githubcomjocall3go.F("+1-555-0199"),
-	},
+	githubcomjocall3go.UserRegisterParams{},
 	option.WithMaxRetries(5),
 )
 ```
@@ -272,12 +252,7 @@ you need to examine response headers, status codes, or other details.
 var response *http.Response
 response, err := client.Users.Register(
 	context.TODO(),
-	githubcomjocall3go.UserRegisterParams{
-		Email:    githubcomjocall3go.F("executive@corp.com"),
-		Name:     githubcomjocall3go.F("Alice Wonderland"),
-		Password: githubcomjocall3go.F("ComplexPassword99!"),
-		Phone:    githubcomjocall3go.F("+1-555-0199"),
-	},
+	githubcomjocall3go.UserRegisterParams{},
 	option.WithResponseInto(&response),
 )
 if err != nil {

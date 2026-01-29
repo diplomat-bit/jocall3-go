@@ -35,7 +35,7 @@ func TestBudgetGet(t *testing.T) {
 	}
 }
 
-func TestBudgetUpdateWithOptionalParams(t *testing.T) {
+func TestBudgetUpdate(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -50,10 +50,7 @@ func TestBudgetUpdateWithOptionalParams(t *testing.T) {
 	_, err := client.Budgets.Update(
 		context.TODO(),
 		"budget_monthly_aug",
-		githubcomjocall3go.BudgetUpdateParams{
-			AlertThreshold: githubcomjocall3go.F(int64(85)),
-			TotalAmount:    githubcomjocall3go.F(3200.000000),
-		},
+		githubcomjocall3go.BudgetUpdateParams{},
 	)
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
