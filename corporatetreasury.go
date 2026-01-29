@@ -38,11 +38,28 @@ func NewCorporateTreasuryService(opts ...option.RequestOption) (r *CorporateTrea
 	return
 }
 
+// Execute bulk payouts
+func (r *CorporateTreasuryService) BulkPayout(ctx context.Context, body CorporateTreasuryBulkPayoutParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "corporate/treasury/bulk-payouts"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
 // Corporate Cash Flow Projection
 func (r *CorporateTreasuryService) ForecastCashFlow(ctx context.Context, query CorporateTreasuryForecastCashFlowParams, opts ...option.RequestOption) (res *CorporateTreasuryForecastCashFlowResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "corporate/treasury/cash-flow/forecast"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
+// Get current liquidity positions
+func (r *CorporateTreasuryService) GetLiquidityPositions(ctx context.Context, opts ...option.RequestOption) (res *CorporateTreasuryGetLiquidityPositionsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "corporate/treasury/liquidity-positions"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
@@ -79,6 +96,29 @@ func (r corporateTreasuryForecastCashFlowResponseJSON) RawJSON() string {
 	return r.raw
 }
 
+type CorporateTreasuryGetLiquidityPositionsResponse struct {
+	Positions      []interface{}                                      `json:"positions"`
+	TotalLiquidity float64                                            `json:"total_liquidity"`
+	JSON           corporateTreasuryGetLiquidityPositionsResponseJSON `json:"-"`
+}
+
+// corporateTreasuryGetLiquidityPositionsResponseJSON contains the JSON metadata
+// for the struct [CorporateTreasuryGetLiquidityPositionsResponse]
+type corporateTreasuryGetLiquidityPositionsResponseJSON struct {
+	Positions      apijson.Field
+	TotalLiquidity apijson.Field
+	raw            string
+	ExtraFields    map[string]apijson.Field
+}
+
+func (r *CorporateTreasuryGetLiquidityPositionsResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r corporateTreasuryGetLiquidityPositionsResponseJSON) RawJSON() string {
+	return r.raw
+}
+
 type CorporateTreasuryManageLiquidityResponse struct {
 	ProjectedYield float64                                      `json:"projectedYield"`
 	StrategyID     string                                       `json:"strategyId"`
@@ -100,6 +140,23 @@ func (r *CorporateTreasuryManageLiquidityResponse) UnmarshalJSON(data []byte) (e
 
 func (r corporateTreasuryManageLiquidityResponseJSON) RawJSON() string {
 	return r.raw
+}
+
+type CorporateTreasuryBulkPayoutParams struct {
+	Payouts param.Field[[]CorporateTreasuryBulkPayoutParamsPayout] `json:"payouts,required"`
+}
+
+func (r CorporateTreasuryBulkPayoutParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type CorporateTreasuryBulkPayoutParamsPayout struct {
+	Amount      param.Field[float64] `json:"amount"`
+	RecipientID param.Field[string]  `json:"recipient_id"`
+}
+
+func (r CorporateTreasuryBulkPayoutParamsPayout) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 type CorporateTreasuryForecastCashFlowParams struct {

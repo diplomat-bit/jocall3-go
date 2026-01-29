@@ -27,20 +27,7 @@ func TestUsage(t *testing.T) {
 	response, err := client.AI.Oracle.Simulate.RunAdvanced(context.TODO(), githubcomjocall3go.AIOracleSimulateRunAdvancedParams{
 		Prompt: githubcomjocall3go.F("Analyze the systemic risk of a 20% drop in BTC prices on my cross-chain collateralized debt positions, factoring in a simultaneous 50bps hike by the Fed and a liquidity squeeze on Aave."),
 		Scenarios: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenario{{
-			Name:          githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
-			DurationYears: githubcomjocall3go.F(int64(1)),
-			Events: githubcomjocall3go.F([]githubcomjocall3go.AIOracleSimulateRunAdvancedParamsScenariosEvent{{
-				Type: githubcomjocall3go.F("liquidation_cascade"),
-				Details: githubcomjocall3go.F[any](map[string]interface{}{
-					"magnitude": "extreme",
-					"threshold": "0.85",
-				}),
-			}, {
-				Type: githubcomjocall3go.F("interest_rate_shock"),
-				Details: githubcomjocall3go.F[any](map[string]interface{}{
-					"basis_points": 50,
-				}),
-			}}),
+			Name: githubcomjocall3go.F("Crypto Black Swan + Macro Contagion"),
 		}}),
 		GlobalEconomicFactors: githubcomjocall3go.F[any](map[string]interface{}{
 			"volatility_index":     "VIX_HIGHER_30",
@@ -54,5 +41,5 @@ func TestUsage(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	t.Logf("%+v\n", response.OverallSummary)
+	t.Logf("%+v\n", response.ConfidenceScore)
 }

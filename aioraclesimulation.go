@@ -54,20 +54,26 @@ func (r *AIOracleSimulationService) List(ctx context.Context, opts ...option.Req
 }
 
 type AIOracleSimulationGetResponse struct {
-	OverallSummary  string                                        `json:"overallSummary,required"`
-	ScenarioResults []AIOracleSimulationGetResponseScenarioResult `json:"scenarioResults,required"`
-	SimulationID    string                                        `json:"simulationId,required"`
-	JSON            aiOracleSimulationGetResponseJSON             `json:"-"`
+	SimulationID     string                            `json:"simulationId,required"`
+	Status           string                            `json:"status,required"`
+	ConfidenceScore  float64                           `json:"confidenceScore"`
+	Data             []map[string]interface{}          `json:"data"`
+	OutcomeNarrative string                            `json:"outcomeNarrative"`
+	ProjectedValue   float64                           `json:"projectedValue"`
+	JSON             aiOracleSimulationGetResponseJSON `json:"-"`
 }
 
 // aiOracleSimulationGetResponseJSON contains the JSON metadata for the struct
 // [AIOracleSimulationGetResponse]
 type aiOracleSimulationGetResponseJSON struct {
-	OverallSummary  apijson.Field
-	ScenarioResults apijson.Field
-	SimulationID    apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	ConfidenceScore  apijson.Field
+	Data             apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AIOracleSimulationGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -75,31 +81,6 @@ func (r *AIOracleSimulationGetResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r aiOracleSimulationGetResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIOracleSimulationGetResponseScenarioResult struct {
-	FinalNetWorth float64                                         `json:"finalNetWorth"`
-	Narrative     string                                          `json:"narrative"`
-	ScenarioName  string                                          `json:"scenarioName"`
-	JSON          aiOracleSimulationGetResponseScenarioResultJSON `json:"-"`
-}
-
-// aiOracleSimulationGetResponseScenarioResultJSON contains the JSON metadata for
-// the struct [AIOracleSimulationGetResponseScenarioResult]
-type aiOracleSimulationGetResponseScenarioResultJSON struct {
-	FinalNetWorth apijson.Field
-	Narrative     apijson.Field
-	ScenarioName  apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *AIOracleSimulationGetResponseScenarioResult) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiOracleSimulationGetResponseScenarioResultJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -125,20 +106,26 @@ func (r aiOracleSimulationListResponseJSON) RawJSON() string {
 }
 
 type AIOracleSimulationListResponseData struct {
-	OverallSummary  string                                             `json:"overallSummary,required"`
-	ScenarioResults []AIOracleSimulationListResponseDataScenarioResult `json:"scenarioResults,required"`
-	SimulationID    string                                             `json:"simulationId,required"`
-	JSON            aiOracleSimulationListResponseDataJSON             `json:"-"`
+	SimulationID     string                                 `json:"simulationId,required"`
+	Status           string                                 `json:"status,required"`
+	ConfidenceScore  float64                                `json:"confidenceScore"`
+	Data             []map[string]interface{}               `json:"data"`
+	OutcomeNarrative string                                 `json:"outcomeNarrative"`
+	ProjectedValue   float64                                `json:"projectedValue"`
+	JSON             aiOracleSimulationListResponseDataJSON `json:"-"`
 }
 
 // aiOracleSimulationListResponseDataJSON contains the JSON metadata for the struct
 // [AIOracleSimulationListResponseData]
 type aiOracleSimulationListResponseDataJSON struct {
-	OverallSummary  apijson.Field
-	ScenarioResults apijson.Field
-	SimulationID    apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	SimulationID     apijson.Field
+	Status           apijson.Field
+	ConfidenceScore  apijson.Field
+	Data             apijson.Field
+	OutcomeNarrative apijson.Field
+	ProjectedValue   apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AIOracleSimulationListResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -146,30 +133,5 @@ func (r *AIOracleSimulationListResponseData) UnmarshalJSON(data []byte) (err err
 }
 
 func (r aiOracleSimulationListResponseDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type AIOracleSimulationListResponseDataScenarioResult struct {
-	FinalNetWorth float64                                              `json:"finalNetWorth"`
-	Narrative     string                                               `json:"narrative"`
-	ScenarioName  string                                               `json:"scenarioName"`
-	JSON          aiOracleSimulationListResponseDataScenarioResultJSON `json:"-"`
-}
-
-// aiOracleSimulationListResponseDataScenarioResultJSON contains the JSON metadata
-// for the struct [AIOracleSimulationListResponseDataScenarioResult]
-type aiOracleSimulationListResponseDataScenarioResultJSON struct {
-	FinalNetWorth apijson.Field
-	Narrative     apijson.Field
-	ScenarioName  apijson.Field
-	raw           string
-	ExtraFields   map[string]apijson.Field
-}
-
-func (r *AIOracleSimulationListResponseDataScenarioResult) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r aiOracleSimulationListResponseDataScenarioResultJSON) RawJSON() string {
 	return r.raw
 }

@@ -113,32 +113,28 @@ func (r *TransactionService) Split(ctx context.Context, transactionID string, bo
 }
 
 type TransactionGetResponse struct {
-	ID              string                                `json:"id,required"`
-	Amount          float64                               `json:"amount,required"`
-	Currency        string                                `json:"currency,required"`
-	Date            time.Time                             `json:"date,required" format:"date"`
-	Description     string                                `json:"description,required"`
-	AccountID       string                                `json:"accountId"`
-	CarbonFootprint float64                               `json:"carbonFootprint"`
-	Category        string                                `json:"category"`
-	MerchantDetails TransactionGetResponseMerchantDetails `json:"merchantDetails"`
-	JSON            transactionGetResponseJSON            `json:"-"`
+	ID          string                     `json:"id,required"`
+	Amount      float64                    `json:"amount,required"`
+	Currency    string                     `json:"currency,required"`
+	Date        time.Time                  `json:"date,required" format:"date"`
+	Description string                     `json:"description,required"`
+	Category    string                     `json:"category"`
+	Notes       string                     `json:"notes"`
+	JSON        transactionGetResponseJSON `json:"-"`
 }
 
 // transactionGetResponseJSON contains the JSON metadata for the struct
 // [TransactionGetResponse]
 type transactionGetResponseJSON struct {
-	ID              apijson.Field
-	Amount          apijson.Field
-	Currency        apijson.Field
-	Date            apijson.Field
-	Description     apijson.Field
-	AccountID       apijson.Field
-	CarbonFootprint apijson.Field
-	Category        apijson.Field
-	MerchantDetails apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *TransactionGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -149,33 +145,10 @@ func (r transactionGetResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type TransactionGetResponseMerchantDetails struct {
-	LogoURL string                                    `json:"logoUrl"`
-	Name    string                                    `json:"name"`
-	JSON    transactionGetResponseMerchantDetailsJSON `json:"-"`
-}
-
-// transactionGetResponseMerchantDetailsJSON contains the JSON metadata for the
-// struct [TransactionGetResponseMerchantDetails]
-type transactionGetResponseMerchantDetailsJSON struct {
-	LogoURL     apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *TransactionGetResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r transactionGetResponseMerchantDetailsJSON) RawJSON() string {
-	return r.raw
-}
-
 type TransactionListResponse struct {
-	Data       []TransactionListResponseData `json:"data"`
+	Data       []TransactionListResponseData `json:"data,required"`
+	Total      int64                         `json:"total,required"`
 	NextOffset int64                         `json:"nextOffset"`
-	Total      int64                         `json:"total"`
 	JSON       transactionListResponseJSON   `json:"-"`
 }
 
@@ -183,8 +156,8 @@ type TransactionListResponse struct {
 // [TransactionListResponse]
 type transactionListResponseJSON struct {
 	Data        apijson.Field
-	NextOffset  apijson.Field
 	Total       apijson.Field
+	NextOffset  apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -198,32 +171,28 @@ func (r transactionListResponseJSON) RawJSON() string {
 }
 
 type TransactionListResponseData struct {
-	ID              string                                     `json:"id,required"`
-	Amount          float64                                    `json:"amount,required"`
-	Currency        string                                     `json:"currency,required"`
-	Date            time.Time                                  `json:"date,required" format:"date"`
-	Description     string                                     `json:"description,required"`
-	AccountID       string                                     `json:"accountId"`
-	CarbonFootprint float64                                    `json:"carbonFootprint"`
-	Category        string                                     `json:"category"`
-	MerchantDetails TransactionListResponseDataMerchantDetails `json:"merchantDetails"`
-	JSON            transactionListResponseDataJSON            `json:"-"`
+	ID          string                          `json:"id,required"`
+	Amount      float64                         `json:"amount,required"`
+	Currency    string                          `json:"currency,required"`
+	Date        time.Time                       `json:"date,required" format:"date"`
+	Description string                          `json:"description,required"`
+	Category    string                          `json:"category"`
+	Notes       string                          `json:"notes"`
+	JSON        transactionListResponseDataJSON `json:"-"`
 }
 
 // transactionListResponseDataJSON contains the JSON metadata for the struct
 // [TransactionListResponseData]
 type transactionListResponseDataJSON struct {
-	ID              apijson.Field
-	Amount          apijson.Field
-	Currency        apijson.Field
-	Date            apijson.Field
-	Description     apijson.Field
-	AccountID       apijson.Field
-	CarbonFootprint apijson.Field
-	Category        apijson.Field
-	MerchantDetails apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *TransactionListResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -234,56 +203,29 @@ func (r transactionListResponseDataJSON) RawJSON() string {
 	return r.raw
 }
 
-type TransactionListResponseDataMerchantDetails struct {
-	LogoURL string                                         `json:"logoUrl"`
-	Name    string                                         `json:"name"`
-	JSON    transactionListResponseDataMerchantDetailsJSON `json:"-"`
-}
-
-// transactionListResponseDataMerchantDetailsJSON contains the JSON metadata for
-// the struct [TransactionListResponseDataMerchantDetails]
-type transactionListResponseDataMerchantDetailsJSON struct {
-	LogoURL     apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *TransactionListResponseDataMerchantDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r transactionListResponseDataMerchantDetailsJSON) RawJSON() string {
-	return r.raw
-}
-
 type TransactionCategorizeResponse struct {
-	ID              string                                       `json:"id,required"`
-	Amount          float64                                      `json:"amount,required"`
-	Currency        string                                       `json:"currency,required"`
-	Date            time.Time                                    `json:"date,required" format:"date"`
-	Description     string                                       `json:"description,required"`
-	AccountID       string                                       `json:"accountId"`
-	CarbonFootprint float64                                      `json:"carbonFootprint"`
-	Category        string                                       `json:"category"`
-	MerchantDetails TransactionCategorizeResponseMerchantDetails `json:"merchantDetails"`
-	JSON            transactionCategorizeResponseJSON            `json:"-"`
+	ID          string                            `json:"id,required"`
+	Amount      float64                           `json:"amount,required"`
+	Currency    string                            `json:"currency,required"`
+	Date        time.Time                         `json:"date,required" format:"date"`
+	Description string                            `json:"description,required"`
+	Category    string                            `json:"category"`
+	Notes       string                            `json:"notes"`
+	JSON        transactionCategorizeResponseJSON `json:"-"`
 }
 
 // transactionCategorizeResponseJSON contains the JSON metadata for the struct
 // [TransactionCategorizeResponse]
 type transactionCategorizeResponseJSON struct {
-	ID              apijson.Field
-	Amount          apijson.Field
-	Currency        apijson.Field
-	Date            apijson.Field
-	Description     apijson.Field
-	AccountID       apijson.Field
-	CarbonFootprint apijson.Field
-	Category        apijson.Field
-	MerchantDetails apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *TransactionCategorizeResponse) UnmarshalJSON(data []byte) (err error) {
@@ -291,29 +233,6 @@ func (r *TransactionCategorizeResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r transactionCategorizeResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type TransactionCategorizeResponseMerchantDetails struct {
-	LogoURL string                                           `json:"logoUrl"`
-	Name    string                                           `json:"name"`
-	JSON    transactionCategorizeResponseMerchantDetailsJSON `json:"-"`
-}
-
-// transactionCategorizeResponseMerchantDetailsJSON contains the JSON metadata for
-// the struct [TransactionCategorizeResponseMerchantDetails]
-type transactionCategorizeResponseMerchantDetailsJSON struct {
-	LogoURL     apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *TransactionCategorizeResponseMerchantDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r transactionCategorizeResponseMerchantDetailsJSON) RawJSON() string {
 	return r.raw
 }
 

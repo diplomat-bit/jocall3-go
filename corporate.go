@@ -113,8 +113,7 @@ type CorporateOnboardEntityParamsBeneficialOwner struct {
 	IdentityVerified param.Field[bool]                                                       `json:"identityVerified,required"`
 	Name             param.Field[string]                                                     `json:"name,required"`
 	Address          param.Field[CorporateOnboardEntityParamsBeneficialOwnersAddress]        `json:"address"`
-	Phone            param.Field[string]                                                     `json:"phone"`
-	Preferences      param.Field[CorporateOnboardEntityParamsBeneficialOwnersPreferences]    `json:"preferences"`
+	Preferences      param.Field[map[string]interface{}]                                     `json:"preferences"`
 	SecurityStatus   param.Field[CorporateOnboardEntityParamsBeneficialOwnersSecurityStatus] `json:"securityStatus"`
 }
 
@@ -123,23 +122,14 @@ func (r CorporateOnboardEntityParamsBeneficialOwner) MarshalJSON() (data []byte,
 }
 
 type CorporateOnboardEntityParamsBeneficialOwnersAddress struct {
-	City    param.Field[string] `json:"city"`
-	Country param.Field[string] `json:"country"`
+	City    param.Field[string] `json:"city,required"`
+	Country param.Field[string] `json:"country,required"`
+	Street  param.Field[string] `json:"street,required"`
 	State   param.Field[string] `json:"state"`
-	Street  param.Field[string] `json:"street"`
 	Zip     param.Field[string] `json:"zip"`
 }
 
 func (r CorporateOnboardEntityParamsBeneficialOwnersAddress) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CorporateOnboardEntityParamsBeneficialOwnersPreferences struct {
-	NotificationChannels param.Field[interface{}] `json:"notificationChannels"`
-	Theme                param.Field[string]      `json:"theme"`
-}
-
-func (r CorporateOnboardEntityParamsBeneficialOwnersPreferences) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 

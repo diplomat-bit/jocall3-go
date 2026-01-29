@@ -79,8 +79,8 @@ func TestUserRegisterWithOptionalParams(t *testing.T) {
 		Address: githubcomjocall3go.F(githubcomjocall3go.UserRegisterParamsAddress{
 			City:    githubcomjocall3go.F("city"),
 			Country: githubcomjocall3go.F("country"),
-			State:   githubcomjocall3go.F("state"),
 			Street:  githubcomjocall3go.F("street"),
+			State:   githubcomjocall3go.F("state"),
 			Zip:     githubcomjocall3go.F("zip"),
 		}),
 		Phone: githubcomjocall3go.F("phone"),

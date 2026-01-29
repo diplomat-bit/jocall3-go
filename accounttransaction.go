@@ -62,9 +62,9 @@ func (r *AccountTransactionService) ListPending(ctx context.Context, accountID s
 }
 
 type AccountTransactionListArchivedResponse struct {
-	Data       []AccountTransactionListArchivedResponseData `json:"data"`
+	Data       []AccountTransactionListArchivedResponseData `json:"data,required"`
+	Total      int64                                        `json:"total,required"`
 	NextOffset int64                                        `json:"nextOffset"`
-	Total      int64                                        `json:"total"`
 	JSON       accountTransactionListArchivedResponseJSON   `json:"-"`
 }
 
@@ -72,8 +72,8 @@ type AccountTransactionListArchivedResponse struct {
 // struct [AccountTransactionListArchivedResponse]
 type accountTransactionListArchivedResponseJSON struct {
 	Data        apijson.Field
-	NextOffset  apijson.Field
 	Total       apijson.Field
+	NextOffset  apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -87,32 +87,28 @@ func (r accountTransactionListArchivedResponseJSON) RawJSON() string {
 }
 
 type AccountTransactionListArchivedResponseData struct {
-	ID              string                                                    `json:"id,required"`
-	Amount          float64                                                   `json:"amount,required"`
-	Currency        string                                                    `json:"currency,required"`
-	Date            time.Time                                                 `json:"date,required" format:"date"`
-	Description     string                                                    `json:"description,required"`
-	AccountID       string                                                    `json:"accountId"`
-	CarbonFootprint float64                                                   `json:"carbonFootprint"`
-	Category        string                                                    `json:"category"`
-	MerchantDetails AccountTransactionListArchivedResponseDataMerchantDetails `json:"merchantDetails"`
-	JSON            accountTransactionListArchivedResponseDataJSON            `json:"-"`
+	ID          string                                         `json:"id,required"`
+	Amount      float64                                        `json:"amount,required"`
+	Currency    string                                         `json:"currency,required"`
+	Date        time.Time                                      `json:"date,required" format:"date"`
+	Description string                                         `json:"description,required"`
+	Category    string                                         `json:"category"`
+	Notes       string                                         `json:"notes"`
+	JSON        accountTransactionListArchivedResponseDataJSON `json:"-"`
 }
 
 // accountTransactionListArchivedResponseDataJSON contains the JSON metadata for
 // the struct [AccountTransactionListArchivedResponseData]
 type accountTransactionListArchivedResponseDataJSON struct {
-	ID              apijson.Field
-	Amount          apijson.Field
-	Currency        apijson.Field
-	Date            apijson.Field
-	Description     apijson.Field
-	AccountID       apijson.Field
-	CarbonFootprint apijson.Field
-	Category        apijson.Field
-	MerchantDetails apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *AccountTransactionListArchivedResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -123,34 +119,10 @@ func (r accountTransactionListArchivedResponseDataJSON) RawJSON() string {
 	return r.raw
 }
 
-type AccountTransactionListArchivedResponseDataMerchantDetails struct {
-	LogoURL string                                                        `json:"logoUrl"`
-	Name    string                                                        `json:"name"`
-	JSON    accountTransactionListArchivedResponseDataMerchantDetailsJSON `json:"-"`
-}
-
-// accountTransactionListArchivedResponseDataMerchantDetailsJSON contains the JSON
-// metadata for the struct
-// [AccountTransactionListArchivedResponseDataMerchantDetails]
-type accountTransactionListArchivedResponseDataMerchantDetailsJSON struct {
-	LogoURL     apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListArchivedResponseDataMerchantDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListArchivedResponseDataMerchantDetailsJSON) RawJSON() string {
-	return r.raw
-}
-
 type AccountTransactionListPendingResponse struct {
-	Data       []AccountTransactionListPendingResponseData `json:"data"`
+	Data       []AccountTransactionListPendingResponseData `json:"data,required"`
+	Total      int64                                       `json:"total,required"`
 	NextOffset int64                                       `json:"nextOffset"`
-	Total      int64                                       `json:"total"`
 	JSON       accountTransactionListPendingResponseJSON   `json:"-"`
 }
 
@@ -158,8 +130,8 @@ type AccountTransactionListPendingResponse struct {
 // struct [AccountTransactionListPendingResponse]
 type accountTransactionListPendingResponseJSON struct {
 	Data        apijson.Field
-	NextOffset  apijson.Field
 	Total       apijson.Field
+	NextOffset  apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -173,32 +145,28 @@ func (r accountTransactionListPendingResponseJSON) RawJSON() string {
 }
 
 type AccountTransactionListPendingResponseData struct {
-	ID              string                                                   `json:"id,required"`
-	Amount          float64                                                  `json:"amount,required"`
-	Currency        string                                                   `json:"currency,required"`
-	Date            time.Time                                                `json:"date,required" format:"date"`
-	Description     string                                                   `json:"description,required"`
-	AccountID       string                                                   `json:"accountId"`
-	CarbonFootprint float64                                                  `json:"carbonFootprint"`
-	Category        string                                                   `json:"category"`
-	MerchantDetails AccountTransactionListPendingResponseDataMerchantDetails `json:"merchantDetails"`
-	JSON            accountTransactionListPendingResponseDataJSON            `json:"-"`
+	ID          string                                        `json:"id,required"`
+	Amount      float64                                       `json:"amount,required"`
+	Currency    string                                        `json:"currency,required"`
+	Date        time.Time                                     `json:"date,required" format:"date"`
+	Description string                                        `json:"description,required"`
+	Category    string                                        `json:"category"`
+	Notes       string                                        `json:"notes"`
+	JSON        accountTransactionListPendingResponseDataJSON `json:"-"`
 }
 
 // accountTransactionListPendingResponseDataJSON contains the JSON metadata for the
 // struct [AccountTransactionListPendingResponseData]
 type accountTransactionListPendingResponseDataJSON struct {
-	ID              apijson.Field
-	Amount          apijson.Field
-	Currency        apijson.Field
-	Date            apijson.Field
-	Description     apijson.Field
-	AccountID       apijson.Field
-	CarbonFootprint apijson.Field
-	Category        apijson.Field
-	MerchantDetails apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
+	ID          apijson.Field
+	Amount      apijson.Field
+	Currency    apijson.Field
+	Date        apijson.Field
+	Description apijson.Field
+	Category    apijson.Field
+	Notes       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *AccountTransactionListPendingResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -206,30 +174,6 @@ func (r *AccountTransactionListPendingResponseData) UnmarshalJSON(data []byte) (
 }
 
 func (r accountTransactionListPendingResponseDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountTransactionListPendingResponseDataMerchantDetails struct {
-	LogoURL string                                                       `json:"logoUrl"`
-	Name    string                                                       `json:"name"`
-	JSON    accountTransactionListPendingResponseDataMerchantDetailsJSON `json:"-"`
-}
-
-// accountTransactionListPendingResponseDataMerchantDetailsJSON contains the JSON
-// metadata for the struct
-// [AccountTransactionListPendingResponseDataMerchantDetails]
-type accountTransactionListPendingResponseDataMerchantDetailsJSON struct {
-	LogoURL     apijson.Field
-	Name        apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AccountTransactionListPendingResponseDataMerchantDetails) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountTransactionListPendingResponseDataMerchantDetailsJSON) RawJSON() string {
 	return r.raw
 }
 

@@ -77,24 +77,24 @@ func (r corporateComplianceAuditRequestResponseJSON) RawJSON() string {
 }
 
 type CorporateComplianceAuditGetReportResponse struct {
-	AuditID                string                                        `json:"auditId,required"`
-	OverallComplianceScore int64                                         `json:"overallComplianceScore,required"`
-	Status                 string                                        `json:"status,required"`
-	AuditDate              time.Time                                     `json:"auditDate" format:"date-time"`
-	Findings               []interface{}                                 `json:"findings"`
-	JSON                   corporateComplianceAuditGetReportResponseJSON `json:"-"`
+	GeneratedAt time.Time                                     `json:"generatedAt,required" format:"date-time"`
+	ReportID    string                                        `json:"reportId,required"`
+	Findings    []string                                      `json:"findings"`
+	Score       int64                                         `json:"score"`
+	Summary     string                                        `json:"summary"`
+	JSON        corporateComplianceAuditGetReportResponseJSON `json:"-"`
 }
 
 // corporateComplianceAuditGetReportResponseJSON contains the JSON metadata for the
 // struct [CorporateComplianceAuditGetReportResponse]
 type corporateComplianceAuditGetReportResponseJSON struct {
-	AuditID                apijson.Field
-	OverallComplianceScore apijson.Field
-	Status                 apijson.Field
-	AuditDate              apijson.Field
-	Findings               apijson.Field
-	raw                    string
-	ExtraFields            map[string]apijson.Field
+	GeneratedAt apijson.Field
+	ReportID    apijson.Field
+	Findings    apijson.Field
+	Score       apijson.Field
+	Summary     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *CorporateComplianceAuditGetReportResponse) UnmarshalJSON(data []byte) (err error) {

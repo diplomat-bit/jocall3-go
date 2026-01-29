@@ -97,8 +97,7 @@ type UserRegisterResponse struct {
 	IdentityVerified bool                               `json:"identityVerified,required"`
 	Name             string                             `json:"name,required"`
 	Address          UserRegisterResponseAddress        `json:"address"`
-	Phone            string                             `json:"phone"`
-	Preferences      UserRegisterResponsePreferences    `json:"preferences"`
+	Preferences      map[string]interface{}             `json:"preferences"`
 	SecurityStatus   UserRegisterResponseSecurityStatus `json:"securityStatus"`
 	JSON             userRegisterResponseJSON           `json:"-"`
 }
@@ -111,7 +110,6 @@ type userRegisterResponseJSON struct {
 	IdentityVerified apijson.Field
 	Name             apijson.Field
 	Address          apijson.Field
-	Phone            apijson.Field
 	Preferences      apijson.Field
 	SecurityStatus   apijson.Field
 	raw              string
@@ -127,10 +125,10 @@ func (r userRegisterResponseJSON) RawJSON() string {
 }
 
 type UserRegisterResponseAddress struct {
-	City    string                          `json:"city"`
-	Country string                          `json:"country"`
+	City    string                          `json:"city,required"`
+	Country string                          `json:"country,required"`
+	Street  string                          `json:"street,required"`
 	State   string                          `json:"state"`
-	Street  string                          `json:"street"`
 	Zip     string                          `json:"zip"`
 	JSON    userRegisterResponseAddressJSON `json:"-"`
 }
@@ -140,8 +138,8 @@ type UserRegisterResponseAddress struct {
 type userRegisterResponseAddressJSON struct {
 	City        apijson.Field
 	Country     apijson.Field
-	State       apijson.Field
 	Street      apijson.Field
+	State       apijson.Field
 	Zip         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -152,29 +150,6 @@ func (r *UserRegisterResponseAddress) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r userRegisterResponseAddressJSON) RawJSON() string {
-	return r.raw
-}
-
-type UserRegisterResponsePreferences struct {
-	NotificationChannels interface{}                         `json:"notificationChannels"`
-	Theme                string                              `json:"theme"`
-	JSON                 userRegisterResponsePreferencesJSON `json:"-"`
-}
-
-// userRegisterResponsePreferencesJSON contains the JSON metadata for the struct
-// [UserRegisterResponsePreferences]
-type userRegisterResponsePreferencesJSON struct {
-	NotificationChannels apijson.Field
-	Theme                apijson.Field
-	raw                  string
-	ExtraFields          map[string]apijson.Field
-}
-
-func (r *UserRegisterResponsePreferences) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r userRegisterResponsePreferencesJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -227,10 +202,10 @@ func (r UserRegisterParams) MarshalJSON() (data []byte, err error) {
 }
 
 type UserRegisterParamsAddress struct {
-	City    param.Field[string] `json:"city"`
-	Country param.Field[string] `json:"country"`
+	City    param.Field[string] `json:"city,required"`
+	Country param.Field[string] `json:"country,required"`
+	Street  param.Field[string] `json:"street,required"`
 	State   param.Field[string] `json:"state"`
-	Street  param.Field[string] `json:"street"`
 	Zip     param.Field[string] `json:"zip"`
 }
 

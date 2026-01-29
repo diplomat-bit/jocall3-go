@@ -95,32 +95,30 @@ func (r *AccountService) Open(ctx context.Context, body AccountOpenParams, opts 
 }
 
 type AccountGetResponse struct {
-	ID                string                              `json:"id,required"`
-	Currency          string                              `json:"currency,required"`
-	CurrentBalance    float64                             `json:"currentBalance,required"`
-	Type              string                              `json:"type,required"`
-	AvailableBalance  float64                             `json:"availableBalance"`
-	InstitutionName   string                              `json:"institutionName"`
-	LastUpdated       time.Time                           `json:"lastUpdated" format:"date-time"`
-	Name              string                              `json:"name"`
-	ProjectedCashFlow AccountGetResponseProjectedCashFlow `json:"projectedCashFlow"`
-	JSON              accountGetResponseJSON              `json:"-"`
+	ID               string                 `json:"id,required"`
+	Currency         string                 `json:"currency,required"`
+	CurrentBalance   float64                `json:"currentBalance,required"`
+	InstitutionName  string                 `json:"institutionName,required"`
+	Type             string                 `json:"type,required"`
+	AvailableBalance float64                `json:"availableBalance"`
+	LastUpdated      time.Time              `json:"lastUpdated" format:"date-time"`
+	Name             string                 `json:"name"`
+	JSON             accountGetResponseJSON `json:"-"`
 }
 
 // accountGetResponseJSON contains the JSON metadata for the struct
 // [AccountGetResponse]
 type accountGetResponseJSON struct {
-	ID                apijson.Field
-	Currency          apijson.Field
-	CurrentBalance    apijson.Field
-	Type              apijson.Field
-	AvailableBalance  apijson.Field
-	InstitutionName   apijson.Field
-	LastUpdated       apijson.Field
-	Name              apijson.Field
-	ProjectedCashFlow apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	ID               apijson.Field
+	Currency         apijson.Field
+	CurrentBalance   apijson.Field
+	InstitutionName  apijson.Field
+	Type             apijson.Field
+	AvailableBalance apijson.Field
+	LastUpdated      apijson.Field
+	Name             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AccountGetResponse) UnmarshalJSON(data []byte) (err error) {
@@ -131,33 +129,10 @@ func (r accountGetResponseJSON) RawJSON() string {
 	return r.raw
 }
 
-type AccountGetResponseProjectedCashFlow struct {
-	ConfidenceScore int64                                   `json:"confidenceScore"`
-	Days30          float64                                 `json:"days30"`
-	JSON            accountGetResponseProjectedCashFlowJSON `json:"-"`
-}
-
-// accountGetResponseProjectedCashFlowJSON contains the JSON metadata for the
-// struct [AccountGetResponseProjectedCashFlow]
-type accountGetResponseProjectedCashFlowJSON struct {
-	ConfidenceScore apijson.Field
-	Days30          apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *AccountGetResponseProjectedCashFlow) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountGetResponseProjectedCashFlowJSON) RawJSON() string {
-	return r.raw
-}
-
 type AccountListResponse struct {
-	Data       []AccountListResponseData `json:"data"`
+	Data       []AccountListResponseData `json:"data,required"`
+	Total      int64                     `json:"total,required"`
 	NextOffset int64                     `json:"nextOffset"`
-	Total      int64                     `json:"total"`
 	JSON       accountListResponseJSON   `json:"-"`
 }
 
@@ -165,8 +140,8 @@ type AccountListResponse struct {
 // [AccountListResponse]
 type accountListResponseJSON struct {
 	Data        apijson.Field
-	NextOffset  apijson.Field
 	Total       apijson.Field
+	NextOffset  apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -180,32 +155,30 @@ func (r accountListResponseJSON) RawJSON() string {
 }
 
 type AccountListResponseData struct {
-	ID                string                                   `json:"id,required"`
-	Currency          string                                   `json:"currency,required"`
-	CurrentBalance    float64                                  `json:"currentBalance,required"`
-	Type              string                                   `json:"type,required"`
-	AvailableBalance  float64                                  `json:"availableBalance"`
-	InstitutionName   string                                   `json:"institutionName"`
-	LastUpdated       time.Time                                `json:"lastUpdated" format:"date-time"`
-	Name              string                                   `json:"name"`
-	ProjectedCashFlow AccountListResponseDataProjectedCashFlow `json:"projectedCashFlow"`
-	JSON              accountListResponseDataJSON              `json:"-"`
+	ID               string                      `json:"id,required"`
+	Currency         string                      `json:"currency,required"`
+	CurrentBalance   float64                     `json:"currentBalance,required"`
+	InstitutionName  string                      `json:"institutionName,required"`
+	Type             string                      `json:"type,required"`
+	AvailableBalance float64                     `json:"availableBalance"`
+	LastUpdated      time.Time                   `json:"lastUpdated" format:"date-time"`
+	Name             string                      `json:"name"`
+	JSON             accountListResponseDataJSON `json:"-"`
 }
 
 // accountListResponseDataJSON contains the JSON metadata for the struct
 // [AccountListResponseData]
 type accountListResponseDataJSON struct {
-	ID                apijson.Field
-	Currency          apijson.Field
-	CurrentBalance    apijson.Field
-	Type              apijson.Field
-	AvailableBalance  apijson.Field
-	InstitutionName   apijson.Field
-	LastUpdated       apijson.Field
-	Name              apijson.Field
-	ProjectedCashFlow apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	ID               apijson.Field
+	Currency         apijson.Field
+	CurrentBalance   apijson.Field
+	InstitutionName  apijson.Field
+	Type             apijson.Field
+	AvailableBalance apijson.Field
+	LastUpdated      apijson.Field
+	Name             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AccountListResponseData) UnmarshalJSON(data []byte) (err error) {
@@ -213,29 +186,6 @@ func (r *AccountListResponseData) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r accountListResponseDataJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountListResponseDataProjectedCashFlow struct {
-	ConfidenceScore int64                                        `json:"confidenceScore"`
-	Days30          float64                                      `json:"days30"`
-	JSON            accountListResponseDataProjectedCashFlowJSON `json:"-"`
-}
-
-// accountListResponseDataProjectedCashFlowJSON contains the JSON metadata for the
-// struct [AccountListResponseDataProjectedCashFlow]
-type accountListResponseDataProjectedCashFlowJSON struct {
-	ConfidenceScore apijson.Field
-	Days30          apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *AccountListResponseDataProjectedCashFlow) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountListResponseDataProjectedCashFlowJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -263,32 +213,30 @@ func (r accountLinkResponseJSON) RawJSON() string {
 }
 
 type AccountOpenResponse struct {
-	ID                string                               `json:"id,required"`
-	Currency          string                               `json:"currency,required"`
-	CurrentBalance    float64                              `json:"currentBalance,required"`
-	Type              string                               `json:"type,required"`
-	AvailableBalance  float64                              `json:"availableBalance"`
-	InstitutionName   string                               `json:"institutionName"`
-	LastUpdated       time.Time                            `json:"lastUpdated" format:"date-time"`
-	Name              string                               `json:"name"`
-	ProjectedCashFlow AccountOpenResponseProjectedCashFlow `json:"projectedCashFlow"`
-	JSON              accountOpenResponseJSON              `json:"-"`
+	ID               string                  `json:"id,required"`
+	Currency         string                  `json:"currency,required"`
+	CurrentBalance   float64                 `json:"currentBalance,required"`
+	InstitutionName  string                  `json:"institutionName,required"`
+	Type             string                  `json:"type,required"`
+	AvailableBalance float64                 `json:"availableBalance"`
+	LastUpdated      time.Time               `json:"lastUpdated" format:"date-time"`
+	Name             string                  `json:"name"`
+	JSON             accountOpenResponseJSON `json:"-"`
 }
 
 // accountOpenResponseJSON contains the JSON metadata for the struct
 // [AccountOpenResponse]
 type accountOpenResponseJSON struct {
-	ID                apijson.Field
-	Currency          apijson.Field
-	CurrentBalance    apijson.Field
-	Type              apijson.Field
-	AvailableBalance  apijson.Field
-	InstitutionName   apijson.Field
-	LastUpdated       apijson.Field
-	Name              apijson.Field
-	ProjectedCashFlow apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
+	ID               apijson.Field
+	Currency         apijson.Field
+	CurrentBalance   apijson.Field
+	InstitutionName  apijson.Field
+	Type             apijson.Field
+	AvailableBalance apijson.Field
+	LastUpdated      apijson.Field
+	Name             apijson.Field
+	raw              string
+	ExtraFields      map[string]apijson.Field
 }
 
 func (r *AccountOpenResponse) UnmarshalJSON(data []byte) (err error) {
@@ -296,29 +244,6 @@ func (r *AccountOpenResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r accountOpenResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type AccountOpenResponseProjectedCashFlow struct {
-	ConfidenceScore int64                                    `json:"confidenceScore"`
-	Days30          float64                                  `json:"days30"`
-	JSON            accountOpenResponseProjectedCashFlowJSON `json:"-"`
-}
-
-// accountOpenResponseProjectedCashFlowJSON contains the JSON metadata for the
-// struct [AccountOpenResponseProjectedCashFlow]
-type accountOpenResponseProjectedCashFlowJSON struct {
-	ConfidenceScore apijson.Field
-	Days30          apijson.Field
-	raw             string
-	ExtraFields     map[string]apijson.Field
-}
-
-func (r *AccountOpenResponseProjectedCashFlow) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r accountOpenResponseProjectedCashFlowJSON) RawJSON() string {
 	return r.raw
 }
 

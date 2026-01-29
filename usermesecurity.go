@@ -73,11 +73,11 @@ func (r userMeSecurityGetLogResponseJSON) RawJSON() string {
 }
 
 type UserMeSecurityGetLogResponseData struct {
-	Event     string                               `json:"event"`
-	IPAddress string                               `json:"ipAddress"`
-	Location  interface{}                          `json:"location"`
-	Timestamp time.Time                            `json:"timestamp" format:"date-time"`
-	JSON      userMeSecurityGetLogResponseDataJSON `json:"-"`
+	Event     string                                   `json:"event"`
+	IPAddress string                                   `json:"ipAddress"`
+	Location  UserMeSecurityGetLogResponseDataLocation `json:"location"`
+	Timestamp time.Time                                `json:"timestamp" format:"date-time"`
+	JSON      userMeSecurityGetLogResponseDataJSON     `json:"-"`
 }
 
 // userMeSecurityGetLogResponseDataJSON contains the JSON metadata for the struct
@@ -96,6 +96,33 @@ func (r *UserMeSecurityGetLogResponseData) UnmarshalJSON(data []byte) (err error
 }
 
 func (r userMeSecurityGetLogResponseDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type UserMeSecurityGetLogResponseDataLocation struct {
+	City      string                                       `json:"city"`
+	Country   string                                       `json:"country"`
+	Latitude  float64                                      `json:"latitude"`
+	Longitude float64                                      `json:"longitude"`
+	JSON      userMeSecurityGetLogResponseDataLocationJSON `json:"-"`
+}
+
+// userMeSecurityGetLogResponseDataLocationJSON contains the JSON metadata for the
+// struct [UserMeSecurityGetLogResponseDataLocation]
+type userMeSecurityGetLogResponseDataLocationJSON struct {
+	City        apijson.Field
+	Country     apijson.Field
+	Latitude    apijson.Field
+	Longitude   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *UserMeSecurityGetLogResponseDataLocation) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r userMeSecurityGetLogResponseDataLocationJSON) RawJSON() string {
 	return r.raw
 }
 

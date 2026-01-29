@@ -3,8 +3,10 @@
 package githubcomjocall3go_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
 	"os"
 	"testing"
 
@@ -13,7 +15,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestUserMeGet(t *testing.T) {
+func TestSystemVerificationBiometricMatch(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,38 +27,9 @@ func TestUserMeGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Users.Me.Get(context.TODO())
-	if err != nil {
-		var apierr *githubcomjocall3go.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestUserMeUpdateWithOptionalParams(t *testing.T) {
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := githubcomjocall3go.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-	)
-	_, err := client.Users.Me.Update(context.TODO(), githubcomjocall3go.UserMeUpdateParams{
-		Address: githubcomjocall3go.F(githubcomjocall3go.UserMeUpdateParamsAddress{
-			City:    githubcomjocall3go.F("city"),
-			Country: githubcomjocall3go.F("country"),
-			Street:  githubcomjocall3go.F("street"),
-			State:   githubcomjocall3go.F("state"),
-			Zip:     githubcomjocall3go.F("zip"),
-		}),
-		Name:  githubcomjocall3go.F("name"),
-		Phone: githubcomjocall3go.F("phone"),
+	err := client.System.Verification.BiometricMatch(context.TODO(), githubcomjocall3go.SystemVerificationBiometricMatchParams{
+		SampleA: githubcomjocall3go.F("sample_a"),
+		SampleB: githubcomjocall3go.F("sample_b"),
 	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
@@ -67,7 +40,7 @@ func TestUserMeUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestUserMeDelete(t *testing.T) {
+func TestSystemVerificationDocumentWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -79,7 +52,10 @@ func TestUserMeDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Users.Me.Delete(context.TODO())
+	err := client.System.Verification.Document(context.TODO(), githubcomjocall3go.SystemVerificationDocumentParams{
+		File: githubcomjocall3go.F(io.Reader(bytes.NewBuffer([]byte("some file contents")))),
+		Type: githubcomjocall3go.F("type"),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {

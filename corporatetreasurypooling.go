@@ -3,6 +3,13 @@
 package githubcomjocall3go
 
 import (
+	"context"
+	"net/http"
+	"slices"
+
+	"github.com/diplomat-bit/jocall3-go/internal/apijson"
+	"github.com/diplomat-bit/jocall3-go/internal/param"
+	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -23,4 +30,22 @@ func NewCorporateTreasuryPoolingService(opts ...option.RequestOption) (r *Corpor
 	r = &CorporateTreasuryPoolingService{}
 	r.Options = opts
 	return
+}
+
+// Configure liquidity pooling
+func (r *CorporateTreasuryPoolingService) Configure(ctx context.Context, body CorporateTreasuryPoolingConfigureParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "corporate/treasury/liquidity/pooling"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
+type CorporateTreasuryPoolingConfigureParams struct {
+	SourceAccountIDs param.Field[[]string] `json:"source_account_ids"`
+	TargetAccountID  param.Field[string]   `json:"target_account_id"`
+}
+
+func (r CorporateTreasuryPoolingConfigureParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }

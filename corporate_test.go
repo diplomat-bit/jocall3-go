@@ -39,14 +39,12 @@ func TestCorporateOnboardEntityWithOptionalParams(t *testing.T) {
 			Address: githubcomjocall3go.F(githubcomjocall3go.CorporateOnboardEntityParamsBeneficialOwnersAddress{
 				City:    githubcomjocall3go.F("city"),
 				Country: githubcomjocall3go.F("country"),
-				State:   githubcomjocall3go.F("state"),
 				Street:  githubcomjocall3go.F("street"),
+				State:   githubcomjocall3go.F("state"),
 				Zip:     githubcomjocall3go.F("zip"),
 			}),
-			Phone: githubcomjocall3go.F("phone"),
-			Preferences: githubcomjocall3go.F(githubcomjocall3go.CorporateOnboardEntityParamsBeneficialOwnersPreferences{
-				NotificationChannels: githubcomjocall3go.F[any](map[string]interface{}{}),
-				Theme:                githubcomjocall3go.F("theme"),
+			Preferences: githubcomjocall3go.F(map[string]interface{}{
+				"foo": "bar",
 			}),
 			SecurityStatus: githubcomjocall3go.F(githubcomjocall3go.CorporateOnboardEntityParamsBeneficialOwnersSecurityStatus{
 				LastLogin:        githubcomjocall3go.F(time.Now()),

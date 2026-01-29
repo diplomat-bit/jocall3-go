@@ -41,6 +41,15 @@ func (r *Web3TransactionService) BridgeChain(ctx context.Context, body Web3Trans
 	return
 }
 
+// Initiate a Web3 transaction
+func (r *Web3TransactionService) Initiate(ctx context.Context, body Web3TransactionInitiateParams, opts ...option.RequestOption) (err error) {
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
+	path := "web3/transactions/initiate"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
+	return
+}
+
 // Initiate On-chain Transfer
 func (r *Web3TransactionService) SendCrypto(ctx context.Context, body Web3TransactionSendCryptoParams, opts ...option.RequestOption) (res *Web3TransactionSendCryptoResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -87,6 +96,16 @@ type Web3TransactionBridgeChainParams struct {
 }
 
 func (r Web3TransactionBridgeChainParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type Web3TransactionInitiateParams struct {
+	Amount   param.Field[float64] `json:"amount,required"`
+	Asset    param.Field[string]  `json:"asset,required"`
+	WalletID param.Field[string]  `json:"wallet_id,required"`
+}
+
+func (r Web3TransactionInitiateParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
