@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
 	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
@@ -31,15 +30,8 @@ func NewTransactionInsightService(opts ...option.RequestOption) (r *TransactionI
 	return
 }
 
-// Get Cash Flow Prediction (Gemini Powered)
-func (r *TransactionInsightService) GetForecast(ctx context.Context, opts ...option.RequestOption) (res *TransactionInsightGetForecastResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "transactions/insights/future-flow"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-// Get AISpending Trend Analysis
+// Retrieves AI-generated insights into user spending trends over time, identifying
+// patterns and anomalies.
 func (r *TransactionInsightService) GetTrends(ctx context.Context, opts ...option.RequestOption) (res *TransactionInsightGetTrendsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "transactions/insights/spending-trends"
@@ -47,52 +39,4 @@ func (r *TransactionInsightService) GetTrends(ctx context.Context, opts ...optio
 	return
 }
 
-type TransactionInsightGetForecastResponse struct {
-	ForecastDays      int64                                     `json:"forecastDays"`
-	ProjectedLowPoint float64                                   `json:"projectedLowPoint"`
-	Recommendations   []string                                  `json:"recommendations"`
-	JSON              transactionInsightGetForecastResponseJSON `json:"-"`
-}
-
-// transactionInsightGetForecastResponseJSON contains the JSON metadata for the
-// struct [TransactionInsightGetForecastResponse]
-type transactionInsightGetForecastResponseJSON struct {
-	ForecastDays      apijson.Field
-	ProjectedLowPoint apijson.Field
-	Recommendations   apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *TransactionInsightGetForecastResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r transactionInsightGetForecastResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type TransactionInsightGetTrendsResponse struct {
-	AINarrative       string                                  `json:"aiNarrative"`
-	AnomaliesDetected int64                                   `json:"anomaliesDetected"`
-	OverallTrend      string                                  `json:"overallTrend"`
-	JSON              transactionInsightGetTrendsResponseJSON `json:"-"`
-}
-
-// transactionInsightGetTrendsResponseJSON contains the JSON metadata for the
-// struct [TransactionInsightGetTrendsResponse]
-type transactionInsightGetTrendsResponseJSON struct {
-	AINarrative       apijson.Field
-	AnomaliesDetected apijson.Field
-	OverallTrend      apijson.Field
-	raw               string
-	ExtraFields       map[string]apijson.Field
-}
-
-func (r *TransactionInsightGetTrendsResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r transactionInsightGetTrendsResponseJSON) RawJSON() string {
-	return r.raw
-}
+type TransactionInsightGetTrendsResponse = interface{}

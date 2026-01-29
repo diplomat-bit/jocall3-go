@@ -3,16 +3,7 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-	"time"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/param"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
-	"github.com/diplomat-bit/jocall3-go/shared"
 )
 
 // CorporateService contains methods and other services that help with interacting
@@ -44,89 +35,4 @@ func NewCorporateService(opts ...option.RequestOption) (r *CorporateService) {
 	r.Governance = NewCorporateGovernanceService(opts...)
 	r.Anomalies = NewCorporateAnomalyService(opts...)
 	return
-}
-
-// Onboard a New Corporate Entity
-func (r *CorporateService) OnboardEntity(ctx context.Context, body CorporateOnboardEntityParams, opts ...option.RequestOption) (res *CorporateOnboardEntityResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "corporate/onboard"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-type CorporateOnboardEntityResponse struct {
-	CorporateID string                             `json:"corporateId"`
-	Status      string                             `json:"status"`
-	JSON        corporateOnboardEntityResponseJSON `json:"-"`
-}
-
-// corporateOnboardEntityResponseJSON contains the JSON metadata for the struct
-// [CorporateOnboardEntityResponse]
-type corporateOnboardEntityResponseJSON struct {
-	CorporateID apijson.Field
-	Status      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *CorporateOnboardEntityResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r corporateOnboardEntityResponseJSON) RawJSON() string {
-	return r.raw
-}
-
-type CorporateOnboardEntityParams struct {
-	EntityType   param.Field[CorporateOnboardEntityParamsEntityType] `json:"entityType,required"`
-	Jurisdiction param.Field[string]                                 `json:"jurisdiction,required"`
-	// Registered business name
-	LegalName param.Field[string] `json:"legalName,required"`
-	// EIN, VAT, or local tax ID
-	TaxID            param.Field[string]                                        `json:"taxId,required"`
-	BeneficialOwners param.Field[[]CorporateOnboardEntityParamsBeneficialOwner] `json:"beneficialOwners"`
-}
-
-func (r CorporateOnboardEntityParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CorporateOnboardEntityParamsEntityType string
-
-const (
-	CorporateOnboardEntityParamsEntityTypeLlc         CorporateOnboardEntityParamsEntityType = "LLC"
-	CorporateOnboardEntityParamsEntityTypeCorp        CorporateOnboardEntityParamsEntityType = "CORP"
-	CorporateOnboardEntityParamsEntityTypeNgo         CorporateOnboardEntityParamsEntityType = "NGO"
-	CorporateOnboardEntityParamsEntityTypePartnership CorporateOnboardEntityParamsEntityType = "PARTNERSHIP"
-)
-
-func (r CorporateOnboardEntityParamsEntityType) IsKnown() bool {
-	switch r {
-	case CorporateOnboardEntityParamsEntityTypeLlc, CorporateOnboardEntityParamsEntityTypeCorp, CorporateOnboardEntityParamsEntityTypeNgo, CorporateOnboardEntityParamsEntityTypePartnership:
-		return true
-	}
-	return false
-}
-
-type CorporateOnboardEntityParamsBeneficialOwner struct {
-	ID               param.Field[string]                                                     `json:"id,required"`
-	Email            param.Field[string]                                                     `json:"email,required" format:"email"`
-	IdentityVerified param.Field[bool]                                                       `json:"identityVerified,required"`
-	Name             param.Field[string]                                                     `json:"name,required"`
-	Address          param.Field[shared.AddressParam]                                        `json:"address"`
-	Preferences      param.Field[map[string]interface{}]                                     `json:"preferences"`
-	SecurityStatus   param.Field[CorporateOnboardEntityParamsBeneficialOwnersSecurityStatus] `json:"securityStatus"`
-}
-
-func (r CorporateOnboardEntityParamsBeneficialOwner) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
-}
-
-type CorporateOnboardEntityParamsBeneficialOwnersSecurityStatus struct {
-	LastLogin        param.Field[time.Time] `json:"lastLogin" format:"date-time"`
-	TwoFactorEnabled param.Field[bool]      `json:"twoFactorEnabled"`
-}
-
-func (r CorporateOnboardEntityParamsBeneficialOwnersSecurityStatus) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }

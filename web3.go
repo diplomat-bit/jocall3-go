@@ -3,12 +3,6 @@
 package githubcomjocall3go
 
 import (
-	"context"
-	"net/http"
-	"slices"
-
-	"github.com/diplomat-bit/jocall3-go/internal/apijson"
-	"github.com/diplomat-bit/jocall3-go/internal/requestconfig"
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
@@ -37,37 +31,4 @@ func NewWeb3Service(opts ...option.RequestOption) (r *Web3Service) {
 	r.NFTs = NewWeb3NFTService(opts...)
 	r.SmartContracts = NewWeb3SmartContractService(opts...)
 	return
-}
-
-// Get Blockchain Network Health
-func (r *Web3Service) GetNetworkStatus(ctx context.Context, opts ...option.RequestOption) (res *Web3GetNetworkStatusResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "web3/network/status"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-type Web3GetNetworkStatusResponse struct {
-	Ethereum interface{}                      `json:"ethereum"`
-	Polygon  interface{}                      `json:"polygon"`
-	Solana   interface{}                      `json:"solana"`
-	JSON     web3GetNetworkStatusResponseJSON `json:"-"`
-}
-
-// web3GetNetworkStatusResponseJSON contains the JSON metadata for the struct
-// [Web3GetNetworkStatusResponse]
-type web3GetNetworkStatusResponseJSON struct {
-	Ethereum    apijson.Field
-	Polygon     apijson.Field
-	Solana      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *Web3GetNetworkStatusResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r web3GetNetworkStatusResponseJSON) RawJSON() string {
-	return r.raw
 }

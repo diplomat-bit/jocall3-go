@@ -13,7 +13,7 @@ import (
 	"github.com/diplomat-bit/jocall3-go/option"
 )
 
-func TestMarketplaceListProducts(t *testing.T) {
+func TestMarketplaceListProductsWithOptionalParams(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,7 +25,13 @@ func TestMarketplaceListProducts(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Marketplace.ListProducts(context.TODO())
+	_, err := client.Marketplace.ListProducts(context.TODO(), githubcomjocall3go.MarketplaceListProductsParams{
+		AIPersonalizationLevel: githubcomjocall3go.F("aiPersonalizationLevel"),
+		Category:               githubcomjocall3go.F("category"),
+		Limit:                  githubcomjocall3go.F(int64(0)),
+		MinRating:              githubcomjocall3go.F(int64(0)),
+		Offset:                 githubcomjocall3go.F(int64(0)),
+	})
 	if err != nil {
 		var apierr *githubcomjocall3go.Error
 		if errors.As(err, &apierr) {
